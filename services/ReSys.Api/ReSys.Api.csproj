@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <PackageReference Include="Carter" />
+    <PackageReference Include="ErrorOr" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Scalar.AspNetCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\libs\ReSys.Core\ReSys.Core.csproj" />
+    <ProjectReference Include="..\..\libs\ReSys.Migrations\ReSys.Migrations.csproj" />
+  </ItemGroup>
+
+</Project>
