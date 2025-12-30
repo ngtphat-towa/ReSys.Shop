@@ -1,0 +1,23 @@
+<Project>
+  <!-- Global logic for all projects -->
+
+  <!-- Automatically identify Test Projects -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('tests'))">
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <!-- Common settings and references for Test Projects -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="coverlet.collector" />
+    
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+  </ItemGroup>
+
+  <!-- Ensure Internals of Core and Infrastructure are visible to their UnitTests -->
+  <!-- Note: This usually requires the AssemblyName to match or be explicitly defined -->
+</Project>
