@@ -8,6 +8,15 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
         services.AddCarter();
         services.AddOpenApi();
         
@@ -29,6 +38,7 @@ public static class DependencyInjection
         }
 
         app.UseHttpsRedirection();
+        app.UseCors();
         app.UseAuthorization();
         app.MapCarter();
 
