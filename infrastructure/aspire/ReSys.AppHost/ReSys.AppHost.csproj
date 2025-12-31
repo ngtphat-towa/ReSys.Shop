@@ -8,6 +8,7 @@
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>1dd7395c-1894-4bf7-8e4c-b6078335a117</UserSecretsId>
+    <NoWarn>$(NoWarn);ASPIREHOSTINGPYTHON001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

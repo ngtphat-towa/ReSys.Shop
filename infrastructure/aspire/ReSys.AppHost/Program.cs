@@ -13,9 +13,9 @@ var api = builder.AddProject<Projects.ReSys_Api>("api")
     .WithReference(db)
     .WaitFor(db);
 
-// ML Service (Python Container)
-var ml = builder.AddDockerfile("ml", "../../../services/ReSys.ML")
-    .WithHttpEndpoint(targetPort: 8000, env: "PORT", name: "http")
+// ML Service (Python)
+var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
+    .WithHttpEndpoint(env: "PORT", port: 8000)
     .WithEnvironment("USE_MOCK_ML", "true"); // Use mock by default for speed
 
 // Frontend - Shop (Vue)
@@ -31,7 +31,7 @@ var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
 // Gateway (YARP)
 builder.AddProject<Projects.ReSys_Gateway>("gateway")
     .WithReference(api)
-    .WithReference(ml.GetEndpoint("http"))
+    .WithReference(ml)
     .WithReference(shop)
     .WithReference(admin)
     .WaitFor(api)
