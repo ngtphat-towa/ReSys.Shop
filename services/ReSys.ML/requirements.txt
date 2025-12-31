@@ -1,3 +1,16 @@
+# Server
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
+python-multipart
+
+# Machine Learning
+torch
+sentence-transformers
+numpy
+
+# Research & Notebooks
+jupyterlab
+ipykernel
+matplotlib
+pandas
