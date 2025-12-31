@@ -8,6 +8,8 @@ using ReSys.Core.Features.Products.GetProductById;
 using ReSys.Core.Features.Products.UpdateProduct;
 using ReSys.Core.Features.Products.DeleteProduct;
 
+using ReSys.Core.Features.Products.UpdateProductImage;
+
 namespace ReSys.Api.Features.Products;
 
 public class ProductsModule : ICarterModule
@@ -58,17 +60,12 @@ public class ProductsModule : ICarterModule
 
         group.MapPut("/{id}", async (
             Guid id,
-            [FromForm] string name,
-            [FromForm] string description,
-            [FromForm] decimal price,
-            IFormFile? image,
+            [FromBody] UpdateProductRequest request,
             ISender sender,
             CancellationToken ct) =>
         {
-            Stream? stream = image?.OpenReadStream();
-
             var command = new UpdateProductCommand(
-                id, name, description, price, stream, image?.FileName);
+                id, request.Name, request.Description, request.Price);
 
             var result = await sender.Send(command, ct);
 
@@ -76,7 +73,26 @@ public class ProductsModule : ICarterModule
                 product => Results.Ok(product),
                 errors => Results.NotFound());
         })
-        .WithName("UpdateProduct")
+        .WithName("UpdateProduct");
+
+        group.MapPost("/{id}/image", async (
+            Guid id,
+            IFormFile image,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            using var stream = image.OpenReadStream();
+
+            var command = new UpdateProductImageCommand(
+                id, stream, image.FileName);
+
+            var result = await sender.Send(command, ct);
+
+            return result.Match(
+                product => Results.Ok(product),
+                errors => Results.NotFound());
+        })
+        .WithName("UpdateProductImage")
         .DisableAntiforgery();
 
         group.MapDelete("/{id}", async (Guid id, ISender sender) =>
@@ -87,17 +103,20 @@ public class ProductsModule : ICarterModule
                 _ => Results.NoContent(),
                 errors => Results.NotFound());
         })
-        .WithName("DeleteProduct");
-
-
-        group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
-        {
-            var result = await sender.Send(new GetSimilarProductsQuery(id));
-
-            return result.Match(
-                products => Results.Ok(products),
-                errors => Results.NotFound());
-        })
-        .WithName("GetSimilarProducts");
-    }
-}
+                .WithName("DeleteProduct");
+        
+        
+                group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
+                {
+                    var result = await sender.Send(new GetSimilarProductsQuery(id));
+        
+                    return result.Match(
+                        products => Results.Ok(products),
+                        errors => Results.NotFound());
+                })
+                .WithName("GetSimilarProducts");
+            }
+        }
+        
+        public record UpdateProductRequest(string Name, string Description, decimal Price);
+        

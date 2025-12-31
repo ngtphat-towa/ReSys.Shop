@@ -28,8 +28,15 @@ export const createProduct = async (formData: FormData): Promise<Product> => {
     return response.data;
 };
 
-export const updateProduct = async (id: string, formData: FormData): Promise<Product> => {
-    const response = await apiClient.put<Product>(`/products/${id}`, formData, {
+export const updateProduct = async (id: string, product: Partial<Product>): Promise<Product> => {
+    const response = await apiClient.put<Product>(`/products/${id}`, product);
+    return response.data;
+};
+
+export const updateProductImage = async (id: string, file: File): Promise<Product> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await apiClient.post<Product>(`/products/${id}/image`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },

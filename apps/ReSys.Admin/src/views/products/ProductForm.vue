@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { createProduct, updateProduct, getProductById } from '@/services/productService';
+import { createProduct, updateProduct, updateProductImage, getProductById } from '@/services/productService';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
@@ -49,20 +49,28 @@ const saveProduct = async () => {
         return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name.value);
-    formData.append('description', description.value);
-    formData.append('price', price.value.toString());
-    if (imageFile.value) {
-        formData.append('image', imageFile.value);
-    }
-
     loading.value = true;
     try {
         if (isEdit.value) {
-            await updateProduct(productId, formData);
+            await updateProduct(productId, {
+                name: name.value,
+                description: description.value,
+                price: price.value
+            });
+
+            if (imageFile.value) {
+                await updateProductImage(productId, imageFile.value);
+            }
+
             showToast('success', 'Success', 'Product updated successfully');
         } else {
+            const formData = new FormData();
+            formData.append('name', name.value);
+            formData.append('description', description.value);
+            formData.append('price', price.value.toString());
+            if (imageFile.value) {
+                formData.append('image', imageFile.value);
+            }
             await createProduct(formData);
             showToast('success', 'Success', 'Product created successfully');
         }
