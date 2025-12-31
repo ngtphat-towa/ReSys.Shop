@@ -12,11 +12,14 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.NodeJs" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Python" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\services\ReSys.Api\ReSys.Api.csproj" />
+    <ProjectReference Include="..\..\..\services\ReSys.Gateway\ReSys.Gateway.csproj" />
   </ItemGroup>
 
 </Project>
