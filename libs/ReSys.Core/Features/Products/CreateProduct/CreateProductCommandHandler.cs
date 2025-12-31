@@ -34,10 +34,10 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
 
         if (request.ImageStream != null && request.ImageName != null)
         {
-            var imageUrl = await _fileService.SaveFileAsync(request.ImageStream, request.ImageName, cancellationToken);
-            product.ImageUrl = imageUrl;
+            var fileName = await _fileService.SaveFileAsync(request.ImageStream, request.ImageName, cancellationToken);
+            product.ImageUrl = $"/api/files/{fileName}";
 
-            var embedding = await _mlService.GetEmbeddingAsync(imageUrl, product.Id.ToString(), cancellationToken);
+            var embedding = await _mlService.GetEmbeddingAsync(product.ImageUrl, product.Id.ToString(), cancellationToken);
             if (embedding != null)
             {
                 product.Embedding = new ProductEmbedding

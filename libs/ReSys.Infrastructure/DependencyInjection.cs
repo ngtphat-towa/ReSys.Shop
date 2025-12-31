@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using ReSys.Core.Interfaces;
 using ReSys.Infrastructure.Data;
+using ReSys.Infrastructure.Options;
 using ReSys.Infrastructure.Services;
 
 namespace ReSys.Infrastructure;
@@ -23,10 +25,13 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+
+        services.Configure<MlOptions>(configuration.GetSection(MlOptions.SectionName));
         
-        services.AddHttpClient("MlService", client =>
+        services.AddHttpClient("MlService", (sp, client) =>
         {
-            client.BaseAddress = new Uri("http://localhost:8000");
+            var options = sp.GetRequiredService<IOptions<MlOptions>>().Value;
+            client.BaseAddress = new Uri(options.ServiceUrl);
         });
 
         services.AddScoped<IMlService, MlService>();
