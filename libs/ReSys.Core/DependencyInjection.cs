@@ -1,3 +1,4 @@
+using System.Reflection;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,16 +8,24 @@ namespace ReSys.Core;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddCore(this IServiceCollection services)
+    public static IServiceCollection AddCore(this IServiceCollection services, params Assembly[] assemblies)
     {
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            foreach (var assembly in assemblies)
+            {
+                config.RegisterServicesFromAssembly(assembly);
+            }
             config.AddOpenBehavior(typeof(LoggingBehavior<,>));
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+        foreach (var assembly in assemblies)
+        {
+            services.AddValidatorsFromAssembly(assembly);
+        }
 
         return services;
     }

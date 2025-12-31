@@ -3,7 +3,7 @@ using MediatR;
 using ReSys.Core.Entities;
 using ReSys.Core.Interfaces;
 
-namespace ReSys.Core.Features.Products.Commands.CreateProduct;
+namespace ReSys.Api.Features.Products.CreateProduct;
 
 public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, ErrorOr<Product>>
 {

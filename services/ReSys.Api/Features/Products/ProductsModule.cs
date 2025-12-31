@@ -1,11 +1,9 @@
 using Carter;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Entities;
-using ReSys.Core.Interfaces;
-using ReSys.Infrastructure.Data;
-using Pgvector.EntityFrameworkCore;
 using MediatR;
+using ReSys.Api.Features.Products.CreateProduct;
+using ReSys.Api.Features.Products.GetProducts;
+using ReSys.Api.Features.Products.GetSimilarProducts;
 
 namespace ReSys.Api.Features.Products;
 
@@ -16,10 +14,10 @@ public class ProductsModule : ICarterModule
         var group = app.MapGroup("/api/products")
             .WithTags("Products");
 
-        group.MapGet("/", async (AppDbContext context) =>
+        group.MapGet("/", async (ISender sender) =>
         {
-            var products = await context.Products.ToListAsync();
-            return Results.Ok(products);
+            var result = await sender.Send(new GetProductsQuery());
+            return Results.Ok(result);
         })
         .WithName("GetProducts");
 
@@ -33,7 +31,7 @@ public class ProductsModule : ICarterModule
         {
             Stream? stream = image?.OpenReadStream();
             
-            var command = new ReSys.Core.Features.Products.Commands.CreateProduct.CreateProductCommand(
+            var command = new CreateProductCommand(
                 name, description, price, stream, image?.FileName);
 
             var result = await sender.Send(command, ct);
@@ -46,24 +44,13 @@ public class ProductsModule : ICarterModule
         .DisableAntiforgery();
 
 
-        group.MapGet("/{id}/similar", async (Guid id, AppDbContext context) =>
+        group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
         {
-            var productEmbedding = await context.ProductEmbeddings
-                .FirstOrDefaultAsync(pe => pe.ProductId == id);
+            var result = await sender.Send(new GetSimilarProductsQuery(id));
 
-            if (productEmbedding == null)
-            {
-                return Results.NotFound();
-            }
-
-            var similarProducts = await context.ProductEmbeddings
-                .OrderBy(pe => pe.Embedding.L2Distance(productEmbedding.Embedding))
-                .Where(pe => pe.ProductId != id)
-                .Take(5)
-                .Select(pe => pe.Product)
-                .ToListAsync();
-
-            return Results.Ok(similarProducts);
+            return result.Match(
+                products => Results.Ok(products),
+                errors => Results.NotFound());
         })
         .WithName("GetSimilarProducts");
     }

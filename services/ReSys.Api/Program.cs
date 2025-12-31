@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Register Layers
 builder.Services
     .AddPresentation()
-    .AddCore()
+    .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
     .AddInfrastructure(builder.Configuration);
 
 builder.Services.AddAuthorization();
