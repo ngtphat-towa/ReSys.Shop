@@ -15,4 +15,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  base: '/admin/',
+  server: {
+    host: true,
+    port: parseInt(process.env.PORT ?? '5173'),
+    proxy: {
+      '/api': {
+        target: 'https://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 })
