@@ -1,5 +1,7 @@
 using System.Net.Http.Json;
+using Microsoft.Extensions.Options;
 using ReSys.Core.Interfaces;
+using ReSys.Infrastructure.Options;
 
 namespace ReSys.Infrastructure.Services;
 
@@ -7,9 +9,10 @@ public class MlService : IMlService
 {
     private readonly HttpClient _httpClient;
 
-    public MlService(IHttpClientFactory httpClientFactory)
+    public MlService(HttpClient httpClient, IOptions<MlOptions> options)
     {
-        _httpClient = httpClientFactory.CreateClient("MlService");
+        _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri(options.Value.ServiceUrl);
     }
 
     public async Task<float[]?> GetEmbeddingAsync(string imageUrl, string productId, CancellationToken cancellationToken = default)

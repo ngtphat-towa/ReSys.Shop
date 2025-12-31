@@ -27,14 +27,10 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
         services.Configure<MlOptions>(configuration.GetSection(MlOptions.SectionName));
+        services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
         
-        services.AddHttpClient("MlService", (sp, client) =>
-        {
-            var options = sp.GetRequiredService<IOptions<MlOptions>>().Value;
-            client.BaseAddress = new Uri(options.ServiceUrl);
-        });
+        services.AddHttpClient<IMlService, MlService>();
 
-        services.AddScoped<IMlService, MlService>();
         services.AddSingleton<IFileService, LocalFileService>();
 
         return services;

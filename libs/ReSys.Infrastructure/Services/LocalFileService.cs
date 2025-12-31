@@ -1,6 +1,7 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using ReSys.Core.Interfaces;
+using ReSys.Infrastructure.Options;
 
 namespace ReSys.Infrastructure.Services;
 
@@ -9,12 +10,14 @@ public class LocalFileService : IFileService
     private readonly string _storagePath;
     private readonly ILogger<LocalFileService> _logger;
 
-    public LocalFileService(IConfiguration configuration, ILogger<LocalFileService> logger)
+    public LocalFileService(IOptions<StorageOptions> options, ILogger<LocalFileService> logger)
     {
         _logger = logger;
-        // Default to a folder named "storage" in the root if not configured
-        var relativePath = configuration["Storage:LocalPath"] ?? "storage";
-        _storagePath = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
+        
+        var localPath = options.Value.LocalPath;
+        _storagePath = Path.IsPathRooted(localPath) 
+            ? localPath 
+            : Path.Combine(Directory.GetCurrentDirectory(), localPath);
 
         if (!Directory.Exists(_storagePath))
         {

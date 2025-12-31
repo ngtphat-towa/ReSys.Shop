@@ -1,7 +1,8 @@
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
+using ReSys.Infrastructure.Options;
 using ReSys.Infrastructure.Services;
 
 namespace ReSys.Infrastructure.UnitTests.Services;
@@ -12,12 +13,12 @@ public class LocalFileServiceTests
     public async Task SaveFileAsync_ShouldSaveFileToDisk()
     {
         // Arrange
-        var config = Substitute.For<IConfiguration>();
+        var options = Substitute.For<IOptions<StorageOptions>>();
         var logger = Substitute.For<ILogger<LocalFileService>>();
         
-        config["Storage:LocalPath"].Returns("test_storage");
+        options.Value.Returns(new StorageOptions { LocalPath = "test_storage" });
         
-        var service = new LocalFileService(config, logger);
+        var service = new LocalFileService(options, logger);
         var content = "Hello World";
         using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
 
