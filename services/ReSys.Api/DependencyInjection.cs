@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Carter;
 using ReSys.Api.Infrastructure;
 using Scalar.AspNetCore;
@@ -8,6 +9,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+            options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
+        });
+
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>

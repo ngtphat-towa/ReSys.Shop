@@ -58,7 +58,7 @@ onMounted(() => {
             </Column>
             <Column header="Image">
                 <template #body="slotProps">
-                    <img v-if="slotProps.data.imageUrl" :src="slotProps.data.imageUrl" :alt="slotProps.data.name" class="w-16 h-16 object-cover rounded shadow-sm" />
+                    <img v-if="slotProps.data.image_url" :src="slotProps.data.image_url" :alt="slotProps.data.name" class="w-16 h-16 object-cover rounded shadow-sm" />
                 </template>
             </Column>
             <Column header="Actions">

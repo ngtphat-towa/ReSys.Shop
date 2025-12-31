@@ -5,8 +5,8 @@ export interface Product {
     name: string;
     description: string;
     price: number;
-    imageUrl: string;
-    createdAt: string;
+    image_url: string;
+    created_at: string;
 }
 
 export const getProducts = async (): Promise<Product[]> => {
