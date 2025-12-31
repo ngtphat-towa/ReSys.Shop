@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Entities;
 using ReSys.Core.Interfaces;
 
-namespace ReSys.Api.Features.Products.GetProducts;
+namespace ReSys.Core.Features.Products.GetProducts;
 
 public record GetProductsQuery : IRequest<List<Product>>;
 

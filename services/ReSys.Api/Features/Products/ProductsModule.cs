@@ -1,9 +1,9 @@
 using Carter;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using ReSys.Api.Features.Products.CreateProduct;
-using ReSys.Api.Features.Products.GetProducts;
-using ReSys.Api.Features.Products.GetSimilarProducts;
+using ReSys.Core.Features.Products.CreateProduct;
+using ReSys.Core.Features.Products.GetProducts;
+using ReSys.Core.Features.Products.GetSimilarProducts;
 
 namespace ReSys.Api.Features.Products;
 

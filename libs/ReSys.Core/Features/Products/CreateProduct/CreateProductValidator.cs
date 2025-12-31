@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace ReSys.Api.Features.Products.CreateProduct;
+namespace ReSys.Core.Features.Products.CreateProduct;
 
 public class CreateProductValidator : AbstractValidator<CreateProductCommand>
 {

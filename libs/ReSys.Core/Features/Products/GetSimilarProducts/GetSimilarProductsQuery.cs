@@ -5,7 +5,7 @@ using Pgvector.EntityFrameworkCore;
 using ReSys.Core.Entities;
 using ReSys.Core.Interfaces;
 
-namespace ReSys.Api.Features.Products.GetSimilarProducts;
+namespace ReSys.Core.Features.Products.GetSimilarProducts;
 
 public record GetSimilarProductsQuery(Guid Id) : IRequest<ErrorOr<List<Product>>>;
 

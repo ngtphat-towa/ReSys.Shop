@@ -2,7 +2,7 @@ using ErrorOr;
 using MediatR;
 using ReSys.Core.Entities;
 
-namespace ReSys.Api.Features.Products.CreateProduct;
+namespace ReSys.Core.Features.Products.CreateProduct;
 
 public record CreateProductCommand(
     string Name,
