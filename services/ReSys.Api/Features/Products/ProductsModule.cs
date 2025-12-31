@@ -37,17 +37,12 @@ public class ProductsModule : ICarterModule
         .WithName("GetProductById");
 
         group.MapPost("/", async (
-            [FromForm] string name,
-            [FromForm] string description,
-            [FromForm] decimal price,
-            IFormFile? image,
+            [FromBody] CreateProductRequest request,
             ISender sender,
             CancellationToken ct) =>
         {
-            Stream? stream = image?.OpenReadStream();
-            
             var command = new CreateProductCommand(
-                name, description, price, stream, image?.FileName);
+                request.Name, request.Description, request.Price);
 
             var result = await sender.Send(command, ct);
 
@@ -55,8 +50,7 @@ public class ProductsModule : ICarterModule
                 product => Results.Created($"/api/products/{product.Id}", product),
                 errors => Results.BadRequest(errors));
         })
-        .WithName("CreateProduct")
-        .DisableAntiforgery();
+        .WithName("CreateProduct");
 
         group.MapPut("/{id}", async (
             Guid id,
@@ -119,4 +113,5 @@ public class ProductsModule : ICarterModule
         }
         
         public record UpdateProductRequest(string Name, string Description, decimal Price);
+public record CreateProductRequest(string Name, string Description, decimal Price);
         

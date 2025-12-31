@@ -7,6 +7,4 @@ namespace ReSys.Core.Features.Products.CreateProduct;
 public record CreateProductCommand(
     string Name,
     string Description,
-    decimal Price,
-    Stream? ImageStream,
-    string? ImageName) : IRequest<ErrorOr<Product>>;
+    decimal Price) : IRequest<ErrorOr<Product>>;

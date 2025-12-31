@@ -5,8 +5,8 @@ export interface Product {
     name: string;
     description: string;
     price: number;
-    imageUrl: string;
-    createdAt: string;
+    image_url: string;
+    created_at: string;
 }
 
 export const getProducts = async (): Promise<Product[]> => {
@@ -19,12 +19,8 @@ export const getProductById = async (id: string): Promise<Product> => {
     return response.data;
 };
 
-export const createProduct = async (formData: FormData): Promise<Product> => {
-    const response = await apiClient.post<Product>('/products', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+export const createProduct = async (product: Partial<Product>): Promise<Product> => {
+    const response = await apiClient.post<Product>('/products', product);
     return response.data;
 };
 

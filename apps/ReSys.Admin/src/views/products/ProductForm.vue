@@ -35,7 +35,7 @@ const loadProduct = async () => {
         name.value = product.name;
         description.value = product.description;
         price.value = product.price;
-        currentImageUrl.value = product.imageUrl;
+        currentImageUrl.value = product.image_url;
     } catch (e) {
         // Handled by interceptor
     } finally {
@@ -64,14 +64,16 @@ const saveProduct = async () => {
 
             showToast('success', 'Success', 'Product updated successfully');
         } else {
-            const formData = new FormData();
-            formData.append('name', name.value);
-            formData.append('description', description.value);
-            formData.append('price', price.value.toString());
+            const product = await createProduct({
+                name: name.value,
+                description: description.value,
+                price: price.value ?? 0
+            });
+
             if (imageFile.value) {
-                formData.append('image', imageFile.value);
+                await updateProductImage(product.id, imageFile.value);
             }
-            await createProduct(formData);
+
             showToast('success', 'Success', 'Product created successfully');
         }
         router.push('/products');
