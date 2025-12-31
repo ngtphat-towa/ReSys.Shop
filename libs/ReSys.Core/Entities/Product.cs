@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ReSys.Core.Entities;
 
 public class Product
@@ -17,5 +19,6 @@ public class ProductEmbedding
     public Guid ProductId { get; set; }
     public Pgvector.Vector Embedding { get; set; } = null!;
     
+    [JsonIgnore]
     public virtual Product Product { get; set; } = null!;
 }
