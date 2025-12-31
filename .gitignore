@@ -404,6 +404,9 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 
+# Local storage
+infrastructure/storage/
+
 ##
 ## Visual studio for Mac
 ##
