@@ -4,6 +4,8 @@ using ReSys.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Register Layers
 builder.Services
     .AddPresentation()
@@ -13,6 +15,8 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure Pipeline
 app.UseInfrastructure();

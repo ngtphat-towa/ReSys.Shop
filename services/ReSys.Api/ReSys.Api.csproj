@@ -16,6 +16,7 @@
     <ProjectReference Include="..\..\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
     <ProjectReference Include="..\..\libs\ReSys.Core\ReSys.Core.csproj" />
     <ProjectReference Include="..\..\libs\ReSys.Migrations\ReSys.Migrations.csproj" />
+    <ProjectReference Include="..\..\infrastructure\aspire\ReSys.ServiceDefaults\ReSys.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

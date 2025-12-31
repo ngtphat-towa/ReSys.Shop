@@ -4,6 +4,12 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   
+  <!-- Aspire -->
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.0.0" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
+  </ItemGroup>
+
   <!-- ASP.NET Core & Extensions (v9.0.11) -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.11" />
