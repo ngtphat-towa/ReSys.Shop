@@ -5,6 +5,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 
+
+
+// Readiness checks for downstream services
+var endpoints = builder.Configuration.GetSection(ServiceEndpoints.SectionName).Get<ServiceEndpoints>();
+if (endpoints != null)
+{
+    builder.AddHttpHealthCheck("api", endpoints.ApiUrl + "health");
+    builder.AddHttpHealthCheck("ml", endpoints.MlUrl + "health");
+    builder.AddHttpHealthCheck("shop", endpoints.ShopUrl);
+    builder.AddHttpHealthCheck("admin", endpoints.AdminUrl);
+}
+
 // Options Pattern: Register custom configuration with validation
 builder.Services.AddOptions<GatewayOptions>()
     .Bind(builder.Configuration.GetSection(GatewayOptions.SectionName))

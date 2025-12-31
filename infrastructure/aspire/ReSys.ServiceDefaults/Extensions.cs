@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -95,22 +96,42 @@ public static class Extensions
     public static IHostApplicationBuilder AddDefaultHealthChecks(this IHostApplicationBuilder builder)
     {
         builder.Services.AddHealthChecks()
-            // Add a default liveness check to ensure app is responsive
+            // Liveness: Is the process up?
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+        return builder;
+    }
+
+    public static IHostApplicationBuilder AddPostgresHealthCheck(this IHostApplicationBuilder builder, string connectionName, string? healthName = null)
+    {
+        builder.Services.AddHealthChecks()
+            .AddNpgSql(
+                connectionString: builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."),
+                name: healthName ?? $"{connectionName}-db",
+                tags: ["ready", "db", "postgres"]);
+
+        return builder;
+    }
+
+    public static IHostApplicationBuilder AddHttpHealthCheck(this IHostApplicationBuilder builder, string serviceName, string url, string[]? tags = null)
+    {
+        builder.Services.AddHealthChecks()
+            .AddUrlGroup(new Uri(url), name: $"{serviceName}-check", tags: tags ?? ["ready", "http"]);
 
         return builder;
     }
 
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
-        // Adding health checks endpoints to applications in non-development environments has security implications.
-        // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
         if (app.Environment.IsDevelopment())
         {
-            // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks("/health");
+            // Readiness: All checks including DB and downstream services must pass
+            app.MapHealthChecks("/health", new HealthCheckOptions
+            {
+                Predicate = r => r.Tags.Contains("ready")
+            });
 
-            // Only health checks tagged with the "live" tag must pass for app to be considered alive
+            // Liveness: Only the self check must pass
             app.MapHealthChecks("/alive", new HealthCheckOptions
             {
                 Predicate = r => r.Tags.Contains("live")

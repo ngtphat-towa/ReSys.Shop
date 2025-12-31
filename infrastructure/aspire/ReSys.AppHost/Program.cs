@@ -1,4 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+
 var builder = DistributedApplication.CreateBuilder(args);
+
+builder.Services.AddHealthChecks();
 
 // Database
 var postgres = builder.AddPostgres("postgres")
@@ -12,13 +16,15 @@ var db = postgres.AddDatabase("shopdb");
 var api = builder.AddProject<Projects.ReSys_Api>("api")
     .WithReference(db)
     .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/health")
     .WaitFor(db);
 
 // ML Service (Python)
 var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithHttpEndpoint(env: "PORT", port: 8000)
     .WithEnvironment("USE_MOCK_ML", "true") // Use mock by default for speed
-    .WithEnvironment("ROOT_PATH", "/ml");
+    .WithEnvironment("ROOT_PATH", "/ml")
+    .WithHttpHealthCheck("/health");
 
 api.WithReference(ml)
    .WithEnvironment("MlSettings__ServiceUrl", "http://ml");
@@ -26,12 +32,14 @@ api.WithReference(ml)
 // Frontend - Shop (Vue)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
     .WithHttpEndpoint(env: "PORT")
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/");
 
 // Frontend - Admin (Vue)
 var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
     .WithHttpEndpoint(env: "PORT")
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/");
 
 // Gateway (YARP)
 builder.AddProject<Projects.ReSys_Gateway>("gateway")
@@ -40,6 +48,7 @@ builder.AddProject<Projects.ReSys_Gateway>("gateway")
     .WithReference(shop)
     .WithReference(admin)
     .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/health")
     .WaitFor(api)
     .WaitFor(ml)
     .WaitFor(shop)
