@@ -1,0 +1,9 @@
+namespace ReSys.Api.IntegrationTests;
+
+[CollectionDefinition("Shared Database")]
+public class SharedDatabaseCollection : ICollectionFixture<IntegrationTestWebAppFactory>
+{
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
+}

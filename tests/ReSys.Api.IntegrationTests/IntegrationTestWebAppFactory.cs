@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using ReSys.Infrastructure.Data;
 using Respawn;
 using Testcontainers.PostgreSql;
+using System.Text.Json;
+using ReSys.Core.Common.Json;
 
 namespace ReSys.Api.IntegrationTests;
 
@@ -14,8 +16,16 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     private string _connectionString = null!;
     private Respawner _respawner = null!;
 
+    public JsonSerializerOptions JsonOptions { get; } = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        PropertyNameCaseInsensitive = true
+    };
+
     public IntegrationTestWebAppFactory()
     {
+        JsonOptions.Converters.Add(new FlexibleObjectConverterFactory());
+        
         var useLocalDb = Environment.GetEnvironmentVariable("TEST_USE_LOCAL_DB") == "true";
 
         if (!useLocalDb)
