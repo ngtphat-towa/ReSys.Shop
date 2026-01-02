@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Entities;
 using ReSys.Core.Interfaces;
 
 namespace ReSys.Infrastructure.Data;
@@ -8,28 +7,30 @@ public class AppDbContext : DbContext, IApplicationDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<ProductEmbedding> ProductEmbeddings => Set<ProductEmbedding>();
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("vector");
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        modelBuilder.Entity<Product>(entity =>
+        // Ensure all DateTimeOffset properties are UTC when reading/writing
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(255);
-            entity.Property(e => e.Price).HasPrecision(18, 2);
-        });
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTimeOffset) || property.ClrType == typeof(DateTimeOffset?))
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTimeOffset, DateTimeOffset>(
+                        v => v.ToUniversalTime(),
+                        v => v.ToUniversalTime()));
+                }
+            }
+        }
+    }
 
-        modelBuilder.Entity<ProductEmbedding>(entity =>
-        {
-            entity.HasKey(e => e.ProductId);
-            entity.Property(e => e.Embedding).HasColumnType("vector(384)");
-            
-            entity.HasOne(e => e.Product)
-                .WithOne(p => p.Embedding)
-                .HasForeignKey<ProductEmbedding>(e => e.ProductId);
-        });
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        // Use 'timestamp with time zone' for DateTimeOffset to natively support UTC in PostgreSQL
+        configurationBuilder.Properties<DateTimeOffset>().HaveColumnType("timestamp with time zone");
+        configurationBuilder.Properties<DateTimeOffset?>().HaveColumnType("timestamp with time zone");
     }
 }

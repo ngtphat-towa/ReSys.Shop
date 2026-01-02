@@ -9,6 +9,7 @@ using ReSys.Core.Features.Products.UpdateProduct;
 using ReSys.Core.Features.Products.DeleteProduct;
 
 using ReSys.Core.Features.Products.UpdateProductImage;
+using ErrorOr;
 
 namespace ReSys.Api.Features.Products;
 
@@ -19,16 +20,16 @@ public class ProductsModule : ICarterModule
         var group = app.MapGroup("/api/products")
             .WithTags("Products");
 
-        group.MapGet("/", async (ISender sender) =>
+        group.MapGet("/", async (GetProducts.Request request, ISender sender) =>
         {
-            var result = await sender.Send(new GetProductsQuery());
+            var result = await sender.Send(new GetProducts.Query(request));
             return Results.Ok(result);
         })
         .WithName("GetProducts");
 
         group.MapGet("/{id}", async (Guid id, ISender sender) =>
         {
-            var result = await sender.Send(new GetProductByIdQuery(id));
+            var result = await sender.Send(new GetProductById.Query(new GetProductById.Request(id)));
 
             return result.Match(
                 product => Results.Ok(product),
@@ -37,35 +38,35 @@ public class ProductsModule : ICarterModule
         .WithName("GetProductById");
 
         group.MapPost("/", async (
-            [FromBody] CreateProductRequest request,
+            [FromBody] CreateProduct.Request request,
             ISender sender,
             CancellationToken ct) =>
         {
-            var command = new CreateProductCommand(
-                request.Name, request.Description, request.Price);
-
-            var result = await sender.Send(command, ct);
+            var result = await sender.Send(new CreateProduct.Command(request), ct);
 
             return result.Match(
                 product => Results.Created($"/api/products/{product.Id}", product),
-                errors => Results.BadRequest(errors));
+                errors => errors.Any(e => e.Type == ErrorType.Conflict) 
+                    ? Results.Conflict(errors) 
+                    : Results.BadRequest(errors));
         })
         .WithName("CreateProduct");
 
         group.MapPut("/{id}", async (
             Guid id,
-            [FromBody] UpdateProductRequest request,
+            [FromBody] UpdateProduct.Request request,
             ISender sender,
             CancellationToken ct) =>
         {
-            var command = new UpdateProductCommand(
-                id, request.Name, request.Description, request.Price);
-
-            var result = await sender.Send(command, ct);
+            var result = await sender.Send(new UpdateProduct.Command(id, request), ct);
 
             return result.Match(
                 product => Results.Ok(product),
-                errors => Results.NotFound());
+                errors => errors.Any(e => e.Type == ErrorType.Conflict) 
+                    ? Results.Conflict(errors) 
+                    : errors.Any(e => e.Type == ErrorType.NotFound)
+                        ? Results.NotFound(errors)
+                        : Results.BadRequest(errors));
         })
         .WithName("UpdateProduct");
 
@@ -77,10 +78,8 @@ public class ProductsModule : ICarterModule
         {
             using var stream = image.OpenReadStream();
 
-            var command = new UpdateProductImageCommand(
-                id, stream, image.FileName);
-
-            var result = await sender.Send(command, ct);
+            var request = new UpdateProductImage.Request(id, stream, image.FileName);
+            var result = await sender.Send(new UpdateProductImage.Command(request), ct);
 
             return result.Match(
                 product => Results.Ok(product),
@@ -91,7 +90,7 @@ public class ProductsModule : ICarterModule
 
         group.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
-            var result = await sender.Send(new DeleteProductCommand(id));
+            var result = await sender.Send(new DeleteProduct.Command(id));
 
             return result.Match(
                 _ => Results.NoContent(),
@@ -102,7 +101,7 @@ public class ProductsModule : ICarterModule
         
                 group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
                 {
-                    var result = await sender.Send(new GetSimilarProductsQuery(id));
+                    var result = await sender.Send(new GetSimilarProducts.Query(new GetSimilarProducts.Request(id)));
         
                     return result.Match(
                         products => Results.Ok(products),
@@ -112,6 +111,4 @@ public class ProductsModule : ICarterModule
             }
         }
         
-        public record UpdateProductRequest(string Name, string Description, decimal Price);
-public record CreateProductRequest(string Name, string Description, decimal Price);
         

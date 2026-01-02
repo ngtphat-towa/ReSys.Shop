@@ -13,6 +13,7 @@ public static class DependencyInjection
         {
             options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
             options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
+            options.SerializerOptions.PropertyNameCaseInsensitive = true;
         });
 
         services.AddCors(options =>
