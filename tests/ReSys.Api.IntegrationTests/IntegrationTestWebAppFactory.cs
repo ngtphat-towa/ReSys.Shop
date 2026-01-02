@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Infrastructure.Data;
+using Respawn;
 using Testcontainers.PostgreSql;
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests;
 
@@ -12,6 +12,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 {
     private readonly PostgreSqlContainer? _dbContainer;
     private string _connectionString = null!;
+    private Respawner _respawner = null!;
 
     public IntegrationTestWebAppFactory()
     {
@@ -37,7 +38,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseNpgsql(_connectionString, npgsqlOptions => 
+                options.UseNpgsql(_connectionString, npgsqlOptions =>
                 {
                     npgsqlOptions.UseVector();
                 });
@@ -54,14 +55,32 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         }
         else
         {
-            _connectionString = Environment.GetEnvironmentVariable("TEST_CONNECTION_STRING") 
+            _connectionString = Environment.GetEnvironmentVariable("TEST_CONNECTION_STRING")
                 ?? "Host=localhost;Database=shopdb_test;Username=postgres;Password=password";
         }
 
         using var scope = Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
+
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
+        {
+            DbAdapter = DbAdapter.Postgres,
+            SchemasToInclude = ["public"]
+        });
+    }
+
+    public async Task ResetDatabaseAsync()
+    {
+        using var scope = Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var connection = context.Database.GetDbConnection();
+        await connection.OpenAsync();
+
+        await _respawner.ResetAsync(connection);
     }
 
     public new async Task DisposeAsync()
