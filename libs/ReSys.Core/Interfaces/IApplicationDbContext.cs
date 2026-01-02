@@ -1,11 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Entities;
 
 namespace ReSys.Core.Interfaces;
 
 public interface IApplicationDbContext
 {
-    DbSet<Product> Products { get; }
-    DbSet<ProductEmbedding> ProductEmbeddings { get; }
+    DbSet<T> Set<T>() where T : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
