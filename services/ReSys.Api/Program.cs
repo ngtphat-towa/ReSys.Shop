@@ -1,4 +1,5 @@
 using ReSys.Api;
+using ReSys.Api.Extensions;
 using ReSys.Core;
 using ReSys.Infrastructure;
 

@@ -1,6 +1,7 @@
-using System.Text.Json;
 using Carter;
+using ReSys.Api.Extensions;
 using ReSys.Api.Infrastructure;
+using ReSys.Api.Infrastructure.Conventions;
 using Scalar.AspNetCore;
 
 namespace ReSys.Api;
@@ -9,26 +10,21 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        services.ConfigureHttpJsonOptions(options =>
-        {
-            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-            options.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.SnakeCaseLower;
-            options.SerializerOptions.PropertyNameCaseInsensitive = true;
-        });
-
-        services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(policy =>
+        services
+            .AddCustomSerialization()
+            .AddDocumentation()
+            .AddCors(options =>
             {
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
             });
-        });
+            
         services.AddCarter();
-        services.AddOpenApi();
         
-        // Global Error Handling
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 
@@ -38,6 +34,9 @@ public static class DependencyInjection
     public static WebApplication UsePresentation(this WebApplication app)
     {
         app.UseExceptionHandler();
+        
+        // Global Query Normalization
+        app.UseMiddleware<SnakeCaseQueryMiddleware>();
 
         if (app.Environment.IsDevelopment())
         {

@@ -1,56 +1,61 @@
 using FluentAssertions;
 using ReSys.Core.Entities;
-using ReSys.Core.Features.Products.UpdateProduct;
 using ReSys.Core.Features.Products.Common;
+using ReSys.Core.Features.Products.UpdateProduct;
 using System.Net;
-using System.Net.Http.Json;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;
 
 [Collection("Shared Database")]
 public class UpdateProductTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact(DisplayName = "PUT /api/products/{id}: Should successfully update product when request is valid")]
-    public async Task Update_ValidRequest_ReturnsOk()
+    [Fact(DisplayName = "PUT /api/products/{id}: Should update product details")]
+    public async Task Put_WithValidRequest_UpdatesProduct()
     {
-        var productId = Guid.NewGuid();
-        await SeedProductAsync("Old", 10, productId);
-        var request = new UpdateProduct.Request { Name = "New", Description = "Updated", Price = 20 };
+        var productId = await SeedProductAsync("UpdateTest", 10);
+        var request = new UpdateProduct.Request { Name = "UpdatedName", Description = "NewDesc", Price = 20 };
 
-        var response = await Client.PutAsJsonAsync($"/api/products/{productId}", request, JsonOptions);
+        var response = await Client.PutAsync($"/api/products/{productId}", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.EnsureSuccessStatusCode();
-        var product = await response.Content.ReadFromJsonAsync<ProductDetail>(JsonOptions);
-        product!.Name.Should().Be("New");
+        var content = await response.Content.ReadAsStringAsync();
+        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        
+        product!.Name.Should().Be("UpdatedName");
+        product.Price.Should().Be(20);
     }
 
-    [Fact(DisplayName = "PUT /api/products/{id}: Should return 409 Conflict when updating name to an existing one")]
-    public async Task Update_DuplicateName_ReturnsConflict()
+    [Fact(DisplayName = "PUT /api/products/{id}: Should return Conflict if name taken by another product")]
+    public async Task Put_WithDuplicateName_ReturnsConflict()
     {
-        var p1 = Guid.NewGuid();
-        var p2 = Guid.NewGuid();
-        await SeedProductAsync("Product1", 10, p1);
-        await SeedProductAsync("Product2", 20, p2);
-        var request = new UpdateProduct.Request { Name = "Product1", Description = "D", Price = 30 };
+        var p1 = await SeedProductAsync("P1", 10);
+        var p2 = await SeedProductAsync("P2", 20);
+        var request = new UpdateProduct.Request { Name = "P1", Description = "D", Price = 30 };
 
-        var response = await Client.PutAsJsonAsync($"/api/products/{p2}", request, JsonOptions);
+        var response = await Client.PutAsync($"/api/products/{p2}", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [Fact(DisplayName = "PUT /api/products/{id}: Should return 404 Not Found when product does not exist")]
-    public async Task Update_NonExistent_ReturnsNotFound()
+    [Fact(DisplayName = "PUT /api/products/{id}: Should return NotFound if product missing")]
+    public async Task Put_MissingProduct_ReturnsNotFound()
     {
-        var request = new UpdateProduct.Request { Name = "Valid", Description = "D", Price = 10 };
-
-        var response = await Client.PutAsJsonAsync($"/api/products/{Guid.NewGuid()}", request, JsonOptions);
+        var request = new UpdateProduct.Request { Name = "N", Description = "D", Price = 10 };
+        var response = await Client.PutAsync($"/api/products/{Guid.NewGuid()}", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
-    private async Task SeedProductAsync(string name, decimal price, Guid id)
+    private async Task<Guid> SeedProductAsync(string name, decimal price)
     {
-        Context.Set<Product>().Add(new Product { Id = id, Name = name, Description = "D", Price = price });
+        var id = Guid.NewGuid();
+        Context.Set<Product>().Add(new Product { Id = id, Name = name, Description = "D", Price = price, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" });
         await Context.SaveChangesAsync(CancellationToken.None);
+        return id;
     }
 }

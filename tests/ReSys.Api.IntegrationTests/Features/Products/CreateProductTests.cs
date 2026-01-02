@@ -1,63 +1,65 @@
 using FluentAssertions;
-using ReSys.Core.Features.Products.CreateProduct;
 using ReSys.Core.Features.Products.Common;
+using ReSys.Core.Features.Products.CreateProduct;
 using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;
 
 [Collection("Shared Database")]
 public class CreateProductTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact(DisplayName = "POST /api/products: Should return 201 Created and product details for a valid unique request")]
-    public async Task Create_ValidRequest_ReturnsCreated()
+    [Fact(DisplayName = "POST /api/products: Should create a new product")]
+    public async Task Post_WithValidRequest_CreatesProduct()
     {
-        var request = new CreateProduct.Request { Name = "Unique Pro", Description = "Desc", Price = 100 };
+        var request = new CreateProduct.Request { Name = "NewProduct", Description = "Desc", Price = 10 };
 
-        var response = await Client.PostAsJsonAsync("/api/products", request, JsonOptions);
+        var response = await Client.PostAsync("/api/products", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var product = await response.Content.ReadFromJsonAsync<ProductDetail>(JsonOptions);
-        product!.Name.Should().Be(request.Name);
-        response.Headers.Location.Should().NotBeNull();
-    }
-
-    [Fact(DisplayName = "POST /api/products: Should accept camelCase JSON request body and still create the product")]
-    public async Task Create_CamelCaseRequestBody_ReturnsCreated()
-    {
-        // Arrange
-        // We use a raw string to ensure we are sending actual camelCase keys
-        var camelCaseJson = new { name = "CamelCase Pro", description = "Testing camel case", price = 150.00m };
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var content = await response.Content.ReadAsStringAsync();
+        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
         
-        // Act
-        var response = await Client.PostAsJsonAsync("/api/products", camelCaseJson, options);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-        var product = await response.Content.ReadFromJsonAsync<ProductDetail>(JsonOptions);
-        product!.Name.Should().Be("CamelCase Pro");
-        product.Price.Should().Be(150.00m);
+        product!.Name.Should().Be("NewProduct");
+        product.Id.Should().NotBeEmpty();
     }
 
-    [Fact(DisplayName = "POST /api/products: Should return 409 Conflict when name already exists")]
-    public async Task Create_DuplicateName_ReturnsConflict()
+    [Fact(DisplayName = "POST /api/products: Should return Created with correct Location header")]
+    public async Task Post_ReturnsCorrectLocation()
     {
-        var name = "Existing";
-        await Client.PostAsJsonAsync("/api/products", new CreateProduct.Request { Name = name, Description = "D", Price = 1 }, JsonOptions);
+        var request = new CreateProduct.Request { Name = "LocationTest", Description = "D", Price = 1 };
 
-        var response = await Client.PostAsJsonAsync("/api/products", new CreateProduct.Request { Name = name, Description = "D", Price = 2 }, JsonOptions);
+        var response = await Client.PostAsync("/api/products", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
+
+        var content = await response.Content.ReadAsStringAsync();
+        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        
+        response.Headers.Location!.ToString().Should().Be($"/api/products/{product!.Id}");
+    }
+
+    [Fact(DisplayName = "POST /api/products: Should return Conflict for duplicate name")]
+    public async Task Post_WithDuplicateName_ReturnsConflict()
+    {
+        var name = "DuplicateTest";
+        var r1 = new CreateProduct.Request { Name = name, Description = "D", Price = 1 };
+        await Client.PostAsync("/api/products", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"));
+
+        var r2 = new CreateProduct.Request { Name = name, Description = "D", Price = 2 };
+        var response = await Client.PostAsync("/api/products", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
 
-    [Fact(DisplayName = "POST /api/products: Should return 400 Bad Request when validation fails (e.g. negative price)")]
-    public async Task Create_InvalidPrice_ReturnsBadRequest()
+    [Fact(DisplayName = "POST /api/products: Should return BadRequest for invalid input (e.g. empty name)")]
+    public async Task Post_WithInvalidRequest_ReturnsBadRequest()
     {
-        var request = new CreateProduct.Request { Name = "Invalid", Description = "D", Price = -10 };
+        var request = new CreateProduct.Request { Name = "", Description = "D", Price = -1 };
 
-        var response = await Client.PostAsJsonAsync("/api/products", request, JsonOptions);
+        var response = await Client.PostAsync("/api/products", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

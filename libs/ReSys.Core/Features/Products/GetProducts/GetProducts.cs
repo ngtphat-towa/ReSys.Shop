@@ -1,18 +1,18 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Extensions;
-using ReSys.Core.Common.Http;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
 using ReSys.Core.Interfaces;
-using System.Reflection;
 
 namespace ReSys.Core.Features.Products.GetProducts;
 
 public static class GetProducts
 {
+    // Clean PascalCase properties. No attributes. No manual code.
     public class Request
     {
         public string? Search { get; set; }
@@ -23,13 +23,8 @@ public static class GetProducts
         public DateTimeOffset? CreatedTo { get; set; }
         public string? SortBy { get; set; }
         public bool? IsDescending { get; set; }
-        public int? Page { get; set; }
+        public int? Page { get; set; } 
         public int? PageSize { get; set; }
-
-        public static ValueTask<Request?> BindAsync(HttpContext context, ParameterInfo parameter)
-        {
-            return SnakeCaseQueryBinder.BindAsync<Request>(context);
-        }
     }
 
     public record Query(Request Request) : IRequest<PagedList<ProductListItem>>;
@@ -48,7 +43,7 @@ public static class GetProducts
             var request = query.Request;
             var dbQuery = _context.Set<Product>().AsNoTracking();
 
-            // Search (Cross-provider case-insensitive search using ToLower)
+            // Search
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var searchTerm = request.Search.ToLower();
@@ -93,8 +88,8 @@ public static class GetProducts
 
             return await dbQuery.ToPagedListAsync(
                 ProductListItem.Projection,
-                request.Page ?? 1,
-                request.PageSize ?? 10,
+                request.Page,
+                request.PageSize,
                 cancellationToken);
         }
     }

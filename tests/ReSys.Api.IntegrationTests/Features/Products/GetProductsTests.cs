@@ -2,7 +2,7 @@ using FluentAssertions;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
-using System.Net.Http.Json;
+using Newtonsoft.Json;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;
 
@@ -18,7 +18,9 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}&page=2&page_size=5");
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<PagedList<ProductListItem>>(JsonOptions);
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        
         result!.Items.Should().HaveCount(5);
         result.TotalCount.Should().Be(15);
         result.Page.Should().Be(2);
@@ -34,7 +36,9 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
 
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}&min_price=40&max_price=60");
 
-        var result = await response.Content.ReadFromJsonAsync<PagedList<ProductListItem>>(JsonOptions);
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        
         result!.Items.Should().HaveCount(1);
         result.Items.First().Name.Should().Be($"{uniquePrefix}_Mid");
     }
@@ -49,7 +53,9 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
 
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}_Apple&sort_by=price&is_descending=false");
 
-        var result = await response.Content.ReadFromJsonAsync<PagedList<ProductListItem>>(JsonOptions);
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        
         result!.Items.Should().HaveCount(2);
         result.Items[0].Name.Should().Be($"{uniquePrefix}_Apple iPad"); 
         result.Items[1].Name.Should().Be($"{uniquePrefix}_Apple iPhone");
@@ -70,7 +76,9 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}&created_from={filterDate}");
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<PagedList<ProductListItem>>(JsonOptions);
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        
         result!.Items.Should().HaveCount(1);
         result.Items.First().Name.Should().Be($"{uniquePrefix}_New");
     }
@@ -83,21 +91,22 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
             Name = name, 
             Description = "D", 
             Price = price,
-            CreatedAt = createdAt
+            CreatedAt = createdAt,
+            ImageUrl = "" // Required by non-nullable
         });
         await Context.SaveChangesAsync(CancellationToken.None);
     }
 
     private async Task SeedProductAsync(string name, decimal price)
     {
-        Context.Set<Product>().Add(new Product { Id = Guid.NewGuid(), Name = name, Description = "D", Price = price, CreatedAt = DateTimeOffset.UtcNow });
+        Context.Set<Product>().Add(new Product { Id = Guid.NewGuid(), Name = name, Description = "D", Price = price, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" });
         await Context.SaveChangesAsync(CancellationToken.None);
     }
 
     private async Task SeedProductsAsync(int count, string prefix)
     {
         for (int i = 1; i <= count; i++)
-            Context.Set<Product>().Add(new Product { Id = Guid.NewGuid(), Name = $"{prefix}_{i}", Description = "D", Price = i, CreatedAt = DateTimeOffset.UtcNow });
+            Context.Set<Product>().Add(new Product { Id = Guid.NewGuid(), Name = $"{prefix}_{i}", Description = "D", Price = i, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" });
         await Context.SaveChangesAsync(CancellationToken.None);
     }
 }

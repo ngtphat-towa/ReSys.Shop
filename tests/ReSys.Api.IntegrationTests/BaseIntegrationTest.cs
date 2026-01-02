@@ -1,4 +1,4 @@
-using System.Text.Json;
+using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Interfaces;
 
@@ -8,7 +8,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
 {
     protected readonly IntegrationTestWebAppFactory Factory;
     protected readonly HttpClient Client;
-    protected readonly JsonSerializerOptions JsonOptions;
+    protected readonly JsonSerializerSettings JsonSettings;
     protected readonly IServiceScope Scope;
     protected readonly IApplicationDbContext Context;
 
@@ -16,7 +16,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         Factory = factory;
         Client = factory.CreateClient();
-        JsonOptions = factory.JsonOptions;
+        JsonSettings = factory.JsonSettings;
         Scope = factory.Services.CreateScope();
         Context = Scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
     }

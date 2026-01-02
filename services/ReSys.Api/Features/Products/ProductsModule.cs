@@ -20,7 +20,8 @@ public class ProductsModule : ICarterModule
         var group = app.MapGroup("/api/products")
             .WithTags("Products");
 
-        group.MapGet("/", async (GetProducts.Request request, ISender sender) =>
+        // [AsParameters] binds automatically after our normalization middleware runs.
+        group.MapGet("/", async ([AsParameters] GetProducts.Request request, ISender sender) =>
         {
             var result = await sender.Send(new GetProducts.Query(request));
             return Results.Ok(result);
@@ -110,5 +111,3 @@ public class ProductsModule : ICarterModule
                 .WithName("GetSimilarProducts");
             }
         }
-        
-        
