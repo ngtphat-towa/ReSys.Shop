@@ -3,7 +3,7 @@ using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
 using ReSys.Core.Features.Products.UpdateProduct;
 using ReSys.Core.Interfaces;
-using ReSys.Core.UnitTests.Common;
+using ReSys.Core.UnitTests.TestInfrastructure;
 using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Products;

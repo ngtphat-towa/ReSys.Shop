@@ -4,7 +4,7 @@ using NSubstitute;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.UpdateProductImage;
 using ReSys.Core.Interfaces;
-using ReSys.Core.UnitTests.Common;
+using ReSys.Core.UnitTests.TestInfrastructure;
 using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Products;

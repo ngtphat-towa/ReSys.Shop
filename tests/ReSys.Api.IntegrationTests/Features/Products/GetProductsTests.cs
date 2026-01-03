@@ -3,6 +3,7 @@ using ReSys.Core.Common.Models;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
 using Newtonsoft.Json;
+using ReSys.Api.IntegrationTests.TestInfrastructure;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;
 
@@ -108,5 +109,32 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         for (int i = 1; i <= count; i++)
             Context.Set<Product>().Add(new Product { Id = Guid.NewGuid(), Name = $"{prefix}_{i}", Description = "D", Price = i, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" });
         await Context.SaveChangesAsync(CancellationToken.None);
+    }
+    
+    [Fact(DisplayName = "GET /api/products: Should support filtering by multiple product_ids")]
+    public async Task Get_WithProductIdsFilter_ReturnsMatchingResults()
+    {
+        var uniquePrefix = $"IdsFilter_{Guid.NewGuid()}";
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        var id3 = Guid.NewGuid();
+
+        Context.Set<Product>().AddRange(
+            new Product { Id = id1, Name = $"{uniquePrefix}_1", Description = "D", Price = 10, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" },
+            new Product { Id = id2, Name = $"{uniquePrefix}_2", Description = "D", Price = 20, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" },
+            new Product { Id = id3, Name = $"{uniquePrefix}_3", Description = "D", Price = 30, CreatedAt = DateTimeOffset.UtcNow, ImageUrl = "" }
+        );
+        await Context.SaveChangesAsync(CancellationToken.None);
+
+        // Query string: product_id=id1&product_id=id2
+        var response = await Client.GetAsync($"/api/products?product_id={id1}&product_id={id2}");
+
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        
+        result!.Items.Should().HaveCount(2);
+        result.Items.Select(x => x.Id).Should().Contain([id1, id2]);
+        result.Items.Select(x => x.Id).Should().NotContain(id3);
     }
 }

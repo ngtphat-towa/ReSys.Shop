@@ -1,4 +1,4 @@
-namespace ReSys.Api.IntegrationTests;
+namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
 [CollectionDefinition("Shared Database")]
 public class SharedDatabaseCollection : ICollectionFixture<IntegrationTestWebAppFactory>

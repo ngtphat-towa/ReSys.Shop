@@ -7,8 +7,10 @@ using Respawn;
 using Testcontainers.PostgreSql;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using ReSys.Core.Interfaces;
+using ReSys.Infrastructure.Options;
 
-namespace ReSys.Api.IntegrationTests;
+namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
 public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -54,6 +56,17 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                     npgsqlOptions.UseVector();
                 });
             });
+
+            // Configure StorageOptions
+            services.Configure<StorageOptions>(options =>
+            {
+                options.LocalPath = "test-storage";
+            });
+
+            // Replace IMlService with Fake
+            var mlServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMlService));
+            if (mlServiceDescriptor != null) services.Remove(mlServiceDescriptor);
+            services.AddSingleton<IMlService, FakeMlService>();
         });
     }
 

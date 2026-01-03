@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Interfaces;
 using ReSys.Infrastructure.Data;
 
-namespace ReSys.Core.UnitTests.Common;
+namespace ReSys.Core.UnitTests.TestInfrastructure;
 
 public class TestDatabaseFixture : IDisposable
 {

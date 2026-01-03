@@ -3,6 +3,7 @@ using ReSys.Core.Features.Products.Common;
 using ReSys.Core.Features.Products.CreateProduct;
 using System.Net;
 using Newtonsoft.Json;
+using ReSys.Api.IntegrationTests.TestInfrastructure;
 using System.Text;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;

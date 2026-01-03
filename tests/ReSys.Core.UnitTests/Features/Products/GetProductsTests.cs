@@ -2,7 +2,7 @@ using FluentAssertions;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.GetProducts;
 using ReSys.Core.Interfaces;
-using ReSys.Core.UnitTests.Common;
+using ReSys.Core.UnitTests.TestInfrastructure;
 using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Products;
@@ -93,5 +93,31 @@ public class GetProductsTests : IClassFixture<TestDatabaseFixture>
         result.Items[0].Price.Should().Be(100);
         result.Items[1].Price.Should().Be(50);
         result.Items[2].Price.Should().Be(10);
+    }
+    [Fact(DisplayName = "Should correctly filter products by a list of ProductIds")]
+    public async Task Handle_ProductIdsFilter_ShouldReturnMatchingProducts()
+    {
+        // Arrange
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        var id3 = Guid.NewGuid();
+        
+        _context.Set<Product>().AddRange(
+            new Product { Id = id1, Name = "Included_1", Price = 10 },
+            new Product { Id = id2, Name = "Included_2", Price = 20 },
+            new Product { Id = id3, Name = "Excluded", Price = 30 }
+        );
+        await _context.SaveChangesAsync(CancellationToken.None);
+
+        var request = new GetProducts.Request { ProductId = [id1, id2] };
+        var query = new GetProducts.Query(request);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.Items.Should().HaveCount(2);
+        result.Items.Select(x => x.Id).Should().Contain([id1, id2]);
+        result.Items.Select(x => x.Id).Should().NotContain(id3);
     }
 }

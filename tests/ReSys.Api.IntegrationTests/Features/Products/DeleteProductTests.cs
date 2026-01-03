@@ -1,5 +1,6 @@
 using FluentAssertions;
 using ReSys.Core.Entities;
+using ReSys.Api.IntegrationTests.TestInfrastructure;
 using System.Net;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;

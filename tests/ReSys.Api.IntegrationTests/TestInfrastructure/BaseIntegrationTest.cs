@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Interfaces;
 
-namespace ReSys.Api.IntegrationTests;
+namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
 public abstract class BaseIntegrationTest : IAsyncLifetime
 {
