@@ -10,14 +10,24 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
-        logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
+        var problemDetails = new ProblemDetails();
 
-        var problemDetails = new ProblemDetails
+        if (exception is BadHttpRequestException badRequestEx)
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Title = "Server Error",
-            Detail = exception.Message
-        };
+            problemDetails.Status = badRequestEx.StatusCode;
+            problemDetails.Title = "Bad Request";
+            problemDetails.Detail = badRequestEx.Message;
+            
+            logger.LogWarning(exception, "Bad Request: {Message}", exception.Message);
+        }
+        else
+        {
+            problemDetails.Status = StatusCodes.Status500InternalServerError;
+            problemDetails.Title = "Server Error";
+            problemDetails.Detail = exception.Message;
+
+            logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
+        }
 
         httpContext.Response.StatusCode = problemDetails.Status.Value;
 

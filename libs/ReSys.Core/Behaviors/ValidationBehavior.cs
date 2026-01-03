@@ -1,6 +1,7 @@
 using ErrorOr;
 using FluentValidation;
 using MediatR;
+using ReSys.Core.Common.Helpers;
 
 namespace ReSys.Core.Behaviors;
 
@@ -42,7 +43,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 
         var errors = failures
             .ConvertAll(validationFailure => Error.Validation(
-                code: validationFailure.PropertyName,
+                code: validationFailure.PropertyName.ToSnakeCase(),
                 description: validationFailure.ErrorMessage));
 
         return (dynamic)errors;
