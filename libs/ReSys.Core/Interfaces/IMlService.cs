@@ -1,5 +1,3 @@
-using ReSys.Core.Entities;
-
 namespace ReSys.Core.Interfaces;
 
 public interface IMlService
