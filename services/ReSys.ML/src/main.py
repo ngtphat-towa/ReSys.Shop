@@ -34,9 +34,8 @@ app = FastAPI(
 app.include_router(router)
 
 # Instrument FastAPI
-if not getattr(app, "is_instrumented", False):
+if not getattr(app, "_is_instrumented_by_opentelemetry", False):
     FastAPIInstrumentor.instrument_app(app)
-    app.is_instrumented = True
 
 if __name__ == "__main__":
     import uvicorn

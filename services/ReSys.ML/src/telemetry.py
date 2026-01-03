@@ -1,10 +1,15 @@
 import os
 import logging
-from opentelemetry import trace
+from opentelemetry import trace, metrics
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+# OpenTelemetry Metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
 
 # OpenTelemetry Logging
 from opentelemetry._logs import set_logger_provider
@@ -26,7 +31,7 @@ def setup_telemetry():
             logging.basicConfig(level=logging.INFO)
         return
 
-    resource = Resource.create({"service.name": settings.SERVICE_NAME})
+    resource = Resource.create({"service.name": os.getenv("OTEL_SERVICE_NAME", settings.SERVICE_NAME)})
     
     # 1. Configure Credentials (if HTTPS)
     credentials = None
@@ -45,9 +50,11 @@ def setup_telemetry():
     # 2. Configure Exporters
     if credentials:
         trace_exporter = OTLPSpanExporter(endpoint=endpoint, credentials=credentials, insecure=False)
+        metric_exporter = OTLPMetricExporter(endpoint=endpoint, credentials=credentials, insecure=False)
         log_exporter = OTLPLogExporter(endpoint=endpoint, credentials=credentials, insecure=False)
     else:
         trace_exporter = OTLPSpanExporter(endpoint=endpoint, insecure=True)
+        metric_exporter = OTLPMetricExporter(endpoint=endpoint, insecure=True)
         log_exporter = OTLPLogExporter(endpoint=endpoint, insecure=True)
     
     # 3. Setup Tracing
@@ -55,7 +62,14 @@ def setup_telemetry():
     tracer_provider.add_span_processor(BatchSpanProcessor(trace_exporter))
     trace.set_tracer_provider(tracer_provider)
 
-    # 4. Setup Logging
+    # 4. Setup Metrics
+    meter_provider = MeterProvider(
+        resource=resource,
+        metric_readers=[PeriodicExportingMetricReader(metric_exporter)]
+    )
+    metrics.set_meter_provider(meter_provider)
+
+    # 5. Setup Logging
     logger_provider = LoggerProvider(resource=resource)
     set_logger_provider(logger_provider)
     logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
