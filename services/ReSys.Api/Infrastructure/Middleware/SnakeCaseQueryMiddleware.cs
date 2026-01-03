@@ -21,28 +21,31 @@ public class SnakeCaseQueryMiddleware
     {
         if (context.Request.Query.Count > 0)
         {
-            var normalizedQuery = new Dictionary<string, StringValues>();
-            bool hasChanges = false;
-
-            foreach (var kvp in context.Request.Query)
+            // 1. FAST SCAN: Check if any keys actually need normalization
+            // This avoids allocating a Dictionary for the happy path (already PascalCase keys)
+            bool needsNormalization = false;
+            foreach (var key in context.Request.Query.Keys)
             {
-                // Normalize ALL keys to PascalCase for consistent binding
-                // - snake_case keys: page_size -> PageSize
-                // - lowercase keys: search -> Search
-                var pascalKey = NamingHelper.ToPascalCase(kvp.Key);
-                
-                if (pascalKey != kvp.Key)
+                // ToPascalCase is optimized to return the original string reference 
+                // if it's already PascalCase, so this check is very cheap (reference equality).
+                if (!ReferenceEquals(key, NamingHelper.ToPascalCase(key)))
                 {
-                    hasChanges = true;
+                    needsNormalization = true;
+                    break;
                 }
-                
-                normalizedQuery[pascalKey] = kvp.Value;
             }
 
-            // Only replace the query collection if we actually modified something
-            // to avoid unnecessary allocations in the happy path
-            if (hasChanges)
+            // 2. SLOW PATH: Only allocate if we found something to fix
+            if (needsNormalization)
             {
+                var normalizedQuery = new Dictionary<string, StringValues>(context.Request.Query.Count, StringComparer.Ordinal);
+                
+                foreach (var kvp in context.Request.Query)
+                {
+                    var pascalKey = NamingHelper.ToPascalCase(kvp.Key);
+                    normalizedQuery[pascalKey] = kvp.Value;
+                }
+                
                 context.Request.Query = new QueryCollection(normalizedQuery);
             }
         }
