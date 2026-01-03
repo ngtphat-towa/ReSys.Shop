@@ -10,7 +10,7 @@ namespace ReSys.Core.Features.Products.CreateProduct;
 
 public static class CreateProduct
 {
-    public class Request : ProductInput { }
+    public record Request : ProductInput;
 
     public record Command(Request Request) : IRequest<ErrorOr<ProductDetail>>;
 

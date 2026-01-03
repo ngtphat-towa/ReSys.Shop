@@ -9,7 +9,7 @@ namespace ReSys.Core.Features.Products.GetProductById;
 
 public static class GetProductById
 {
-    public class Request(Guid id)
+    public record Request(Guid id)
     {
         public Guid Id { get; set; } = id;
     }

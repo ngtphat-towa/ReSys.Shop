@@ -13,7 +13,7 @@ namespace ReSys.Core.Features.Products.GetProducts;
 public static class GetProducts
 {
     // Clean PascalCase properties. No attributes. No manual code.
-    public class Request
+    public record Request
     {
         public string? Search { get; set; }
         public string? Name { get; set; }
@@ -25,6 +25,7 @@ public static class GetProducts
         public bool? IsDescending { get; set; }
         public int? Page { get; set; } 
         public int? PageSize { get; set; }
+        public Guid[]? ProductId { get; set; }
     }
 
     public record Query(Request Request) : IRequest<PagedList<ProductListItem>>;
@@ -76,6 +77,11 @@ public static class GetProducts
             if (request.CreatedTo.HasValue)
             {
                 dbQuery = dbQuery.Where(x => x.CreatedAt <= request.CreatedTo.Value);
+            }
+
+            if (request.ProductId != null && request.ProductId.Length > 0)
+            {
+                dbQuery = dbQuery.Where(x => request.ProductId.Contains(x.Id));
             }
 
             // Sort

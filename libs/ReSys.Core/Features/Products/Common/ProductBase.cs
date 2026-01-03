@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 namespace ReSys.Core.Features.Products.Common;
 
 // Base properties shared by Input and Detail
-public class ProductBase
+public record ProductBase
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
@@ -14,12 +14,12 @@ public class ProductBase
 }
 
 // Input for Create/Update
-public class ProductInput : ProductBase
+public record ProductInput : ProductBase
 {
 }
 
 // Read model for List (Lightweight)
-public class ProductListItem
+public record ProductListItem
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -36,7 +36,7 @@ public class ProductListItem
 }
 
 // Read model for Detail (Full)
-public class ProductDetail : ProductBase
+public record ProductDetail : ProductBase
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
@@ -57,13 +57,21 @@ public abstract class ProductValidator<T> : AbstractValidator<T> where T : Produ
     protected ProductValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithErrorCode(ProductErrors.NameRequired.Code).WithMessage(ProductErrors.NameRequired.Description)
-            .MaximumLength(ProductConstraints.NameMaxLength).WithErrorCode(ProductErrors.NameTooLong.Code).WithMessage(ProductErrors.NameTooLong.Description);
+            .NotEmpty()
+                .WithErrorCode(ProductErrors.NameRequired.Code)
+                .WithMessage(ProductErrors.NameRequired.Description)
+            .MaximumLength(ProductConstraints.NameMaxLength)
+                .WithErrorCode(ProductErrors.NameTooLong.Code)
+                .WithMessage(ProductErrors.NameTooLong.Description);
 
         RuleFor(x => x.Description)
-            .NotEmpty().WithErrorCode(ProductErrors.DescriptionRequired.Code).WithMessage(ProductErrors.DescriptionRequired.Description);
+            .NotEmpty()
+                .WithErrorCode(ProductErrors.DescriptionRequired.Code)
+                .WithMessage(ProductErrors.DescriptionRequired.Description);
 
         RuleFor(x => x.Price)
-            .GreaterThanOrEqualTo(ProductConstraints.MinPrice).WithErrorCode(ProductErrors.InvalidPrice.Code).WithMessage(ProductErrors.InvalidPrice.Description);
+            .GreaterThanOrEqualTo(ProductConstraints.MinPrice)
+                .WithErrorCode(ProductErrors.InvalidPrice.Code)
+                .WithMessage(ProductErrors.InvalidPrice.Description);
     }
 }

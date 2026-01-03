@@ -10,7 +10,7 @@ namespace ReSys.Core.Features.Products.UpdateProduct;
 
 public static class UpdateProduct
 {
-    public class Request : ProductInput { }
+    public record Request : ProductInput;
 
     public record Command(Guid Id, Request Request) : IRequest<ErrorOr<ProductDetail>>;
 
