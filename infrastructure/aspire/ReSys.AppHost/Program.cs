@@ -25,6 +25,8 @@ var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithHttpEndpoint(env: "PORT", port: 8000)
     .WithEnvironment("USE_MOCK_ML", "true") // Use mock by default for speed
     .WithEnvironment("ROOT_PATH", "/ml")
+    .WithEnvironment("OTEL_SERVICE_NAME", "ml")
+    .WithOtlpExporter()
     .WithHttpHealthCheck("/health");
 
 api.WithReference(ml)
@@ -34,14 +36,12 @@ api.WithReference(ml)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .WithEnvironment("VITE_OTEL_ENABLED", "true")
     .WithHttpHealthCheck("/");
 
 // Frontend - Admin (Vue)
 var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
-    .WithEnvironment("VITE_OTEL_ENABLED", "true")
     .WithHttpHealthCheck("/");
 
 // Gateway (YARP)
