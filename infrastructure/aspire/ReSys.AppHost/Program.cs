@@ -8,6 +8,7 @@ builder.Services.AddHealthChecks();
 var postgres = builder.AddPostgres("postgres")
     .WithImage("ankane/pgvector")
     .WithImageTag("latest")
+    .WithDataVolume("resys-shop-data")
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db = postgres.AddDatabase("shopdb");
@@ -33,12 +34,14 @@ api.WithReference(ml)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
+    .WithEnvironment("VITE_OTEL_ENABLED", "true")
     .WithHttpHealthCheck("/");
 
 // Frontend - Admin (Vue)
 var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
     .WithHttpEndpoint(env: "PORT")
     .WithExternalHttpEndpoints()
+    .WithEnvironment("VITE_OTEL_ENABLED", "true")
     .WithHttpHealthCheck("/");
 
 // Gateway (YARP)
