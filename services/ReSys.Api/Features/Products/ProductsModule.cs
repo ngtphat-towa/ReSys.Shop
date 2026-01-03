@@ -10,6 +10,8 @@ using ReSys.Core.Features.Products.DeleteProduct;
 
 using ReSys.Core.Features.Products.UpdateProductImage;
 using ErrorOr;
+using ReSys.Core.Common.Models;
+using ReSys.Api.Infrastructure.Extensions;
 
 namespace ReSys.Api.Features.Products;
 
@@ -24,17 +26,14 @@ public class ProductsModule : ICarterModule
         group.MapGet("/", async ([AsParameters] GetProducts.Request request, ISender sender) =>
         {
             var result = await sender.Send(new GetProducts.Query(request));
-            return Results.Ok(result);
+            return Results.Ok(ApiResponse.Paginated(result));
         })
         .WithName("GetProducts");
 
         group.MapGet("/{id}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetProductById.Query(new GetProductById.Request(id)));
-
-            return result.Match(
-                product => Results.Ok(product),
-                errors => Results.NotFound());
+            return result.ToApiResponse();
         })
         .WithName("GetProductById");
 
@@ -44,12 +43,7 @@ public class ProductsModule : ICarterModule
             CancellationToken ct) =>
         {
             var result = await sender.Send(new CreateProduct.Command(request), ct);
-
-            return result.Match(
-                product => Results.Created($"/api/products/{product.Id}", product),
-                errors => errors.Any(e => e.Type == ErrorType.Conflict) 
-                    ? Results.Conflict(errors) 
-                    : Results.BadRequest(errors));
+            return result.ToApiCreatedResponse(product => $"/api/products/{product.Id}");
         })
         .WithName("CreateProduct");
 
@@ -60,14 +54,7 @@ public class ProductsModule : ICarterModule
             CancellationToken ct) =>
         {
             var result = await sender.Send(new UpdateProduct.Command(id, request), ct);
-
-            return result.Match(
-                product => Results.Ok(product),
-                errors => errors.Any(e => e.Type == ErrorType.Conflict) 
-                    ? Results.Conflict(errors) 
-                    : errors.Any(e => e.Type == ErrorType.NotFound)
-                        ? Results.NotFound(errors)
-                        : Results.BadRequest(errors));
+            return result.ToApiResponse();
         })
         .WithName("UpdateProduct");
 
@@ -81,10 +68,7 @@ public class ProductsModule : ICarterModule
 
             var request = new UpdateProductImage.Request(id, stream, image.FileName);
             var result = await sender.Send(new UpdateProductImage.Command(request), ct);
-
-            return result.Match(
-                product => Results.Ok(product),
-                errors => Results.NotFound());
+            return result.ToApiResponse();
         })
         .WithName("UpdateProductImage")
         .DisableAntiforgery();
@@ -93,21 +77,20 @@ public class ProductsModule : ICarterModule
         {
             var result = await sender.Send(new DeleteProduct.Command(id));
 
-            return result.Match(
-                _ => Results.NoContent(),
-                errors => Results.NotFound());
-        })
-                .WithName("DeleteProduct");
-        
-        
-                group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
-                {
-                    var result = await sender.Send(new GetSimilarProducts.Query(new GetSimilarProducts.Request(id)));
-        
-                    return result.Match(
-                        products => Results.Ok(products),
-                        errors => Results.NotFound());
-                })
-                .WithName("GetSimilarProducts");
+            if (result.IsError)
+            {
+                return result.ToApiResponse();
             }
-        }
+
+            return Results.NoContent();
+        })
+        .WithName("DeleteProduct");
+        
+        group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
+        {
+            var result = await sender.Send(new GetSimilarProducts.Query(new GetSimilarProducts.Request(id)));
+            return result.ToApiResponse();
+        })
+        .WithName("GetSimilarProducts");
+    }
+}
