@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 using ReSys.Core.Common.Helpers;
 
-namespace ReSys.Api.Infrastructure.Conventions;
+namespace ReSys.Api.Infrastructure.Documentation;
 
 /// <summary>
 /// Transforms OpenAPI operation parameters (query strings, route params) to snake_case.

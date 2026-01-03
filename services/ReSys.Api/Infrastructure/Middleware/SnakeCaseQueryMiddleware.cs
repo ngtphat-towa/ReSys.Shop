@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Primitives;
 using ReSys.Core.Common.Helpers;
 
-namespace ReSys.Api.Infrastructure.Conventions;
+namespace ReSys.Api.Infrastructure.Middleware;
 
 /// <summary>
 /// Middleware to normalize query parameters from snake_case (e.g., page_size) 

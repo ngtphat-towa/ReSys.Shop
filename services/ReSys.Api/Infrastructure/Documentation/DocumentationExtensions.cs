@@ -1,7 +1,6 @@
-using ReSys.Api.Infrastructure.Conventions;
 using Scalar.AspNetCore;
 
-namespace ReSys.Api.Extensions;
+namespace ReSys.Api.Infrastructure.Documentation;
 
 public static class DocumentationExtensions
 {

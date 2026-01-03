@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ReSys.Api.Extensions;
+namespace ReSys.Api.Infrastructure.Serialization;
 
 public static class SerializationExtensions
 {
