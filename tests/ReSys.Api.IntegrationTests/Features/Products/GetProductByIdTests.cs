@@ -1,6 +1,7 @@
 using FluentAssertions;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
+using ReSys.Core.Common.Models;
 using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
@@ -19,7 +20,8 @@ public class GetProductByIdTests(IntegrationTestWebAppFactory factory) : BaseInt
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ProductDetail>>(content, JsonSettings);
+        var product = apiResponse!.Data;
         
         product!.Id.Should().Be(productId);
         product.Name.Should().Be("ByIdTest");

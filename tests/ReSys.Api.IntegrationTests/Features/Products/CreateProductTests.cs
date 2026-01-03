@@ -1,6 +1,7 @@
 using FluentAssertions;
 using ReSys.Core.Features.Products.Common;
 using ReSys.Core.Features.Products.CreateProduct;
+using ReSys.Core.Common.Models;
 using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
@@ -21,7 +22,8 @@ public class CreateProductTests(IntegrationTestWebAppFactory factory) : BaseInte
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var content = await response.Content.ReadAsStringAsync();
-        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ProductDetail>>(content, JsonSettings);
+        var product = apiResponse!.Data;
         
         product!.Name.Should().Be("NewProduct");
         product.Id.Should().NotBeEmpty();
@@ -36,7 +38,8 @@ public class CreateProductTests(IntegrationTestWebAppFactory factory) : BaseInte
             new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
 
         var content = await response.Content.ReadAsStringAsync();
-        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ProductDetail>>(content, JsonSettings);
+        var product = apiResponse!.Data;
         
         response.Headers.Location!.ToString().Should().Be($"/api/products/{product!.Id}");
     }

@@ -6,6 +6,7 @@ using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
+using ReSys.Core.Common.Models;
 
 namespace ReSys.Api.IntegrationTests.Features.Products;
 
@@ -46,7 +47,8 @@ public class UpdateProductImageTests(IntegrationTestWebAppFactory factory) : Bas
             throw new Exception($"API Request Failed: {response.StatusCode} \nContent: {responseString}");
         }
 
-        var result = JsonConvert.DeserializeObject<ProductDetail>(responseString, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ProductDetail>>(responseString, JsonSettings);
+        var result = apiResponse!.Data;
 
         result!.ImageUrl.Should().Contain("test-image.png");
         result.Id.Should().Be(productId);

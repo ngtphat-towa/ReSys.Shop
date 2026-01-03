@@ -1,4 +1,5 @@
 using FluentAssertions;
+using ReSys.Core.Common.Models;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Products.Common;
 using ReSys.Core.Features.Products.UpdateProduct;
@@ -23,7 +24,8 @@ public class UpdateProductTests(IntegrationTestWebAppFactory factory) : BaseInte
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var product = JsonConvert.DeserializeObject<ProductDetail>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ProductDetail>>(content, JsonSettings);
+        var product = apiResponse!.Data;
         
         product!.Name.Should().Be("UpdatedName");
         product.Price.Should().Be(20);

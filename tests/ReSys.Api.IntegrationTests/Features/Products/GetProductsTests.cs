@@ -20,11 +20,11 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ProductListItem>>>(content, JsonSettings);
         
-        result!.Items.Should().HaveCount(5);
-        result.TotalCount.Should().Be(15);
-        result.Page.Should().Be(2);
+        apiResponse!.Data.Should().HaveCount(5);
+        apiResponse.Meta!.TotalCount.Should().Be(15);
+        apiResponse.Meta.Page.Should().Be(2);
     }
 
     [Fact(DisplayName = "GET /api/products: Should support price range filtering (min_price and max_price)")]
@@ -38,10 +38,10 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}&min_price=40&max_price=60");
 
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ProductListItem>>>(content, JsonSettings);
         
-        result!.Items.Should().HaveCount(1);
-        result.Items.First().Name.Should().Be($"{uniquePrefix}_Mid");
+        apiResponse!.Data.Should().HaveCount(1);
+        apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_Mid");
     }
 
     [Fact(DisplayName = "GET /api/products: Should support complex sorting and searching combined (sort_by and is_descending)")]
@@ -55,11 +55,11 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         var response = await Client.GetAsync($"/api/products?search={uniquePrefix}_Apple&sort_by=price&is_descending=false");
 
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ProductListItem>>>(content, JsonSettings);
         
-        result!.Items.Should().HaveCount(2);
-        result.Items[0].Name.Should().Be($"{uniquePrefix}_Apple iPad"); 
-        result.Items[1].Name.Should().Be($"{uniquePrefix}_Apple iPhone");
+        apiResponse!.Data.Should().HaveCount(2);
+        apiResponse.Data![0].Name.Should().Be($"{uniquePrefix}_Apple iPad"); 
+        apiResponse.Data[1].Name.Should().Be($"{uniquePrefix}_Apple iPhone");
     }
 
     [Fact(DisplayName = "GET /api/products: Should support filtering by created_from using ISO 8601 DateTimeOffset")]
@@ -78,10 +78,10 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ProductListItem>>>(content, JsonSettings);
         
-        result!.Items.Should().HaveCount(1);
-        result.Items.First().Name.Should().Be($"{uniquePrefix}_New");
+        apiResponse!.Data.Should().HaveCount(1);
+        apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_New");
     }
 
     private async Task SeedProductWithDateAsync(string name, decimal price, DateTimeOffset createdAt)
@@ -131,10 +131,11 @@ public class GetProductsTests(IntegrationTestWebAppFactory factory) : BaseIntegr
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonConvert.DeserializeObject<PagedList<ProductListItem>>(content, JsonSettings);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ProductListItem>>>(content, JsonSettings);
         
-        result!.Items.Should().HaveCount(2);
-        result.Items.Select(x => x.Id).Should().Contain([id1, id2]);
-        result.Items.Select(x => x.Id).Should().NotContain(id3);
+        apiResponse!.Data.Should().HaveCount(2);
+        var items = apiResponse.Data!;
+        items.Select(x => x.Id).Should().Contain([id1, id2]);
+        items.Select(x => x.Id).Should().NotContain(id3);
     }
 }
