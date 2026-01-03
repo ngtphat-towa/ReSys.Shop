@@ -1,4 +1,8 @@
 import './assets/main.css'
+import { setupOpenTelemetry } from './otel';
+
+setupOpenTelemetry('admin-web');
+
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
