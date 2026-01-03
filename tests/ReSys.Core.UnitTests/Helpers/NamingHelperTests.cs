@@ -6,7 +6,7 @@ namespace ReSys.Core.UnitTests.Helpers;
 
 public class NamingHelperTests
 {
-    [Theory]
+    [Theory(DisplayName = "ToSnakeCase: Should convert various input strings to snake_case format correctly")]
     [InlineData("PageSize", "page_size")]
     [InlineData("MinPrice", "min_price")]
     [InlineData("start_date", "start_date")] 
@@ -21,7 +21,7 @@ public class NamingHelperTests
         result.Should().Be(expected);
     }
 
-    [Theory]
+    [Theory(DisplayName = "ToPascalCase: Should convert various input strings to PascalCase format correctly")]
     [InlineData("page_size", "PageSize")]
     [InlineData("min_price", "MinPrice")]
     [InlineData("search", "Search")] 
