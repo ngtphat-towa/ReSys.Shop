@@ -8,11 +8,11 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     where TRequest : IRequest<TResponse>
     where TResponse : IErrorOr
 {
-    private readonly IValidator<TRequest>? _validator;
+    private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(IValidator<TRequest>? validator = null)
+    public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
     {
-        _validator = validator;
+        _validators = validators;
     }
 
     public async Task<TResponse> Handle(
@@ -20,22 +20,30 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (_validator is null)
+        if (!_validators.Any())
         {
             return await next();
         }
 
-        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        var context = new ValidationContext<TRequest>(request);
 
-        if (validationResult.IsValid)
+        var validationResults = await Task.WhenAll(
+            _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+
+        var failures = validationResults
+            .SelectMany(r => r.Errors)
+            .Where(f => f != null)
+            .ToList();
+
+        if (failures.Count == 0)
         {
             return await next();
         }
 
-        var errors = validationResult.Errors
+        var errors = failures
             .ConvertAll(validationFailure => Error.Validation(
-                validationFailure.PropertyName,
-                validationFailure.ErrorMessage));
+                code: validationFailure.PropertyName,
+                description: validationFailure.ErrorMessage));
 
         return (dynamic)errors;
     }
