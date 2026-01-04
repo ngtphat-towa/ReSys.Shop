@@ -14,7 +14,8 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
     Components({
-      resolvers: [PrimeVueResolver()]
+      resolvers: [PrimeVueResolver()],
+      dts: 'src/shared/components.d.ts'
     })
   ],
   resolve: {

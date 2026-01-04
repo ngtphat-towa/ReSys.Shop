@@ -9,6 +9,7 @@ public static class PersistenceModule
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        Serilog.Log.Information("[Infrastructure] Initializing Persistence Module...");
         var connectionString = configuration.GetConnectionString("shopdb");
 
         services.AddDbContext<AppDbContext>(options =>

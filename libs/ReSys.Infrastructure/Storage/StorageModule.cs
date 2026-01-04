@@ -8,7 +8,12 @@ public static class StorageModule
 {
     public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
+        Serilog.Log.Information("[Infrastructure] Initializing Storage Module...");
+
+        services.AddOptions<StorageOptions>()
+            .Bind(configuration.GetSection(StorageOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         
         services.AddSingleton<IFileValidator, FileValidator>();
         services.AddSingleton<IFileSecurityService, FileSecurityService>();

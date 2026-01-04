@@ -10,6 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
+        Serilog.Log.Information("[Presentation] Initializing API Presentation Layer...");
         services
             .AddCustomSerialization() // Using your extension
             .AddDocumentation()       // Using the documentation extension

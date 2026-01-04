@@ -1,39 +1,17 @@
-export interface PaginationMeta {
-    page: number;
-    page_size: number;
-    total_count: number;
-    total_pages: number;
-    has_next_page: boolean;
-    has_previous_page: boolean;
-}
+import type { ApiResponse } from '@/shared/api/api.types';
 
-export interface ApiResponse<T> {
-    data: T;
-    meta?: PaginationMeta;
-    errors?: Record<string, string[]>;
-    error_code?: string;
-    status: number;
-    title: string;
-    detail?: string;
-    type?: string;
-}
-
-export interface ExampleBase {
+export interface ExampleInput {
     name: string;
     description: string;
     price: number;
-    image_url: string;
+    image_url?: string;
 }
 
-export interface ExampleListItem {
+export interface ExampleListItem extends ExampleInput {
     id: string;
-    name: string;
-    description: string;
-    price: number;
-    image_url: string;
 }
 
-export interface ExampleDetail extends ExampleBase {
+export interface ExampleDetail extends ExampleInput {
     id: string;
     created_at: string;
 }
@@ -50,3 +28,5 @@ export interface ExampleQuery {
     page?: number;
     page_size?: number;
 }
+
+export type { ApiResponse };

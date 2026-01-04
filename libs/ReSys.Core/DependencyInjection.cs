@@ -9,6 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCore(this IServiceCollection services, params Assembly[] assemblies)
     {
+        Serilog.Log.Information("[Core] Initializing Core Layer (MediatR, Behaviors, Validators)...");
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
@@ -17,6 +18,7 @@ public static class DependencyInjection
                 config.RegisterServicesFromAssembly(assembly);
             }
             config.AddOpenBehavior(typeof(LoggingBehavior<,>));
+            config.AddOpenBehavior(typeof(TelemetryBehavior<,>));
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.AI;
+using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
 
@@ -62,6 +63,13 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             services.Configure<StorageOptions>(options =>
             {
                 options.LocalPath = "test-storage";
+                options.Security.EncryptionKey = "TestSecretKey123!";
+            });
+
+            // Configure MlOptions to pass validation
+            services.Configure<MlOptions>(options =>
+            {
+                options.ServiceUrl = "http://fake-ml-service";
             });
 
             // Replace IMlService with Fake

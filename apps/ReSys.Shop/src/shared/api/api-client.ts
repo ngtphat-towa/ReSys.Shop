@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { ref } from 'vue';
-import type { ApiResponse } from '@/features/examples/example.types';
+import type { ApiResponse } from './api.types';
 
 // Simple Event Bus for Toasts
 export const toastBus = ref<{ severity: 'success' | 'info' | 'warn' | 'error'; summary: string; detail: string; life?: number } | null>(null);

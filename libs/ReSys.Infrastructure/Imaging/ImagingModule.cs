@@ -7,6 +7,7 @@ public static class ImagingModule
 {
     public static IServiceCollection AddImaging(this IServiceCollection services)
     {
+        Serilog.Log.Information("[Infrastructure] Initializing Imaging Module...");
         services.AddSingleton<IImageService, ImageService>();
         return services;
     }

@@ -8,7 +8,13 @@ public static class AiModule
 {
     public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<MlOptions>(configuration.GetSection(MlOptions.SectionName));
+        Serilog.Log.Information("[Infrastructure] Initializing AI Module...");
+
+        services.AddOptions<MlOptions>()
+            .Bind(configuration.GetSection(MlOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddHttpClient<IMlService, MlService>();
 
         return services;

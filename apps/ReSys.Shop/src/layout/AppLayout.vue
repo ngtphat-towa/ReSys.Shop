@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { useLayout } from '@/layout/composables/layout';
 import { computed, watch, ref } from 'vue';
+import { useToast } from 'primevue/usetoast';
+import { toastBus } from '@/shared/api/api-client';
 import AppTopbar from './AppTopbar.vue';
 import AppFooter from './AppFooter.vue';
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
+const toast = useToast();
+
+watch(toastBus, (newValue) => {
+    if (newValue) {
+        toast.add(newValue);
+        toastBus.value = null;
+    }
+});
 
 const containerClass = computed(() => {
     return {

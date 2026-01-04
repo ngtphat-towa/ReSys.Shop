@@ -1,56 +1,31 @@
-export interface PaginationMeta {
-    page: number;
-    page_size: number;
-    total_count: number;
-    total_pages: number;
-    has_next_page: boolean;
-    has_previous_page: boolean;
-}
+import type { ApiResponse } from '@/shared/api/api.types';
 
-export interface ApiResponse<T> {
-    data: T;
-    meta?: PaginationMeta;
-    errors?: Record<string, string[]>;
-    error_code?: string;
-    status: number;
-    title: string;
-    detail?: string;
-    type?: string;
-}
-
-export interface ExampleBase {
+/**
+ * Mirror of the Backend 'ExampleInput'
+ * Use this for shared form logic
+ */
+export interface ExampleInput {
     name: string;
     description: string;
     price: number;
-    image_url: string;
+    image_url?: string;
 }
 
-export interface ExampleListItem {
+export interface ExampleListItem extends ExampleInput {
     id: string;
-    name: string;
-    description: string;
-    price: number;
-    image_url: string;
 }
 
-export interface ExampleDetail extends ExampleBase {
+export interface ExampleDetail extends ExampleInput {
     id: string;
     created_at: string;
 }
 
-export interface CreateExampleRequest {
-    name: string;
-    description: string;
-    price: number;
-    image_url?: string;
-}
+/**
+ * Semantic requests - keeps your code descriptive
+ */
+export interface CreateExampleRequest extends ExampleInput {}
 
-export interface UpdateExampleRequest {
-    name: string;
-    description: string;
-    price: number;
-    image_url?: string;
-}
+export interface UpdateExampleRequest extends ExampleInput {}
 
 export interface ExampleQuery {
     search?: string;
@@ -64,3 +39,6 @@ export interface ExampleQuery {
     page?: number;
     page_size?: number;
 }
+
+// Re-export ApiResponse for convenience if features need it directly
+export type { ApiResponse };
