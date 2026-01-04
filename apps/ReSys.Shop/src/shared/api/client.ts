@@ -46,36 +46,33 @@ apiClient.interceptors.response.use(
     } as any;
   },
   (error: AxiosError) => {
-    /**
-     * ERROR HANDLER
-     * Parses RFC 7807 problem details and triggers global error notifications.
-     */
-    let summary = 'Error';
-    let detail = 'An unexpected error occurred.';
-    let apiError: ApiResponse<any> | null = null;
+    const apiError = error.response?.data as ApiResponse<any> | undefined;
+    
+    // 1. Extract meaningful error messages
+    const summary = apiError?.title || (error.response ? `Error ${error.response.status}` : 'Connection Error');
+    let detail = apiError?.detail || error.message || 'An unexpected error occurred.';
 
-    if (error.response) {
-      apiError = error.response.data as ApiResponse<any>;
-      summary = apiError?.title || `Error ${error.response.status}`;
-
-      if (apiError?.errors) {
-        const messages = Object.values(apiError.errors).flat();
-        detail = messages.length > 0 ? messages.join('. ') : 'Validation failed.';
-      } else {
-        detail = apiError?.detail || error.response.statusText || 'Server error occurred.';
-      }
-    } else if (error.request) {
-      detail = 'Network Error. Please check your connection.';
+    // 2. Network Error check
+    if (!error.response && error.request) {
+      detail = 'Network Error. Please check your internet connection.';
     }
 
-    if (error.response?.status !== 400 && error.response?.status !== 409) {
-        showToast('error', summary, detail);
+    // 3. SMART TOAST LOGIC
+    const hasFieldErrors = !!(apiError?.errors && Object.keys(apiError.errors).length > 0);
+
+    if (!hasFieldErrors) {
+      showToast(error.response && error.response.status < 500 ? 'warn' : 'error', summary, detail);
     }
 
+    // 4. Standardized Result Pattern return
     return Promise.resolve({
-        data: null,
-        success: false,
-        error: apiError || { status: 500, title: summary, detail }
+      data: null,
+      success: false,
+      error: apiError || { 
+        status: error.response?.status || 500, 
+        title: summary, 
+        detail: detail 
+      }
     });
   }
 );
