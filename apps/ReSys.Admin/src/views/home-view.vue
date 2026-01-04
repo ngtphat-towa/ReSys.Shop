@@ -2,10 +2,10 @@
 import { ref } from 'vue';
 
 const stats = ref([
-    { title: 'Orders', value: '152', icon: 'pi pi-shopping-cart', color: 'blue', trend: '24 new', trendColor: 'text-emerald-500' },
-    { title: 'Revenue', value: '$2,100', icon: 'pi pi-map-marker', color: 'orange', trend: '%52+', trendColor: 'text-emerald-500' },
-    { title: 'Customers', value: '28441', icon: 'pi pi-inbox', color: 'cyan', trend: '520', trendColor: 'text-emerald-500' },
-    { title: 'Comments', value: '152 Unread', icon: 'pi pi-comment', color: 'purple', trend: '85', trendColor: 'text-emerald-500' }
+    { title: 'Orders', value: '152', icon: 'pi pi-shopping-cart', color: 'blue', trend: '24 new', trendColor: 'text-primary' },
+    { title: 'Revenue', value: '$2,100', icon: 'pi pi-map-marker', color: 'orange', trend: '%52+', trendColor: 'text-primary' },
+    { title: 'Customers', value: '28441', icon: 'pi pi-inbox', color: 'cyan', trend: '520', trendColor: 'text-primary' },
+    { title: 'Comments', value: '152 Unread', icon: 'pi pi-comment', color: 'purple', trend: '85', trendColor: 'text-primary' }
 ]);
 </script>
 
@@ -23,7 +23,7 @@ const stats = ref([
                         <span class="block text-surface-500 dark:text-surface-400 font-medium mb-4 uppercase text-xs tracking-wider">{{ stat.title }}</span>
                         <div class="text-surface-900 dark:text-surface-0 font-bold text-2xl">{{ stat.value }}</div>
                     </div>
-                    <div class="flex items-center justify-center rounded-xl" :class="`bg-${stat.color}-100 dark:bg-${stat.color}-900/30`" style="width: 2.5rem; height: 2.5rem">
+                    <div class="flex items-center justify-center rounded-xl" :class="`bg-${stat.color}-100/50 dark:bg-${stat.color}-900/20`" style="width: 2.5rem; height: 2.5rem">
                         <i :class="[stat.icon, `text-${stat.color}-500`, 'text-xl']"></i>
                     </div>
                 </div>
@@ -40,8 +40,8 @@ const stats = ref([
                 </div>
                 <ul class="list-none p-0 m-0">
                     <li class="flex items-center py-3 border-b border-surface-100 dark:border-surface-800 last:border-0">
-                        <div class="w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full mr-4">
-                            <i class="pi pi-dollar text-blue-500"></i>
+                        <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
+                            <i class="pi pi-dollar text-primary"></i>
                         </div>
                         <div class="flex flex-col">
                             <span class="text-surface-900 dark:text-surface-0 font-medium">Richard Jones</span>
@@ -50,8 +50,8 @@ const stats = ref([
                         <span class="ml-auto text-surface-400 text-xs">2m ago</span>
                     </li>
                     <li class="flex items-center py-3 border-b border-surface-100 dark:border-surface-800 last:border-0">
-                        <div class="w-10 h-10 flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 rounded-full mr-4">
-                            <i class="pi pi-download text-orange-500"></i>
+                        <div class="w-10 h-10 flex items-center justify-center bg-primary/10 rounded-full mr-4">
+                            <i class="pi pi-download text-primary"></i>
                         </div>
                         <div class="flex flex-col">
                             <span class="text-surface-900 dark:text-surface-0 font-medium">System Update</span>

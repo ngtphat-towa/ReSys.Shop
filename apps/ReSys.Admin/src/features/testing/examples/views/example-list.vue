@@ -161,7 +161,7 @@ onMounted(() => {
     <AppBreadcrumb :locales="exampleLocales" />
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
-        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-0">
+        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
           {{ exampleLocales.titles.list }}
         </h2>
         <div class="flex items-center gap-2 mt-1">
@@ -239,11 +239,13 @@ onMounted(() => {
             <div
               class="relative overflow-hidden border shadow-sm w-14 h-14 rounded-xl bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700 group"
             >
-              <img
+              <Image
                 v-if="slotProps.data.image_url"
                 :src="slotProps.data.image_url"
                 :alt="slotProps.data.name"
-                class="object-cover w-full h-full transition-transform group-hover:scale-110"
+                preview
+                class="w-full h-full"
+                imageClass="object-cover w-full h-full transition-transform group-hover:scale-110"
               />
               <div
                 v-else
@@ -261,9 +263,13 @@ onMounted(() => {
               <span class="font-bold text-surface-900 dark:text-surface-0">{{
                 slotProps.data.name
               }}</span>
-              <span class="text-xs truncate text-surface-500 max-w-50"
-                >ID: {{ slotProps.data.id }}</span
+              <span 
+                class="text-[10px] truncate text-surface-500 dark:text-surface-400 max-w-50 cursor-pointer hover:text-primary hover:underline transition-colors font-mono"
+                @click="editExample(slotProps.data.id)"
+                v-tooltip.bottom="'Click to Edit'"
               >
+                ID: {{ slotProps.data.id }}
+              </span>
             </div>
           </template>
           <template #filter="{ filterModel, filterCallback }">
@@ -295,7 +301,7 @@ onMounted(() => {
                   )
                 }}
               </span>
-              <span class="text-[10px] text-emerald-500 font-bold uppercase">{{
+              <span class="text-[10px] text-primary font-bold uppercase">{{
                 exampleLocales.table?.in_stock
               }}</span>
             </div>
@@ -315,7 +321,7 @@ onMounted(() => {
         <Column field="status" :header="exampleLocales.table?.status" class="w-24">
           <template #body>
             <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+              <div class="w-2 h-2 rounded-full bg-primary"></div>
               <span class="text-xs font-medium text-surface-700 dark:text-surface-200">{{
                 exampleLocales.table?.active
               }}</span>
@@ -387,10 +393,21 @@ onMounted(() => {
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--p-content-border-color);
 }
+
+/* Light Mode Hover */
 :deep(.p-datatable-tbody > tr:hover) {
-  background: var(--p-primary-50);
+  background: var(--p-surface-100) !important;
 }
-.dark :deep(.p-datatable-tbody > tr:hover) {
-  background: var(--p-primary-900);
+
+/* Dark Mode Hover - Using :global to target the root class */
+:global(.app-dark) :deep(.p-datatable-tbody > tr:hover) {
+  background: var(--p-surface-800) !important;
+}
+
+/* Force PrimeVue Image to fill the table cell */
+:deep(.p-image), :deep(.p-image > img) {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 </style>

@@ -53,7 +53,7 @@ onMounted(() => {
     >
       <div class="text-center md:text-left">
         <h1
-          class="mb-4 text-5xl font-black leading-none tracking-tight text-surface-900 dark:text-surface-0"
+          class="mb-4 text-5xl font-black leading-none tracking-tight text-surface-900 dark:text-surface-50"
         >
           {{ exampleLocales.titles.hero_primary }} <span class="text-primary">{{ exampleLocales.titles.hero_highlight }}</span>
         </h1>
@@ -148,13 +148,13 @@ onMounted(() => {
         </template>
         <template #title>
           <h3
-            class="mb-1 text-xl font-black tracking-tight text-surface-900 dark:text-surface-0 line-clamp-1"
+            class="mb-1 text-xl font-black tracking-tight text-surface-900 dark:text-surface-50 line-clamp-1"
           >
             {{ example.name }}
           </h3>
         </template>
         <template #subtitle>
-          <span class="text-3xl font-black text-primary">
+          <span class="text-3xl font-black text-surface-900 dark:text-surface-50">
             {{
               new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
                 example.price,
@@ -164,7 +164,7 @@ onMounted(() => {
         </template>
         <template #content>
           <p
-            class="mt-2 text-sm italic leading-relaxed text-surface-500 dark:text-surface-400 line-clamp-2"
+            class="mt-2 text-sm italic leading-relaxed text-surface-600 dark:text-surface-300 line-clamp-2"
           >
             {{ example.description || exampleLocales.table?.no_details }}
           </p>

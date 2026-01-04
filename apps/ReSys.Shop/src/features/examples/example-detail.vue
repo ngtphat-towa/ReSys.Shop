@@ -69,7 +69,7 @@ watch(() => route.params.id, (newId) => {
                 <div class="w-full lg:w-1/2 flex flex-col justify-center">
                     <div class="mb-10">
                         <Button :label="exampleLocales.actions.back_to_catalog" icon="pi pi-arrow-left" text severity="secondary" @click="router.push({ name: 'shop.home' })" class="mb-6 font-bold" />
-                        <h1 class="text-6xl font-black text-surface-900 dark:text-surface-0 leading-[1.1] mb-4 tracking-tighter">{{ currentExample.name }}</h1>
+                        <h1 class="text-6xl font-black text-surface-900 dark:text-surface-50 leading-[1.1] mb-4 tracking-tighter">{{ currentExample.name }}</h1>
                         <div class="flex items-center gap-4">
                             <div class="flex text-yellow-400">
                                 <i v-for="i in 5" :key="i" class="pi pi-star-fill text-sm"></i>
@@ -79,7 +79,7 @@ watch(() => route.params.id, (newId) => {
                     </div>
 
                     <div class="mb-12">
-                        <span class="text-5xl font-black text-primary block mb-2">
+                        <span class="text-5xl font-black text-surface-900 dark:text-surface-50 block mb-2">
                             {{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currentExample.price) }}
                         </span>
                         <p class="text-surface-500 dark:text-surface-400 font-medium">{{ exampleLocales.labels?.free_delivery }}</p>
@@ -88,7 +88,7 @@ watch(() => route.params.id, (newId) => {
                     <Divider class="my-0" />
 
                     <div class="py-12">
-                        <h3 class="text-xl font-black text-surface-900 dark:text-surface-0 mb-4 uppercase tracking-widest">{{ exampleLocales.labels?.details }}</h3>
+                        <h3 class="text-xl font-black text-surface-900 dark:text-surface-50 mb-4 uppercase tracking-widest">{{ exampleLocales.labels?.details }}</h3>
                         <p class="text-surface-600 dark:text-surface-300 leading-[1.8] text-lg whitespace-pre-line">{{ currentExample.description || exampleLocales.messages?.no_details_desc }}</p>
                     </div>
 
@@ -124,7 +124,7 @@ watch(() => route.params.id, (newId) => {
             <div v-if="similarExamples.length > 0">
                 <div class="flex justify-between items-end mb-12">
                     <div>
-                        <h2 class="text-4xl font-black text-surface-900 dark:text-surface-0 tracking-tighter">{{ exampleLocales.titles.recommendations_primary }} <span class="text-primary">{{ exampleLocales.titles.recommendations_highlight }}</span></h2>
+                        <h2 class="text-4xl font-black text-surface-900 dark:text-surface-50 tracking-tighter">{{ exampleLocales.titles.recommendations_primary }} <span class="text-primary">{{ exampleLocales.titles.recommendations_highlight }}</span></h2>
                         <p class="text-surface-500 dark:text-surface-400 text-lg mt-2 font-medium">{{ exampleLocales.titles.recommendations_desc }}</p>
                     </div>
                     <Button :label="exampleLocales.actions.explore_all" severity="secondary" text class="font-bold" />
@@ -140,7 +140,7 @@ watch(() => route.params.id, (newId) => {
                             </div>
                         </template>
                         <template #title>
-                            <span class="text-base font-black line-clamp-1 group-hover:text-primary transition-colors block px-2 text-surface-900 dark:text-surface-0">{{ sim.name }}</span>
+                            <span class="text-base font-black line-clamp-1 group-hover:text-primary transition-colors block px-2 text-surface-900 dark:text-surface-50">{{ sim.name }}</span>
                         </template>
                         <template #subtitle>
                             <span class="text-xl font-black text-surface-900 dark:text-surface-0 block px-2 pb-2">
