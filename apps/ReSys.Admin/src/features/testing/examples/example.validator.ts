@@ -13,7 +13,7 @@ export const ExampleSchema = zod.object({
         .max(2000, 'Example description cannot exceed 2000 characters.'),
     price: zod.number()
         .min(0.01, 'Price must be at least $0.01.'),
-    image_url: zod.string().optional()
+    image_url: zod.string().nullable().optional()
 });
 
 /**

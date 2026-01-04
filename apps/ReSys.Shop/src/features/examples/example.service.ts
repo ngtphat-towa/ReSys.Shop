@@ -1,4 +1,5 @@
-import apiClient from '@/shared/api/api-client';
+import apiClient from '@/shared/api/client';
+import type { ApiResult } from '@/shared/api/types';
 import type { 
     ApiResponse,
     ExampleListItem,
@@ -6,17 +7,14 @@ import type {
     ExampleQuery
 } from './example.types';
 
-export const getExamples = async (query?: ExampleQuery): Promise<ApiResponse<ExampleListItem[]>> => {    
-    const response = await apiClient.get<ApiResponse<ExampleListItem[]>>('/examples', { params: query });
-    return response.data;
+export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {    
+    return await apiClient.get('/examples', { params: query });
 };
 
-export const getExampleById = async (id: string): Promise<ApiResponse<ExampleDetail>> => {
-    const response = await apiClient.get<ApiResponse<ExampleDetail>>(`/examples/${id}`);
-    return response.data;
+export const getExampleById = async (id: string): Promise<ApiResult<ExampleDetail>> => {
+    return await apiClient.get(`/examples/${id}`);
 };
 
-export const getSimilarExamples = async (id: string): Promise<ApiResponse<ExampleListItem[]>> => {       
-    const response = await apiClient.get<ApiResponse<ExampleListItem[]>>(`/examples/${id}/similar`);     
-    return response.data;
+export const getSimilarExamples = async (id: string): Promise<ApiResult<ExampleListItem[]>> => {       
+    return await apiClient.get(`/examples/${id}/similar`);     
 };

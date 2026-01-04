@@ -2,7 +2,7 @@
 import { RouterView } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { watch } from 'vue';
-import { toastBus } from '@/shared/api/api-client';
+import { toastBus } from '@/shared/api/client';
 
 const toast = useToast();
 

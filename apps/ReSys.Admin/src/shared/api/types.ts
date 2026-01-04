@@ -17,3 +17,10 @@ export interface ApiResponse<T> {
     detail?: string;
     type?: string;
 }
+
+/**
+ * Result pattern for API calls
+ */
+export type ApiResult<T> = 
+    | { data: T; success: true; error?: never }
+    | { data: null; success: false; error: ApiResponse<any> };

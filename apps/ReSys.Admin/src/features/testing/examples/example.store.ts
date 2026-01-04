@@ -1,19 +1,19 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { 
-    getExamples, 
-    getExampleById, 
-    createExample as apiCreateExample, 
-    updateExample as apiUpdateExample, 
+import {
+    getExamples,
+    getExampleById,
+    createExample as apiCreateExample,
+    updateExample as apiUpdateExample,
     deleteExample as apiDeleteExample,
     updateExampleImage as apiUpdateExampleImage
 } from './example.service';
-import type { 
-    ExampleListItem, 
-    ExampleDetail, 
-    ExampleQuery, 
-    CreateExampleRequest, 
-    UpdateExampleRequest 
+import type {
+    ExampleListItem,
+    ExampleDetail,
+    ExampleQuery,
+    CreateExampleRequest,
+    UpdateExampleRequest
 } from './example.types';
 
 export const useExampleStore = defineStore('example', () => {
@@ -21,7 +21,7 @@ export const useExampleStore = defineStore('example', () => {
     const currentExample = ref<ExampleDetail | null>(null);
     const loading = ref(false);
     const totalRecords = ref(0);
-    
+
     // Unified query state
     const query = ref<ExampleQuery>({
         page: 1,
@@ -33,17 +33,22 @@ export const useExampleStore = defineStore('example', () => {
 
     async function fetchExamples(newQuery?: Partial<ExampleQuery>) {
         loading.value = true;
-        
-        // Update local query state if new params provided
+
         if (newQuery) {
             query.value = { ...query.value, ...newQuery };
         }
 
         try {
-            const response = await getExamples(query.value);
-            examples.value = response.data;
-            totalRecords.value = response.meta?.total_count ?? 0;
-            return response;
+            const params = Object.fromEntries(
+                Object.entries(query.value).filter(([_, v]) => v != null && v !== '')
+            );
+
+            const result = await getExamples(params as ExampleQuery);
+            if (result.success) {
+                examples.value = result.data?.data;
+                totalRecords.value = result.data.meta?.total_count ?? 0;
+            }
+            return result;
         } finally {
             loading.value = false;
         }
@@ -52,9 +57,11 @@ export const useExampleStore = defineStore('example', () => {
     async function fetchExampleById(id: string) {
         loading.value = true;
         try {
-            const response = await getExampleById(id);
-            currentExample.value = response.data;
-            return response;
+            const result = await getExampleById(id);
+            if (result.success) {
+                currentExample.value = result.data.data;
+            }
+            return result;
         } finally {
             loading.value = false;
         }
@@ -63,11 +70,11 @@ export const useExampleStore = defineStore('example', () => {
     async function createExample(request: CreateExampleRequest, image?: File) {
         loading.value = true;
         try {
-            let response = await apiCreateExample(request);
-            if (image && response.data.id) {
-                response = await apiUpdateExampleImage(response.data.id, image);
+            let result = await apiCreateExample(request);
+            if (result.success && image && result.data.data.id) {
+                result = await apiUpdateExampleImage(result.data.data.id, image);
             }
-            return response;
+            return result;
         } finally {
             loading.value = false;
         }
@@ -76,11 +83,11 @@ export const useExampleStore = defineStore('example', () => {
     async function updateExample(id: string, request: UpdateExampleRequest, image?: File) {
         loading.value = true;
         try {
-            let response = await apiUpdateExample(id, request);
-            if (image) {
-                response = await apiUpdateExampleImage(id, image);
+            let result = await apiUpdateExample(id, request);
+            if (result.success && image) {
+                result = await apiUpdateExampleImage(id, image);
             }
-            return response;
+            return result;
         } finally {
             loading.value = false;
         }
@@ -89,8 +96,11 @@ export const useExampleStore = defineStore('example', () => {
     async function deleteExample(id: string) {
         loading.value = true;
         try {
-            await apiDeleteExample(id);
-            await fetchExamples();
+            const result = await apiDeleteExample(id);
+            if (result.success) {
+                await fetchExamples();
+            }
+            return result;
         } finally {
             loading.value = false;
         }

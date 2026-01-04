@@ -1,12 +1,14 @@
+import type { FeatureLocales } from '@/shared/locales/locale.types';
+
 /**
  * Feature-specific strings for Examples
- * Organized to make future i18n migration easy
+ * Implements FeatureLocales for consistent structure
  */
-export const ExampleLocales = {
+export const exampleLocales: FeatureLocales = {
     titles: {
         list: 'Example Catalog',
-        create: 'Create New Product',
-        edit: 'Update Product',
+        create: 'Create New Example',
+        edit: 'Update Example',
         breadcrumb_home: 'Dashboard',
         breadcrumb_parent: 'Examples'
     },
@@ -18,7 +20,7 @@ export const ExampleLocales = {
         description: 'Description',
         price: 'Price (USD)',
         category: 'Category',
-        media: 'Product Media',
+        media: 'Example Media',
         summary: 'Publish Summary'
     },
     table: {
@@ -30,7 +32,9 @@ export const ExampleLocales = {
         actions: 'Actions',
         no_details: 'No additional details',
         active: 'Active',
-        in_stock: 'In Stock'
+        in_stock: 'In Stock',
+        filter_placeholder: 'Search name',
+        clear_filter: 'Clear Filters'
     },
     placeholders: {
         search: 'Search by name...',
@@ -58,12 +62,14 @@ export const ExampleLocales = {
         validation_failed: 'Please correct the errors before saving.',
         loading: 'Loading...',
         no_image: 'No image selected',
-        empty_list: 'No Examples found'
+        empty_list: 'No Examples found',
+        ready_to_upload: 'Ready to upload'
     },
     actions: {
         cancel: 'Cancel',
-        save_create: 'Create Product',
+        save_create: 'Create Example',
         save_edit: 'Update Changes',
-        new: 'New Example'
+        new: 'New Example',
+        clear_selection: 'Clear Selection'
     }
 };

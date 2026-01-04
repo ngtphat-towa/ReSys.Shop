@@ -9,10 +9,22 @@ const model = ref<MenuItem[]>([
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
     },
     {
-        label: 'Examples',
+        label: 'Catalog',
         items: [
-            { label: 'List', icon: 'pi pi-fw pi-list', to: '/Examples' },
-            { label: 'Create', icon: 'pi pi-fw pi-plus', to: '/Examples/create' }
+            { label: 'Products', icon: 'pi pi-fw pi-shopping-bag', to: '/catalog/products' }
+        ]
+    },
+    {
+        label: 'Testing',
+        items: [
+            { 
+                label: 'Examples', 
+                icon: 'pi pi-fw pi-database', 
+                items: [
+                    { label: 'Catalog List', icon: 'pi pi-fw pi-list', to: '/Examples' },
+                    { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: '/Examples/create' }
+                ]
+            }
         ]
     }
 ]);

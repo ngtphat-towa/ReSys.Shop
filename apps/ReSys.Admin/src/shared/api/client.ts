@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { ref } from 'vue';
-import type { ApiResponse } from './api.types';
+import type { ApiResponse, ApiResult } from './types';
 
 // Simple Event Bus for Toasts
 export const toastBus = ref<{ severity: 'success' | 'info' | 'warn' | 'error'; summary: string; detail: string; life?: number } | null>(null);
@@ -10,7 +10,7 @@ export const showToast = (severity: 'success' | 'info' | 'warn' | 'error', summa
 };
 
 const apiClient: AxiosInstance = axios.create({
-    baseURL: '/api', // Vite proxy should handle this
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -18,37 +18,47 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.response.use(
     (response) => {
-        // Automatically toast on successful POST/PUT/DELETE
+        // Automatic success notification for mutations
         if (response.config.method !== 'get' && response.status >= 200 && response.status <= 299) {
             showToast('success', 'Success', 'Action completed successfully');
         }
-        return response;
+        
+        // Wrap success in Result pattern
+        return {
+            data: response.data,
+            success: true
+        } as any;
     },
     (error: AxiosError) => {
         let summary = 'Error';
         let detail = 'An unexpected error occurred.';
+        let apiError: ApiResponse<any> | null = null;
 
         if (error.response) {
-            const data = error.response.data as ApiResponse<any>;
-            summary = data?.title || `Error ${error.response.status}`;
+            apiError = error.response.data as ApiResponse<any>;
+            summary = apiError?.title || `Error ${error.response.status}`;
 
-            if (data?.errors) {
-                // Record<string, string[]> - Extract and join all validation messages
-                const messages = Object.values(data.errors).flat();
+            if (apiError?.errors) {
+                const messages = Object.values(apiError.errors).flat();
                 detail = messages.length > 0 ? messages.join('. ') : 'Validation failed.';
             } else {
-                detail = data?.detail || error.response.statusText || 'Server error occurred.';
+                detail = apiError?.detail || error.response.statusText || 'Server error occurred.';
             }
-            
-            // Handle common status codes if summary/detail not provided by API
-            if (error.response.status === 401 && !data?.detail) detail = 'Unauthorized. Please log in.';
-            if (error.response.status === 403 && !data?.detail) detail = 'Forbidden. You do not have permission.';
         } else if (error.request) {
             detail = 'Network Error. Please check your connection.';
         }
 
-        showToast('error', summary, detail);
-        return Promise.reject(error);
+        // Only show toast for non-validation/conflict errors (let the form handle those)
+        if (error.response?.status !== 400 && error.response?.status !== 409) {
+            showToast('error', summary, detail);
+        }
+
+        // Return failure instead of throwing
+        return Promise.resolve({
+            data: null,
+            success: false,
+            error: apiError || { status: 500, title: summary, detail }
+        });
     }
 );
 

@@ -13,10 +13,12 @@ export const useExampleStore = defineStore('Example', () => {
     async function fetchExamples(query?: ExampleQuery) {
         loading.value = true;
         try {
-            const response = await getExamples(query);
-            Examples.value = response.data;
-            totalRecords.value = response.meta?.total_count ?? 0;
-            return response;
+            const result = await getExamples(query);
+            if (result.success) {
+                Examples.value = result.data.data;
+                totalRecords.value = result.data.meta?.total_count ?? 0;
+            }
+            return result;
         } finally {
             loading.value = false;
         }
@@ -29,8 +31,14 @@ export const useExampleStore = defineStore('Example', () => {
                 getExampleById(id),
                 getSimilarExamples(id)
             ]);
-            currentExample.value = ExampleRes.data;
-            similarExamples.value = similarRes.data;
+            
+            if (ExampleRes.success) {
+                currentExample.value = ExampleRes.data.data;
+            }
+            if (similarRes.success) {
+                similarExamples.value = similarRes.data.data;
+            }
+            
             return ExampleRes;
         } finally {
             loading.value = false;

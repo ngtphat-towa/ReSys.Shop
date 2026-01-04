@@ -1,4 +1,4 @@
-import type { ApiResponse } from '@/shared/api/api.types';
+import type { ApiResponse } from '@/shared/api/types';
 import type { ExampleInput } from './example.validator';
 
 /**

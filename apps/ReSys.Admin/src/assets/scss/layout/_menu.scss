@@ -24,25 +24,12 @@
 
     .layout-root-menuitem {
         > .layout-menuitem-root-text {
-            font-size: 0.857rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            font-weight: 700;
-            color: var(--text-color);
-            margin: 0.75rem 0;
-        }
-
-        > a {
-            display: none;
-        }
-    }
-
-    a {
-        user-select: none;
-
-        &.active-menuitem {
-            > .layout-submenu-toggler {
-                transform: rotate(-180deg);
-            }
+            font-weight: 800;
+            color: var(--surface-400);
+            margin: 1.5rem 0 0.5rem 0;
+            letter-spacing: 0.1em;
         }
     }
 
@@ -68,15 +55,16 @@
             cursor: pointer;
             padding: 0.75rem 1rem;
             border-radius: var(--content-border-radius);
-            transition:
-                box-shadow var(--element-transition-duration);
+            transition: background-color var(--element-transition-duration), box-shadow var(--element-transition-duration);
 
             .layout-menuitem-icon {
-                margin-right: 0.5rem;
+                margin-right: 0.75rem;
+                font-size: 1.1rem;
+                color: var(--surface-500);
             }
 
             .layout-submenu-toggler {
-                font-size: 75%;
+                font-size: 0.75rem;
                 margin-left: auto;
                 transition: transform var(--element-transition-duration);
             }
@@ -84,6 +72,11 @@
             &.active-route {
                 font-weight: 700;
                 color: var(--primary-color);
+                background-color: var(--primary-50);
+                
+                .layout-menuitem-icon {
+                    color: var(--primary-color);
+                }
             }
 
             &:hover {
@@ -95,42 +88,21 @@
             }
         }
 
+        // Standard Sakai Nesting Logic
         ul {
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
             overflow: hidden;
-            border-radius: var(--content-border-radius);
 
             li {
                 a {
-                    margin-left: 1rem;
+                    padding-left: 2rem;
                 }
 
                 li {
                     a {
-                        margin-left: 2rem;
-                    }
-
-                    li {
-                        a {
-                            margin-left: 2.5rem;
-                        }
-
-                        li {
-                            a {
-                                margin-left: 3rem;
-                            }
-
-                            li {
-                                a {
-                                    margin-left: 3.5rem;
-                                }
-
-                                li {
-                                    a {
-                                        margin-left: 4rem;
-                                    }
-                                }
-                            }
-                        }
+                        padding-left: 3rem;
                     }
                 }
             }
@@ -138,22 +110,25 @@
     }
 }
 
+/* Submenu Transitions */
 .layout-submenu-enter-from,
 .layout-submenu-leave-to {
     max-height: 0;
+    opacity: 0;
 }
 
 .layout-submenu-enter-to,
 .layout-submenu-leave-from {
     max-height: 1000px;
+    opacity: 1;
 }
 
 .layout-submenu-leave-active {
     overflow: hidden;
-    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1);
+    transition: max-height 0.45s cubic-bezier(0, 1, 0, 1), opacity 0.45s;
 }
 
 .layout-submenu-enter-active {
     overflow: hidden;
-    transition: max-height 1s ease-in-out;
+    transition: max-height 1s ease-in-out, opacity 0.5s;
 }

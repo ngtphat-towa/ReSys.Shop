@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { ref } from 'vue';
-import type { ApiResponse } from './api.types';
+import type { ApiResponse, ApiResult } from './types';
 
 // Simple Event Bus for Toasts
 export const toastBus = ref<{ severity: 'success' | 'info' | 'warn' | 'error'; summary: string; detail: string; life?: number } | null>(null);
@@ -22,29 +22,40 @@ apiClient.interceptors.response.use(
     if (response.config.method !== 'get' && response.status >= 200 && response.status <= 299) {
       showToast('success', 'Success', 'Action completed successfully');
     }
-    return response;
+    
+    return {
+        data: response.data,
+        success: true
+    } as any;
   },
   (error: AxiosError) => {
     let summary = 'Error';
     let detail = 'An unexpected error occurred.';
+    let apiError: ApiResponse<any> | null = null;
 
     if (error.response) {
-      const data = error.response.data as ApiResponse<any>;
-      summary = data?.title || `Error ${error.response.status}`;
+      apiError = error.response.data as ApiResponse<any>;
+      summary = apiError?.title || `Error ${error.response.status}`;
 
-      if (data?.errors) {
-        // Record<string, string[]> - Extract and join all validation messages
-        const messages = Object.values(data.errors).flat();
+      if (apiError?.errors) {
+        const messages = Object.values(apiError.errors).flat();
         detail = messages.length > 0 ? messages.join('. ') : 'Validation failed.';
       } else {
-        detail = data?.detail || error.response.statusText || 'Server error occurred.';
+        detail = apiError?.detail || error.response.statusText || 'Server error occurred.';
       }
     } else if (error.request) {
       detail = 'Network Error. Please check your connection.';
     }
 
-    showToast('error', summary, detail);
-    return Promise.reject(error);
+    if (error.response?.status !== 400 && error.response?.status !== 409) {
+        showToast('error', summary, detail);
+    }
+
+    return Promise.resolve({
+        data: null,
+        success: false,
+        error: apiError || { status: 500, title: summary, detail }
+    });
   }
 );
 
