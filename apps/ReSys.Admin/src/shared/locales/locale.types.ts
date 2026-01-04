@@ -1,45 +1,57 @@
 /**
- * Base schema for feature-specific locales
- * This mirrors the structure required by vue-i18n
+ * Base schema for feature-specific locales.
+ * Used to ensure all feature modules (Examples, Orders, etc.) provide consistent UI strings.
  */
 export interface FeatureLocales {
-    titles: Record<string, string>;
-    descriptions?: Record<string, string>;
-    labels?: Record<string, string>;
-    placeholders?: Record<string, string>;
-    tooltips?: Record<string, string>;
-    messages: Record<string, string>;
-    actions: Record<string, string>;
-    table?: Record<string, string>;
-    confirm?: Record<string, string | ((...args: any[]) => string)>;
+  /** Primary headers and breadcrumb titles. */
+  titles: Record<string, string>
+  /** Explanatory sub-text for pages or sections. */
+  descriptions?: Record<string, string>
+  /** Form field labels. */
+  labels?: Record<string, string>
+  /** Input hints and placeholder text. */
+  placeholders?: Record<string, string>
+  /** Contextual help strings. */
+  tooltips?: Record<string, string>
+  /** Feedback messages for user actions. */
+  messages: Record<string, string>
+  /** Button and clickable action labels. */
+  actions: Record<string, string>
+  /** DataTable headers and metadata strings. */
+  table?: Record<string, string>
+  /** Configuration for confirmation dialogs. */
+  confirm?: Record<string, string | ((...args: any[]) => string)>
 }
 
 /**
- * General/Common strings used across the entire application
+ * General/Common strings used across the entire application.
+ * Contains strings that are independent of any specific business feature.
  */
 export interface GeneralLocales {
-    common: {
-        confirm: string;
-        cancel: string;
-        save: string;
-        delete: string;
-        edit: string;
-        back: string;
-        next: string;
-        prev: string;
-        yes: string;
-        no: string;
-        loading: string;
-        success: string;
-        error: string;
-        warning: string;
-        info: string;
-    };
-    navigation: {
-        dashboard: string;
-        home: string;
-        profile: string;
-        settings: string;
-        logout: string;
-    };
+  /** Basic action labels (Save, Cancel, etc.) */
+  common: {
+    confirm: string
+    cancel: string
+    save: string
+    delete: string
+    edit: string
+    back: string
+    next: string
+    prev: string
+    yes: string
+    no: string
+    loading: string
+    success: string
+    error: string
+    warning: string
+    info: string
+  }
+  /** Top-level navigation labels. */
+  navigation: {
+    dashboard: string
+    home: string
+    profile: string
+    settings: string
+    logout: string
+  }
 }

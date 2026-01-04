@@ -1,22 +1,24 @@
-import * as zod from 'zod';
+import { z } from 'zod'
 
 /**
- * Zod Validation Schema
- * The final single source of truth for Example validation and types
+ * Validation schema for Example entities.
+ * Used for both client-side form validation (via VeeValidate) and type safety.
  */
-export const ExampleSchema = zod.object({
-    name: zod.string()
-        .min(1, 'Example name is required.')
-        .max(255, 'Example name cannot exceed 255 characters.'),
-    description: zod.string()
-        .min(1, 'Example description is required.')
-        .max(2000, 'Example description cannot exceed 2000 characters.'),
-    price: zod.number()
-        .min(0.01, 'Price must be at least $0.01.'),
-    image_url: zod.string().nullable().optional()
-});
+export const ExampleSchema = z.object({
+  /** The display name of the example. Required, min 3 chars. */
+  name: z.string().min(3, 'Name must be at least 3 characters'),
+
+  /** Detailed description. Optional, max 500 chars. */
+  description: z.string().max(500, 'Description too long').optional(),
+
+  /** Unit price. Must be a positive number. */
+  price: z.number().positive('Price must be positive'),
+
+  /** URL to the hosted image. Managed separately via file upload but tracked here for state. */
+  image_url: z.string().nullable().optional(),
+})
 
 /**
- * Derived TypeScript interface from the Zod schema
+ * TypeScript type inferred from the ExampleSchema.
  */
-export type ExampleInput = zod.infer<typeof ExampleSchema>;
+export type ExampleFormData = z.infer<typeof ExampleSchema>

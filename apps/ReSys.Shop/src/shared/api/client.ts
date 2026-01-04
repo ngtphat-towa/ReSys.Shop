@@ -2,13 +2,23 @@ import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { ref } from 'vue';
 import type { ApiResponse, ApiResult } from './types';
 
-// Simple Event Bus for Toasts
+/**
+ * Global Event Bus for Notifications.
+ * Used for displaying success/error messages across the Shop application.
+ */
 export const toastBus = ref<{ severity: 'success' | 'info' | 'warn' | 'error'; summary: string; detail: string; life?: number } | null>(null);
 
+/**
+ * Utility to trigger a global toast notification.
+ */
 export const showToast = (severity: 'success' | 'info' | 'warn' | 'error', summary: string, detail: string, life = 3000) => {
   toastBus.value = { severity, summary, detail, life };
 };
 
+/**
+ * Configured Axios instance for the Shop application.
+ * Handles automatic unwrapping of the server envelope.
+ */
 const apiClient: AxiosInstance = axios.create({
   baseURL: '/api', // Vite proxy should handle this
   headers: {
@@ -18,17 +28,28 @@ const apiClient: AxiosInstance = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => {
-    // Automatically toast on successful POST/PUT/DELETE
+    /**
+     * SUCCESS HANDLER
+     * Automatically shows success notifications for mutations (POST, PUT, DELETE).
+     * Unwraps the server envelope to provide clean data access.
+     */
     if (response.config.method !== 'get' && response.status >= 200 && response.status <= 299) {
       showToast('success', 'Success', 'Action completed successfully');
     }
     
+    const apiResponse = response.data as ApiResponse<any>;
+
     return {
-        data: response.data,
+        data: apiResponse.data,
+        meta: apiResponse.meta,
         success: true
     } as any;
   },
   (error: AxiosError) => {
+    /**
+     * ERROR HANDLER
+     * Parses RFC 7807 problem details and triggers global error notifications.
+     */
     let summary = 'Error';
     let detail = 'An unexpected error occurred.';
     let apiError: ApiResponse<any> | null = null;

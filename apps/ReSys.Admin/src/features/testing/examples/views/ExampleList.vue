@@ -1,88 +1,119 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useExampleStore } from '../example.store';
-import { useRouter } from 'vue-router';
+/**
+ * Example List View
+ * Demonstrates a "Lazy" PrimeVue DataTable with server-side pagination, sorting, and filtering.
+ * Orchestrates communication between the ExampleStore and the DataTable UI.
+ */
+import { onMounted, ref } from 'vue'
+import { useExampleStore } from '../example.store'
+import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
-import { storeToRefs } from 'pinia';
-import { exampleLocales } from '../example.locales';
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api';
-import { showToast } from '@/shared/api/client';
+import { storeToRefs } from 'pinia'
+import { exampleLocales } from '../example.locales'
+import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
+import { showToast } from '@/shared/api/client'
 
-const exampleStore = useExampleStore();
+// --- STORE & ROUTING ---
+const exampleStore = useExampleStore()
 const { examples, loading, totalRecords, query } = storeToRefs(exampleStore)
 const router = useRouter()
 const confirm = useConfirm()
 
-// 1. Correct Initialization for 'menu' filter mode
+/**
+ * PrimeVue Filter Configuration
+ * Maps internal UI filters to the API query parameters.
+ */
 const filters = ref<any>({
-    global: { value: query.value.search, matchMode: FilterMatchMode.CONTAINS },
-    name: {
-        operator: FilterOperator.AND,
-        constraints: [{ value: query.value.name || null, matchMode: FilterMatchMode.CONTAINS }]
-    },
-    price: {
-        operator: FilterOperator.AND,
-        constraints: [{ value: query.value.min_price || null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO }]
-    },
-    status: {
-        operator: FilterOperator.OR,
-        constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-    }
-});
+  global: { value: query.value.search, matchMode: FilterMatchMode.CONTAINS },
+  name: {
+    operator: FilterOperator.AND,
+    constraints: [{ value: query.value.name || null, matchMode: FilterMatchMode.CONTAINS }],
+  },
+  price: {
+    operator: FilterOperator.AND,
+    constraints: [
+      { value: query.value.min_price || null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO },
+    ],
+  },
+  status: {
+    operator: FilterOperator.OR,
+    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+  },
+})
 
-const statuses = ref(['Active', 'Inactive', 'Out of Stock']);
+const statuses = ref(['Active', 'Inactive', 'Out of Stock'])
 
+// --- DATA ACTIONS ---
+
+/**
+ * Initial data fetch.
+ */
 const loadExamples = async () => {
   await exampleStore.fetchExamples()
 }
 
+/**
+ * Handles DataTable pagination events.
+ */
 const onPage = (event: any) => {
   exampleStore.fetchExamples({
-      page: event.page + 1,
-      page_size: event.rows
-  });
+    page: event.page + 1,
+    page_size: event.rows,
+  })
 }
 
+/**
+ * Handles DataTable sorting events.
+ */
 const onSort = (event: any) => {
-    exampleStore.fetchExamples({
-        sort_by: event.sortField,
-        is_descending: event.sortOrder === -1,
-        page: 1
-    });
-};
+  exampleStore.fetchExamples({
+    sort_by: event.sortField,
+    is_descending: event.sortOrder === -1,
+    page: 1,
+  })
+}
 
+/**
+ * Triggers a filtered search based on current filter values.
+ */
 const onFilter = () => {
-    exampleStore.fetchExamples({
-        search: filters.value.global.value,
-        name: filters.value.name.constraints[0]?.value,
-        min_price: filters.value.price.constraints[0]?.value,
-        page: 1
-    });
-};
+  exampleStore.fetchExamples({
+    search: filters.value.global.value,
+    name: filters.value.name.constraints[0]?.value,
+    min_price: filters.value.price.constraints[0]?.value,
+    page: 1,
+  })
+}
 
+/**
+ * Resets all filters to their initial state and refreshes the list.
+ */
 const clearFilters = () => {
-    filters.value = {
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        name: {
-            operator: FilterOperator.AND,
-            constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }]
-        },
-        price: {
-            operator: FilterOperator.AND,
-            constraints: [{ value: null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO }]
-        },
-        status: {
-            operator: FilterOperator.OR,
-            constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }]
-        }
-    };
-    onFilter();
-};
+  filters.value = {
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    name: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
+    },
+    price: {
+      operator: FilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO }],
+    },
+    status: {
+      operator: FilterOperator.OR,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+    },
+  }
+  onFilter()
+}
 
 const editExample = (id: string) => {
   router.push(`/Examples/edit/${id}`)
 }
 
+/**
+ * Shows a confirmation dialog before deleting an item.
+ */
 const confirmDelete = (Example: any) => {
   confirm.require({
     message: (exampleLocales.confirm!.delete_message as Function)(Example.name),
@@ -99,9 +130,9 @@ const confirmDelete = (Example: any) => {
       severity: 'danger',
     },
     accept: async () => {
-      const result = await exampleStore.deleteExample(Example.id);
+      const result = await exampleStore.deleteExample(Example.id)
       if (result.success) {
-          showToast('success', 'Deleted', 'Example has been removed.');
+        showToast('success', 'Deleted', 'Example has been removed.')
       }
     },
   })
@@ -158,21 +189,26 @@ onMounted(() => {
         class="overflow-hidden border rounded-lg shadow-sm border-surface-100 dark:border-surface-800"
       >
         <template #header>
-            <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
-                <IconField iconPosition="left" class="w-full md:w-72">
-                    <InputIcon class="pi pi-search" />
-                    <InputText v-model="filters.global.value" :placeholder="exampleLocales.placeholders?.search" @keyup.enter="onFilter" class="w-full rounded-xl" />
-                </IconField>
+          <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <IconField iconPosition="left" class="w-full md:w-72">
+              <InputIcon class="pi pi-search" />
+              <InputText
+                v-model="filters.global.value"
+                :placeholder="exampleLocales.placeholders?.search"
+                @keyup.enter="onFilter"
+                class="w-full rounded-xl"
+              />
+            </IconField>
 
-                <Button
-                    type="button"
-                    icon="pi pi-filter-slash"
-                    :label="exampleLocales.table?.clear_filter"
-                    outlined
-                    @click="clearFilters"
-                    class="w-full rounded-xl md:w-auto"
-                />
-            </div>
+            <Button
+              type="button"
+              icon="pi pi-filter-slash"
+              :label="exampleLocales.table?.clear_filter"
+              outlined
+              @click="clearFilters"
+              class="w-full rounded-xl md:w-auto"
+            />
+          </div>
         </template>
 
         <template #empty>
@@ -217,8 +253,14 @@ onMounted(() => {
             </div>
           </template>
           <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @keyup.enter="filterCallback()" class="p-column-filter" :placeholder="exampleLocales.table?.filter_placeholder" />
-            </template>
+            <InputText
+              v-model="filterModel.value"
+              type="text"
+              @keyup.enter="filterCallback()"
+              class="p-column-filter"
+              :placeholder="exampleLocales.table?.filter_placeholder"
+            />
+          </template>
         </Column>
 
         <Column field="description" :header="exampleLocales.table?.details" class="max-w-xs">
@@ -239,28 +281,50 @@ onMounted(() => {
                   )
                 }}
               </span>
-              <span class="text-[10px] text-emerald-500 font-bold uppercase">{{ exampleLocales.table?.in_stock }}</span>
+              <span class="text-[10px] text-emerald-500 font-bold uppercase">{{
+                exampleLocales.table?.in_stock
+              }}</span>
             </div>
           </template>
           <template #filter="{ filterModel, filterCallback }">
-                <InputNumber v-model="filterModel.value" mode="currency" currency="USD" locale="en-US" @keyup.enter="filterCallback()" class="w-full" />
-            </template>
+            <InputNumber
+              v-model="filterModel.value"
+              mode="currency"
+              currency="USD"
+              locale="en-US"
+              @keyup.enter="filterCallback()"
+              class="w-full"
+            />
+          </template>
         </Column>
 
         <Column field="status" :header="exampleLocales.table?.status" class="w-24">
           <template #body>
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-              <span class="text-xs font-medium text-surface-700 dark:text-surface-200">{{ exampleLocales.table?.active }}</span>
+              <span class="text-xs font-medium text-surface-700 dark:text-surface-200">{{
+                exampleLocales.table?.active
+              }}</span>
             </div>
           </template>
           <template #filter="{ filterModel, filterCallback }">
-                <Select v-model="filterModel.value" :options="statuses" placeholder="Select Status" @change="filterCallback()" class="p-column-filter" style="min-width: 12rem" :showClear="true">
-                    <template #option="slotProps">
-                        <Badge :value="slotProps.option" :severity="slotProps.option === 'Active' ? 'success' : 'secondary'"></Badge>
-                    </template>
-                </Select>
-            </template>
+            <Select
+              v-model="filterModel.value"
+              :options="statuses"
+              placeholder="Select Status"
+              @change="filterCallback()"
+              class="p-column-filter"
+              style="min-width: 12rem"
+              :showClear="true"
+            >
+              <template #option="slotProps">
+                <Badge
+                  :value="slotProps.option"
+                  :severity="slotProps.option === 'Active' ? 'success' : 'secondary'"
+                ></Badge>
+              </template>
+            </Select>
+          </template>
         </Column>
 
         <Column :header="exampleLocales.table?.actions" class="w-32 text-right">
