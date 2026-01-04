@@ -59,9 +59,12 @@ apiClient.interceptors.response.use(
             detail = 'Network Error. Please check your internet connection.';
         }
 
-        // 3. SMART TOAST LOGIC
-        // We suppress the global toast ONLY if the server provided specific field-level 'errors'.
-        // Validation errors (400) are handled by the form; Conflicts (409) and System Errors (500) show toasts.
+        /**
+         * Conditional Toast Logic:
+         * We suppress the global toast ONLY if the server provided specific field-level 'errors'.
+         * Validation errors (400) are typically handled by the form; Conflicts (409) 
+         * and System Errors (500) trigger toasts as they represent state/system failures.
+         */
         const hasFieldErrors = !!(apiError?.errors && Object.keys(apiError.errors).length > 0);
 
         if (!hasFieldErrors) {

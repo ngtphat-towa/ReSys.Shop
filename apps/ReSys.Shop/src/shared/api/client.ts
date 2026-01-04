@@ -57,7 +57,10 @@ apiClient.interceptors.response.use(
       detail = 'Network Error. Please check your internet connection.';
     }
 
-    // 3. SMART TOAST LOGIC
+    /**
+     * Conditional Toast Logic:
+     * Suppress global toast if specific field-level validation errors are present.
+     */
     const hasFieldErrors = !!(apiError?.errors && Object.keys(apiError.errors).length > 0);
 
     if (!hasFieldErrors) {
