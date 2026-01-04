@@ -1,6 +1,5 @@
 using System.Net.Http.Headers;
 using System.Text;
-using FluentAssertions;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Examples.Common;
@@ -13,7 +12,7 @@ namespace ReSys.Api.IntegrationTests.Features.Examples;
 [Collection("Shared Database")]
 public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact(DisplayName = "POST /api/Examples/{id}/image: Should upload image and update Example URL")]
+    [Fact(DisplayName = "POST /api/examples/{id}/image: Should upload image and update Example URL")]
     public async Task UpdateImage_ValidFile_ReturnsUpdatedExample()
     {
         // Arrange
@@ -39,7 +38,7 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         content.Add(fileContent, "image", "test-image.png");
 
         // Act
-        var response = await Client.PostAsync($"/api/Examples/{ExampleId}/image", content);
+        var response = await Client.PostAsync($"/api/examples/{ExampleId}/image", content);
         var responseString = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)

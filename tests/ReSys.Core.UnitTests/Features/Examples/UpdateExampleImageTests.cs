@@ -1,4 +1,9 @@
+using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Features.Examples.UpdateExampleImage;
+using ReSys.Core.Interfaces;
+using NSubstitute;
+using ReSys.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReSys.Core.UnitTests.Features.Examples;
 

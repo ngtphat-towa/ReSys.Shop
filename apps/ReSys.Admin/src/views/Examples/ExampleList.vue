@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useExamplestore } from '@/stores/Examplestore';
+import { useExampleStore } from '@/stores/ExampleStore';
 import { useRouter } from 'vue-router';
 import { useConfirm } from "primevue/useconfirm";
 import { storeToRefs } from 'pinia';
@@ -12,14 +12,14 @@ import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import Tag from 'primevue/tag';
 
-const Examplestore = useExamplestore();
-const { Examples, loading, totalRecords, pagination } = storeToRefs(Examplestore);
+const exampleStore = useExampleStore();
+const { examples, loading, totalRecords, pagination } = storeToRefs(exampleStore);
 const router = useRouter();
 const confirm = useConfirm();
 const search = ref('');
 
 const loadExamples = async () => {
-    await Examplestore.fetchExamples({ search: search.value });
+    await exampleStore.fetchExamples({ search: search.value });
 };
 
 const onPage = (event: any) => {
@@ -53,7 +53,7 @@ const confirmDelete = (Example: any) => {
             severity: 'danger'
         },
         accept: async () => {
-            await Examplestore.deleteExample(Example.id);
+            await exampleStore.deleteExample(Example.id);
         }
     });
 };
@@ -80,18 +80,9 @@ onMounted(() => {
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <DataTable 
-                :value="Examples" 
-                :loading="loading" 
-                lazy 
-                paginator 
-                :rows="pagination.pageSize" 
-                :totalRecords="totalRecords" 
-                :first="(pagination.page - 1) * pagination.pageSize"
-                @page="onPage"
-                tableStyle="min-width: 60rem"
-                class="p-datatable-sm"
-            >
+        <DataTable :value="examples" :loading="loading" :totalRecords="totalRecords" :lazy="true" 
+                   @page="onPage" :paginator="true" :rows="pagination.pageSize" 
+                   class="shadow-sm border border-gray-100 rounded-lg overflow-hidden">
                 <template #empty>
                     <div class="flex flex-col items-center justify-center py-20 text-gray-400">
                         <i class="pi pi-box text-6xl mb-4 opacity-20"></i>

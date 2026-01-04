@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using ReSys.Core.Interfaces;
 using ReSys.Infrastructure.Data;
 using ReSys.Infrastructure.Options;
@@ -40,7 +39,6 @@ public static class DependencyInjection
     {
         using var scope = app.ApplicationServices.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
         // ensure database created
         context.Database.EnsureCreated();
 

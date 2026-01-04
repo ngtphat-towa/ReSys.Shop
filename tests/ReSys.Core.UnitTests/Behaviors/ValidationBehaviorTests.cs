@@ -1,10 +1,8 @@
 using ErrorOr;
-using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using NSubstitute;
 using ReSys.Core.Behaviors;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 
@@ -70,7 +68,7 @@ public class ValidationBehaviorTests
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Type.Should().Be(ErrorType.Validation);
-        result.FirstError.Code.Should().Be("PropName");
+        result.FirstError.Code.Should().Be("prop_name");
         result.FirstError.Description.Should().Be("Error Message");
         await _next.DidNotReceive().Invoke();
     }

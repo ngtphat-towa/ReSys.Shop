@@ -1,7 +1,5 @@
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using ReSys.Core.Common.Models;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Models;
 

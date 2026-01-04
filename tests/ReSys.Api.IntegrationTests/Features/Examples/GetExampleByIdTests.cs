@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.Common.Models;
@@ -11,12 +10,12 @@ namespace ReSys.Api.IntegrationTests.Features.Examples;
 [Collection("Shared Database")]
 public class GetExampleByIdTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact(DisplayName = "GET /api/Examples/{id}: Should return Example details")]
+    [Fact(DisplayName = "GET /api/examples/{id}: Should return Example details")]
     public async Task GetById_ExistingExample_ReturnsExample()
     {
         var ExampleId = await SeedExampleAsync("ByIdTest", 50);
 
-        var response = await Client.GetAsync($"/api/Examples/{ExampleId}");
+        var response = await Client.GetAsync($"/api/examples/{ExampleId}");
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
@@ -27,10 +26,10 @@ public class GetExampleByIdTests(IntegrationTestWebAppFactory factory) : BaseInt
         Example.Name.Should().Be("ByIdTest");
     }
 
-    [Fact(DisplayName = "GET /api/Examples/{id}: Should return NotFound for non-existent id")]
+    [Fact(DisplayName = "GET /api/examples/{id}: Should return NotFound for non-existent id")]
     public async Task GetById_NonExistentExample_ReturnsNotFound()
     {
-        var response = await Client.GetAsync($"/api/Examples/{Guid.NewGuid()}");
+        var response = await Client.GetAsync($"/api/examples/{Guid.NewGuid()}");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 

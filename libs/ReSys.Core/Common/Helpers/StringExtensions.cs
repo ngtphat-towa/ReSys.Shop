@@ -1,5 +1,3 @@
-using ReSys.Core.Common.Helpers;
-
 namespace ReSys.Core.Common.Helpers;
 
 public static class StringExtensions

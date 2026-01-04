@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Entities;
 using ReSys.Core.Features.Examples.Common;
@@ -10,13 +9,13 @@ namespace ReSys.Api.IntegrationTests.Features.Examples;
 [Collection("Shared Database")]
 public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact(DisplayName = "GET /api/Examples: Should support pagination (page and page_size)")]
+    [Fact(DisplayName = "GET /api/examples: Should support pagination (page and page_size)")]
     public async Task Get_WithPagination_ReturnsCorrectSlice()
     {
         var uniquePrefix = $"Pagination_{Guid.NewGuid()}";
         await SeedExamplesAsync(15, uniquePrefix);
 
-        var response = await Client.GetAsync($"/api/Examples?search={uniquePrefix}&page=2&page_size=5");
+        var response = await Client.GetAsync($"/api/examples?search={uniquePrefix}&page=2&page_size=5");
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
@@ -27,7 +26,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         apiResponse.Meta.Page.Should().Be(2);
     }
 
-    [Fact(DisplayName = "GET /api/Examples: Should support price range filtering (min_price and max_price)")]
+    [Fact(DisplayName = "GET /api/examples: Should support price range filtering (min_price and max_price)")]
     public async Task Get_WithPriceFilter_ReturnsFilteredResults()
     {
         var uniquePrefix = $"Price_{Guid.NewGuid()}";
@@ -35,7 +34,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         await SeedExampleAsync($"{uniquePrefix}_Mid", 50);
         await SeedExampleAsync($"{uniquePrefix}_Expensive", 100);
 
-        var response = await Client.GetAsync($"/api/Examples?search={uniquePrefix}&min_price=40&max_price=60");
+        var response = await Client.GetAsync($"/api/examples?search={uniquePrefix}&min_price=40&max_price=60");
 
         var content = await response.Content.ReadAsStringAsync();
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
@@ -44,7 +43,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_Mid");
     }
 
-    [Fact(DisplayName = "GET /api/Examples: Should support complex sorting and searching combined (sort_by and is_descending)")]
+    [Fact(DisplayName = "GET /api/examples: Should support complex sorting and searching combined (sort_by and is_descending)")]
     public async Task Get_WithSearchAndSort_ReturnsMatchingSortedResults()
     {
         var uniquePrefix = $"SearchSort_{Guid.NewGuid()}";
@@ -52,7 +51,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         await SeedExampleAsync($"{uniquePrefix}_Apple iPad", 800);
         await SeedExampleAsync($"{uniquePrefix}_Samsung Galaxy", 900);
 
-        var response = await Client.GetAsync($"/api/Examples?search={uniquePrefix}_Apple&sort_by=price&is_descending=false");
+        var response = await Client.GetAsync($"/api/examples?search={uniquePrefix}_Apple&sort_by=price&is_descending=false");
 
         var content = await response.Content.ReadAsStringAsync();
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
@@ -62,7 +61,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         apiResponse.Data[1].Name.Should().Be($"{uniquePrefix}_Apple iPhone");
     }
 
-    [Fact(DisplayName = "GET /api/Examples: Should support filtering by created_from using ISO 8601 DateTimeOffset")]
+    [Fact(DisplayName = "GET /api/examples: Should support filtering by created_from using ISO 8601 DateTimeOffset")]
     public async Task Get_WithCreatedFromFilter_ReturnsMatchingResults()
     {
         var uniquePrefix = $"DateFilter_{Guid.NewGuid()}";
@@ -74,7 +73,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         
         var filterDate = DateTimeOffset.UtcNow.AddDays(-5).ToString("yyyy-MM-ddTHH:mm:ssZ");
 
-        var response = await Client.GetAsync($"/api/Examples?search={uniquePrefix}&created_from={filterDate}");
+        var response = await Client.GetAsync($"/api/examples?search={uniquePrefix}&created_from={filterDate}");
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
@@ -111,7 +110,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         await Context.SaveChangesAsync(CancellationToken.None);
     }
     
-    [Fact(DisplayName = "GET /api/Examples: Should support filtering by multiple Example_ids")]
+    [Fact(DisplayName = "GET /api/examples: Should support filtering by multiple Example_ids")]
     public async Task Get_WithExampleIdsFilter_ReturnsMatchingResults()
     {
         var uniquePrefix = $"IdsFilter_{Guid.NewGuid()}";
@@ -127,7 +126,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegr
         await Context.SaveChangesAsync(CancellationToken.None);
 
         // Query string: Example_id=id1&Example_id=id2
-        var response = await Client.GetAsync($"/api/Examples?Example_id={id1}&Example_id={id2}");
+        var response = await Client.GetAsync($"/api/examples?Example_id={id1}&Example_id={id2}");
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();

@@ -1,10 +1,8 @@
 using ErrorOr;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using ReSys.Api.Infrastructure.Extensions;
 using ReSys.Core.Common.Models;
-using Xunit;
 
 namespace ReSys.Api.UnitTests.Infrastructure.Extensions;
 

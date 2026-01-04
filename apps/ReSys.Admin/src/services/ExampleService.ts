@@ -1,13 +1,12 @@
 import apiClient from './apiClient';
 import type { ApiResponse } from '@/types/api';
-import type { 
-    ExampleListItem, 
-    ExampleDetail, 
-    CreateExampleRequest, 
-    UpdateExampleRequest, 
-    ExampleQuery 
-} from '@/types/example';
-
+import type {
+    ExampleListItem,
+    ExampleDetail,
+    CreateExampleRequest,
+    UpdateExampleRequest,
+    ExampleQuery
+} from '@/types/Example';
 export const getExamples = async (query?: ExampleQuery): Promise<ApiResponse<ExampleListItem[]>> => {    
     const response = await apiClient.get<ApiResponse<ExampleListItem[]>>('/examples', { params: query });
     return response.data;

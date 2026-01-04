@@ -149,8 +149,8 @@ function Write-ServiceStatus {
     
     $icon = switch ($Status) {
         "Starting"  { "[~]" }
-        "Running"   { "[✓]" }
-        "Stopped"   { "[✗]" }
+        "Running"   { "[OK]" }
+        "Stopped"   { "[X]" }
         "NotFound"  { "[?]" }
         default     { "[ ]" }
     }

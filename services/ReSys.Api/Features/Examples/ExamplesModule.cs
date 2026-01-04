@@ -8,6 +8,8 @@ using ReSys.Core.Features.Examples.GetExampleById;
 using ReSys.Core.Features.Examples.UpdateExample;
 using ReSys.Core.Features.Examples.DeleteExample;
 using ReSys.Core.Features.Examples.UpdateExampleImage;
+using ReSys.Core.Common.Models;
+using ReSys.Api.Infrastructure.Extensions;
 
 namespace ReSys.Api.Features.Examples;
 

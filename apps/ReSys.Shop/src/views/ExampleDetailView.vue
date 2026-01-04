@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useExamplestore } from '@/stores/Examplestore';
+import { useExamplestore } from '@/stores/ExampleStore';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import Card from 'primevue/card';

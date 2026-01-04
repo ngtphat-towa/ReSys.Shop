@@ -5,10 +5,12 @@ var builder = DistributedApplication.CreateBuilder(args);
 builder.Services.AddHealthChecks();
 
 // Database
-var postgres = builder.AddPostgres("postgres")
+var dbPassword = builder.AddParameter("dbPassword", "password", secret: true);
+var postgres = builder.AddPostgres("postgres", password: dbPassword)
     .WithImage("ankane/pgvector")
     .WithImageTag("latest")
-    .WithDataVolume("resys-shop-data")
+    .WithContainerName("resys_shop_db")
+    .WithDataVolume("pgdata")
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db = postgres.AddDatabase("shopdb");
@@ -23,26 +25,27 @@ var api = builder.AddProject<Projects.ReSys_Api>("api")
 // ML Service (Python)
 var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithHttpEndpoint(env: "PORT", port: 8000)
-    .WithEnvironment("USE_MOCK_ML", "true") // Use mock by default for speed
+    .WithEnvironment("USE_MOCK_ML", "true")
     .WithEnvironment("ROOT_PATH", "/ml")
-    .WithEnvironment("OTEL_SERVICE_NAME", "ml")
     .WithOtlpExporter()
     .WithHttpHealthCheck("/health");
 
 api.WithReference(ml)
-   .WithEnvironment("MlSettings__ServiceUrl", "http://ml");
+   .WithEnvironment("MlSettings__ServiceUrl", ml.GetEndpoint("http"));
 
 // Frontend - Shop (Vue)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
-    .WithHttpEndpoint(env: "PORT")
+    .WithHttpEndpoint(port: 5173, env: "PORT")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/");
+    .WithHttpHealthCheck("/")
+    .WaitFor(api);
 
 // Frontend - Admin (Vue)
 var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
-    .WithHttpEndpoint(env: "PORT")
+    .WithHttpEndpoint(port: 5174, env: "PORT")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/");
+    .WithHttpHealthCheck("/")
+    .WaitFor(api);
 
 // Gateway (YARP)
 builder.AddProject<Projects.ReSys_Gateway>("gateway")

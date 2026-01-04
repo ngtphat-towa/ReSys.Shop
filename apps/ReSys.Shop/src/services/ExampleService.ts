@@ -4,7 +4,7 @@ import type {
     ExampleListItem, 
     ExampleDetail, 
     ExampleQuery 
-} from '@/types/example';
+} from '@/types/Example';
 
 export const getExamples = async (query?: ExampleQuery): Promise<ApiResponse<ExampleListItem[]>> => {    
     const response = await apiClient.get<ApiResponse<ExampleListItem[]>>('/examples', { params: query });

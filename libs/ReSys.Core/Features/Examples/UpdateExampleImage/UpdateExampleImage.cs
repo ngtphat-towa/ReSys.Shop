@@ -1,4 +1,8 @@
+using ErrorOr;
+using MediatR;
+using ReSys.Core.Entities;
 using ReSys.Core.Features.Examples.Common;
+using ReSys.Core.Interfaces;
 
 namespace ReSys.Core.Features.Examples.UpdateExampleImage;
 

@@ -4,12 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
+
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+
 using Npgsql;
-using OpenTelemetry.Instrumentation.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -64,7 +64,7 @@ public static class Extensions
             .WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation()
-                    .AddGrpcClientInstrumentation()
+                              .AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddNpgsql()
                     .AddEntityFrameworkCoreInstrumentation();
@@ -72,6 +72,20 @@ public static class Extensions
 
         builder.AddOpenTelemetryExporters();
 
+        return builder;
+    }
+
+    public static IHostApplicationBuilder AddPostgresHealthCheck(this IHostApplicationBuilder builder, string connectionName)
+    {
+        builder.Services.AddHealthChecks()
+            .AddNpgSql(builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."), name: connectionName);
+        return builder;
+    }
+
+    public static IHostApplicationBuilder AddHttpHealthCheck(this IHostApplicationBuilder builder, string name, string url)
+    {
+        builder.Services.AddHealthChecks()
+            .AddUrlGroup(new Uri(url), name);
         return builder;
     }
 

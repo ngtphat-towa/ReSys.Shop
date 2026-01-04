@@ -3,6 +3,7 @@ services:
     image: ankane/pgvector
     container_name: resys_shop_db
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: shopdb
     ports:

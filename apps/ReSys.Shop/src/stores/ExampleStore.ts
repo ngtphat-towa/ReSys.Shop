@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getExamples, getExampleById, getSimilarExamples } from '@/services/Exampleservice';
+import { getExamples, getExampleById, getSimilarExamples } from '@/services/ExampleService';
 import type { ExampleListItem, ExampleDetail, ExampleQuery } from '@/types/Example';
 
 export const useExamplestore = defineStore('Example', () => {

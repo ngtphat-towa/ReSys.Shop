@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useExamplestore } from '@/stores/Examplestore';
+import { useExampleStore } from '@/stores/ExampleStore';
 import { storeToRefs } from 'pinia';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -14,8 +14,8 @@ import { showToast } from '@/services/apiClient';
 
 const route = useRoute();
 const router = useRouter();
-const Examplestore = useExamplestore();
-const { loading } = storeToRefs(Examplestore);
+const exampleStore = useExampleStore();
+const { loading } = storeToRefs(exampleStore);
 
 const isEdit = computed(() => route.params.id !== undefined);
 const ExampleId = route.params.id as string;
@@ -35,7 +35,7 @@ const onFileSelect = (event: any) => {
 const loadExample = async () => {
     if (!isEdit.value) return;
     try {
-        const response = await Examplestore.fetchExampleById(ExampleId);
+        const response = await exampleStore.fetchExampleById(ExampleId);
         const data = response.data;
         form.value.name = data.name;
         form.value.description = data.description;
@@ -54,14 +54,14 @@ const saveExample = async () => {
 
     try {
         if (isEdit.value) {
-            await Examplestore.updateExample(ExampleId, {
+            await exampleStore.updateExample(ExampleId, {
                 name: form.value.name,
                 description: form.value.description,
                 price: form.value.price
             }, imageFile.value || undefined);
             showToast('success', 'Updated', 'Example has been successfully updated.');
         } else {
-            await Examplestore.createExample({
+            await exampleStore.createExample({
                 name: form.value.name,
                 description: form.value.description,
                 price: form.value.price ?? 0

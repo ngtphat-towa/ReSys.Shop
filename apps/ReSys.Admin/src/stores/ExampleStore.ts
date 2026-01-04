@@ -7,8 +7,8 @@ import {
     updateExample as apiUpdateExample, 
     deleteExample as apiDeleteExample,
     updateExampleImage as apiUpdateExampleImage
-} from '@/services/exampleService';
-import type { ExampleListItem, ExampleDetail, ExampleQuery, CreateExampleRequest, UpdateExampleRequest } from '@/types/example';
+} from '@/services/ExampleService';
+import type { ExampleListItem, ExampleDetail, ExampleQuery, CreateExampleRequest, UpdateExampleRequest } from '@/types/Example';
 import type { ApiResponse } from '@/types/api';
 
 export const useExampleStore = defineStore('example', () => {

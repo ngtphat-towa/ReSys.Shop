@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useExamplestore } from '@/stores/Examplestore';
+import { useExamplestore } from '@/stores/ExampleStore';
 import { storeToRefs } from 'pinia';
 import Card from 'primevue/card';
 import Button from 'primevue/button';

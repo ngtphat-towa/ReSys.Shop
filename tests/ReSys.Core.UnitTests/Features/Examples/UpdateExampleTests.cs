@@ -1,5 +1,8 @@
+using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.Features.Examples.UpdateExample;
+using ReSys.Core.Interfaces;
+using ReSys.Core.Entities;
 
 namespace ReSys.Core.UnitTests.Features.Examples;
 

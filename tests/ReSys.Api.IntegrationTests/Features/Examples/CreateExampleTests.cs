@@ -1,3 +1,8 @@
+using System.Net;
+using System.Text;
+using Newtonsoft.Json;
+using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Common.Models;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.Features.Examples.CreateExample;
 
@@ -46,7 +51,7 @@ public class CreateExampleTests(IntegrationTestWebAppFactory factory) : BaseInte
         await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"));
 
         var r2 = new CreateExample.Request { Name = name, Description = "D", Price = 2 };
-        await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"));
+        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"));
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
