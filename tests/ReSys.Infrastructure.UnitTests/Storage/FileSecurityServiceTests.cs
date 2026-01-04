@@ -1,14 +1,12 @@
 using System.Text;
-
-
+using ErrorOr;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-
 using NSubstitute;
-
-
+using ReSys.Core.Common.Storage;
 using ReSys.Infrastructure.Storage;
+using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
 
@@ -71,5 +69,34 @@ public class FileSecurityServiceTests
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("File.EncryptionNotConfigured");
+    }
+
+    [Fact]
+    public async Task ScanForMalwareAsync_CleanFile_ReturnsTrue()
+    {
+        // Arrange
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Just some safe content"));
+
+        // Act
+        var result = await _sut.ScanForMalwareAsync(stream);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ScanForMalwareAsync_EicarFile_ReturnsFalse()
+    {
+        // Arrange
+        var eicar = @"X5O!P%@AP[4\PZX54(P^)7CC)7}";
+        using var stream = new MemoryStream(Encoding.ASCII.GetBytes(eicar));
+
+        // Act
+        var result = await _sut.ScanForMalwareAsync(stream);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeFalse();
     }
 }

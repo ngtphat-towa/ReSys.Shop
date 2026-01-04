@@ -1,15 +1,12 @@
 using System.Text;
-
-
+using ErrorOr;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-
 using NSubstitute;
-
-
 using ReSys.Core.Common.Storage;
 using ReSys.Infrastructure.Storage;
+using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
 
@@ -21,7 +18,16 @@ public class FileValidatorTests
     public FileValidatorTests()
     {
         _options = Substitute.For<IOptions<StorageOptions>>();
-        _options.Value.Returns(new StorageOptions());
+        _options.Value.Returns(new StorageOptions
+        {
+            Security = new SecurityOptions 
+            { 
+                DangerousExtensions = new[] { ".exe", ".bat", ".sh" },
+                ValidateFileSignatures = true
+            },
+            MaxFileSize = 1024 * 1024 // 1MB
+        });
+        
         var logger = Substitute.For<ILogger<FileValidator>>();
         _sut = new FileValidator(_options, logger);
     }
@@ -101,5 +107,72 @@ public class FileValidatorTests
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("File.TooLarge");
+    }
+
+    [Fact]
+    public async Task ValidateAsync_DangerousCharacters_ReturnsInvalidFileName()
+    {
+        // Arrange
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
+        var options = new FileUploadOptions();
+        var dangerousNames = new[] { "../test.txt", "test..txt", "test<>.txt", "test|pipe.txt" };
+
+        foreach (var name in dangerousNames)
+        {
+            // Act
+            var result = await _sut.ValidateAsync(stream, name, options);
+
+            // Assert
+            result.IsError.Should().BeTrue($"Name {name} should be invalid");
+            result.FirstError.Code.Should().Be("File.InvalidFileName");
+        }
+    }
+
+    [Fact]
+    public async Task ValidateAsync_DangerousExtension_ReturnsDangerousExtension()
+    {
+        // Arrange
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("malware"));
+        var options = new FileUploadOptions();
+        
+        // Act
+        var result = await _sut.ValidateAsync(stream, "malware.exe", options);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().Be("File.DangerousExtension");
+    }
+
+    [Fact]
+    public async Task ValidateAsync_SignatureMismatch_ReturnsSignatureMismatch()
+    {
+        // Arrange
+        // Fake a PNG file with random text content
+        var content = "This is not a PNG";
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        var options = new FileUploadOptions(ValidateContent: true);
+
+        // Act
+        var result = await _sut.ValidateAsync(stream, "fake.png", options);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().Be("File.SignatureMismatch");
+    }
+
+    [Fact]
+    public async Task ValidateAsync_ValidSignature_ReturnsSuccess()
+    {
+        // Arrange
+        // Correct PNG header: 89 50 4E 47
+        var pngBytes = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        using var stream = new MemoryStream(pngBytes);
+        var options = new FileUploadOptions(ValidateContent: true);
+
+        // Act
+        var result = await _sut.ValidateAsync(stream, "real.png", options);
+
+        // Assert
+        result.IsError.Should().BeFalse();
     }
 }

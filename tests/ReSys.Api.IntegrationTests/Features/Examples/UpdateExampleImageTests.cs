@@ -73,10 +73,13 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         // Verify DB update
         ((DbContext)Context).ChangeTracker.Clear();
         var dbExample = await Context.Set<Example>().FindAsync(ExampleId);
-        dbExample!.ImageUrl.Should().Contain(".png");
+
+        dbExample.Should().NotBeNull();
+
+        dbExample!.ImageUrl!.Should().Contain(".png");
 
         // Verify file storage
-        var fileName = dbExample!.ImageUrl.Split('/').Last();
+        var fileName = dbExample.ImageUrl!.Split('/').Last();
         
         using var scope = Factory.Services.CreateScope();
         var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();

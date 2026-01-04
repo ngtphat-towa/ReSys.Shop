@@ -1,6 +1,6 @@
-namespace ReSys.Core.Common.Storage;
-
 using ErrorOr;
+
+namespace ReSys.Core.Common.Storage;
 
 public interface IFileService
 {

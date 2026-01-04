@@ -51,7 +51,7 @@ public static class GetExamples
             {
                 var searchTerm = request.Search.ToLower();
                 dbQuery = dbQuery.Where(x => x.Name.ToLower().Contains(searchTerm) 
-                                          || x.Description.ToLower().Contains(searchTerm));
+                                          || (!string.IsNullOrEmpty(x.Description) && x.Description.ToLower().Contains(searchTerm)));
             }
 
             // Filters
