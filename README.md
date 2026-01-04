@@ -14,6 +14,7 @@ An e-commerce project built with a .NET backend, a Vue 3 frontend, and a Python 
 [![PrimeVue 4](https://img.shields.io/badge/PrimeVue-4.0-4fc08d.svg)](https://primevue.org/)
 [![Tailwind 4](https://img.shields.io/badge/Tailwind-4.0-38bdf8.svg)](https://tailwindcss.com/)
 [![Pinia](https://img.shields.io/badge/Pinia-FFE148?logo=vue.js&logoColor=black)](https://pinia.vuejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## How the Code is Organized
 
@@ -100,3 +101,9 @@ When adding a new feature, follow the pattern used in the `testing/examples` fol
    ```bash
    .\scripts\run-all-local.ps1 all
    ```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
