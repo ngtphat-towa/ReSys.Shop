@@ -57,7 +57,8 @@ const saveExample = async () => {
             await exampleStore.updateExample(ExampleId, {
                 name: form.value.name,
                 description: form.value.description,
-                price: form.value.price
+                price: form.value.price as number,
+                image_url: currentImageUrl.value
             }, imageFile.value || undefined);
             showToast('success', 'Updated', 'Example has been successfully updated.');
         } else {

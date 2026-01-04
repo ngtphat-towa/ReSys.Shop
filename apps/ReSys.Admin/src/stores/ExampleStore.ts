@@ -51,9 +51,9 @@ export const useExampleStore = defineStore('example', () => {
     async function createExample(request: CreateExampleRequest, image?: File) {
         loading.value = true;
         try {
-            const response = await apiCreateExample(request);
+            let response = await apiCreateExample(request);
             if (image && response.data.id) {
-                await apiUpdateExampleImage(response.data.id, image);
+                response = await apiUpdateExampleImage(response.data.id, image);
             }
             return response;
         } finally {
@@ -64,9 +64,9 @@ export const useExampleStore = defineStore('example', () => {
     async function updateExample(id: string, request: UpdateExampleRequest, image?: File) {
         loading.value = true;
         try {
-            const response = await apiUpdateExample(id, request);
+            let response = await apiUpdateExample(id, request);
             if (image) {
-                await apiUpdateExampleImage(id, image);
+                response = await apiUpdateExampleImage(id, image);
             }
             return response;
         } finally {

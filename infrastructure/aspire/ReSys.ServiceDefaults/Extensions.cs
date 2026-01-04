@@ -64,7 +64,7 @@ public static class Extensions
             .WithTracing(tracing =>
             {
                 tracing.AddAspNetCoreInstrumentation()
-                              .AddGrpcClientInstrumentation()
+                    .AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddNpgsql()
                     .AddEntityFrameworkCoreInstrumentation();

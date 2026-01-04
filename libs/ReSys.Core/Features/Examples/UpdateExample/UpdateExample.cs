@@ -53,7 +53,11 @@ public static class UpdateExample
             example.Name = request.Name;
             example.Description = request.Description;
             example.Price = request.Price;
-            example.ImageUrl = request.ImageUrl;
+            
+            if (!string.IsNullOrEmpty(request.ImageUrl))
+            {
+                example.ImageUrl = request.ImageUrl;
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 
