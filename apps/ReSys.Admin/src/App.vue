@@ -17,7 +17,5 @@ watch(toastBus, (newValue) => {
 </script>
 
 <template>
-  <Toast />
-  <ConfirmDialog />
-  <RouterView />
+    <router-view />
 </template>

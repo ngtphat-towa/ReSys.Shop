@@ -1,0 +1,24 @@
+// 1. Abstracts - Logic only, no CSS output
+@use 'abstracts/variables/common' as *;
+@use 'abstracts/variables/light' as *;
+@use 'abstracts/variables/dark' as *;
+@use 'abstracts/mixins' as *;
+
+// 2. Vendors - External libraries
+@use 'primeicons/primeicons.css';
+
+// 3. Base - Global resets and base typography
+@use 'base/core';
+@use 'base/typography';
+
+// 4. Layout - Structural components
+@use 'layout/topbar';
+@use 'layout/menu';
+@use 'layout/footer';
+@use 'layout/main';
+@use 'layout/responsive';
+@use 'layout/utils';
+@use 'layout/preloading';
+
+// 5. Demo - Optional styles for demo pages
+@use 'demo/demo';

@@ -1,34 +1,76 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Card from 'primevue/card';
 
 const stats = ref([
-    { title: 'Total Sales', value: '$12,345', icon: 'pi pi-dollar', color: 'text-green-500' },
-    { title: 'Total Orders', value: '150', icon: 'pi pi-shopping-cart', color: 'text-blue-500' },
-    { title: 'New Customers', value: '45', icon: 'pi pi-users', color: 'text-yellow-500' },
-    { title: 'Examples', value: '86', icon: 'pi pi-box', color: 'text-purple-500' }
+    { title: 'Orders', value: '152', icon: 'pi pi-shopping-cart', color: 'blue', trend: '24 new', trendColor: 'text-emerald-500' },
+    { title: 'Revenue', value: '$2,100', icon: 'pi pi-map-marker', color: 'orange', trend: '%52+', trendColor: 'text-emerald-500' },
+    { title: 'Customers', value: '28441', icon: 'pi pi-inbox', color: 'cyan', trend: '520', trendColor: 'text-emerald-500' },
+    { title: 'Comments', value: '152 Unread', icon: 'pi pi-comment', color: 'purple', trend: '85', trendColor: 'text-emerald-500' }
 ]);
 </script>
 
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card v-for="stat in stats" :key="stat.title">
-            <template #title>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-500 uppercase">{{ stat.title }}</span>
-                    <i :class="[stat.icon, stat.color, 'text-xl']"></i>
-                </div>
-            </template>
-            <template #content>
-                <div class="text-2xl font-bold">{{ stat.value }}</div>
-            </template>
-        </Card>
-    </div>
+    <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-12 mb-4">
+            <h1 class="text-3xl font-black text-surface-900 dark:text-surface-0 tracking-tight">Dashboard Overview</h1>
+            <p class="text-surface-500 dark:text-surface-400 mt-1">Welcome back! Here's what's happening today.</p>
+        </div>
 
-    <Card>
-        <template #title>Recent Activity</template>
-        <template #content>
-            <p class="text-gray-600">No recent activity to show.</p>
-        </template>
-    </Card>
+        <div v-for="stat in stats" :key="stat.title" class="col-span-12 lg:col-span-6 xl:col-span-3">
+            <div class="card mb-0 bg-surface-0 dark:bg-surface-900 p-4 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm h-full">
+                <div class="flex justify-between mb-4">
+                    <div>
+                        <span class="block text-surface-500 dark:text-surface-400 font-medium mb-4 uppercase text-xs tracking-wider">{{ stat.title }}</span>
+                        <div class="text-surface-900 dark:text-surface-0 font-bold text-2xl">{{ stat.value }}</div>
+                    </div>
+                    <div class="flex items-center justify-center rounded-xl" :class="`bg-${stat.color}-100 dark:bg-${stat.color}-900/30`" style="width: 2.5rem; height: 2.5rem">
+                        <i :class="[stat.icon, `text-${stat.color}-500`, 'text-xl']"></i>
+                    </div>
+                </div>
+                <span :class="[stat.trendColor, 'font-bold']">{{ stat.trend }} </span>
+                <span class="text-surface-500 dark:text-surface-400">since last visit</span>
+            </div>
+        </div>
+
+        <div class="col-span-12 xl:col-span-6 mt-4">
+            <div class="card bg-surface-0 dark:bg-surface-900 p-6 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h5 class="text-xl font-bold text-surface-900 dark:text-surface-0">Recent Activity</h5>
+                    <Button icon="pi pi-ellipsis-v" text rounded severity="secondary"></Button>
+                </div>
+                <ul class="list-none p-0 m-0">
+                    <li class="flex items-center py-3 border-b border-surface-100 dark:border-surface-800 last:border-0">
+                        <div class="w-10 h-10 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full mr-4">
+                            <i class="pi pi-dollar text-blue-500"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-surface-900 dark:text-surface-0 font-medium">Richard Jones</span>
+                            <span class="text-surface-500 dark:text-surface-400 text-sm">Bought a Blue T-Shirt for $79</span>
+                        </div>
+                        <span class="ml-auto text-surface-400 text-xs">2m ago</span>
+                    </li>
+                    <li class="flex items-center py-3 border-b border-surface-100 dark:border-surface-800 last:border-0">
+                        <div class="w-10 h-10 flex items-center justify-center bg-orange-100 dark:bg-orange-900/30 rounded-full mr-4">
+                            <i class="pi pi-download text-orange-500"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-surface-900 dark:text-surface-0 font-medium">System Update</span>
+                            <span class="text-surface-500 dark:text-surface-400 text-sm">New version 2.4.0 is available</span>
+                        </div>
+                        <span class="ml-auto text-surface-400 text-xs">1h ago</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-span-12 xl:col-span-6 mt-4">
+            <div class="card bg-surface-0 dark:bg-surface-900 p-6 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm h-full">
+                <h5 class="text-xl font-bold text-surface-900 dark:text-surface-0 mb-6">Quick Actions</h5>
+                <div class="grid grid-cols-2 gap-4">
+                    <Button label="Add Example" icon="pi pi-plus" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push('/Examples/create')"></Button>
+                    <Button label="View Catalog" icon="pi pi-list" severity="secondary" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push('/Examples')"></Button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>

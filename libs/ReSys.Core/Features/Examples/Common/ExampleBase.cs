@@ -19,17 +19,15 @@ public record ExampleInput : ExampleBase
 }
 
 // Read model for List (Lightweight)
-public record ExampleListItem
+public record ExampleListItem : ExampleBase
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public string ImageUrl { get; set; } = string.Empty;
 
     public static Expression<Func<Example, ExampleListItem>> Projection => x => new ExampleListItem
     {
         Id = x.Id,
         Name = x.Name,
+        Description = x.Description,
         Price = x.Price,
         ImageUrl = x.ImageUrl
     };
