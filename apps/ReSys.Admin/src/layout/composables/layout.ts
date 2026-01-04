@@ -24,7 +24,7 @@ export interface LayoutState {
 const layoutConfig = reactive<LayoutConfig>({
     preset: 'Aura',
     primary: 'emerald',
-    surface: null,
+    surface: 'slate',
     darkTheme: false,
     menuMode: 'static'
 });
