@@ -11,6 +11,7 @@ using ReSys.Core.Common.AI;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
+using ReSys.Infrastructure.Imaging;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
@@ -64,6 +65,14 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             {
                 options.LocalPath = "test-storage";
                 options.Security.EncryptionKey = "TestSecretKey123!";
+            });
+
+            // Configure ImageOptions
+            services.Configure<ImageOptions>(options =>
+            {
+                // Increase limits for tests to accommodate sample assets
+                options.MaxWidth = 8192;
+                options.MaxHeight = 8192;
             });
 
             // Configure MlOptions to pass validation

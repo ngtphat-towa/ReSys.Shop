@@ -6,6 +6,7 @@ using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.UpdateExample;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
+using ReSys.Core.Common.Storage;
 using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Examples;
@@ -13,15 +14,17 @@ namespace ReSys.Core.UnitTests.Features.Examples;
 public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IFileService _fileService;
     private readonly UpdateExample.Handler _handler;
 
     public UpdateExampleTests(TestDatabaseFixture fixture)
     {
         _context = fixture.Context;
-        _handler = new UpdateExample.Handler(_context);
+        _fileService = Substitute.For<IFileService>();
+        _handler = new UpdateExample.Handler(_context, _fileService);
     }
 
-    [Fact(DisplayName = "Should successfully update an existing example with new details when the request is valid")]
+    [Fact(DisplayName = "Handle: Should successfully update an existing example with new details when the request is valid")]
     public async Task Handle_ValidRequest_ShouldUpdateExample()
     {
         // Arrange
@@ -60,7 +63,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample!.Name.Should().Be(newName);
     }
 
-    [Fact(DisplayName = "Should return a conflict error when updating an example name to one that already exists for another example")]
+    [Fact(DisplayName = "Handle: Should return a conflict error when updating an example name to one that already exists")]
     public async Task Handle_NameConflict_ShouldReturnConflict()
     {
         // Arrange
@@ -85,7 +88,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.DuplicateName);
     }
 
-    [Fact(DisplayName = "Should return a not found error when attempting to update an example that does not exist")]
+    [Fact(DisplayName = "Handle: Should return a not found error when attempting to update an example that does not exist")]
     public async Task Handle_NonExistentExample_ShouldReturnNotFound()
     {
         // Arrange
@@ -101,4 +104,3 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.NotFound(nonExistentId));
     }
 }
-

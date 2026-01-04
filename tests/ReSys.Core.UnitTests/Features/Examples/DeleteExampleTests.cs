@@ -6,6 +6,7 @@ using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.DeleteExample;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
+using ReSys.Core.Common.Storage;
 using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Examples;
@@ -13,15 +14,17 @@ namespace ReSys.Core.UnitTests.Features.Examples;
 public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IFileService _fileService;
     private readonly DeleteExample.Handler _handler;
 
     public DeleteExampleTests(TestDatabaseFixture fixture)
     {
         _context = fixture.Context;
-        _handler = new DeleteExample.Handler(_context);
+        _fileService = Substitute.For<IFileService>();
+        _handler = new DeleteExample.Handler(_context, _fileService);
     }
 
-    [Fact(DisplayName = "Should successfully delete an existing example from the database")]
+    [Fact(DisplayName = "Handle: Should successfully delete an existing example from the database")]
     public async Task Handle_ExistingExample_ShouldDelete()
     {
         // Arrange
@@ -49,7 +52,7 @@ public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample.Should().BeNull("because the example was removed from the database");
     }
 
-    [Fact(DisplayName = "Should return a not found error when attempting to delete an example that does not exist")]
+    [Fact(DisplayName = "Handle: Should return a not found error when attempting to delete an example that does not exist")]
     public async Task Handle_NonExistentExample_ShouldReturnNotFound()
     {
         // Arrange

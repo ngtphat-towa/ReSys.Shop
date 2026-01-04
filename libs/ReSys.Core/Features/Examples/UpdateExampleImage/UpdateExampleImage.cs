@@ -5,6 +5,7 @@ using ReSys.Core.Common.Data;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.Common.Storage;
+using ReSys.Core.Common.Imaging;
 
 namespace ReSys.Core.Features.Examples.UpdateExampleImage;
 
@@ -31,15 +32,18 @@ public static class UpdateExampleImage
         private readonly IApplicationDbContext _context;
         private readonly IFileService _fileService;
         private readonly IMlService _mlService;
+        private readonly IImageService _imageService;
 
         public Handler(
             IApplicationDbContext context,
             IFileService fileService,
-            IMlService mlService)
+            IMlService mlService,
+            IImageService imageService)
         {
             _context = context;
             _fileService = fileService;
             _mlService = mlService;
+            _imageService = imageService;
         }
 
         public async Task<ErrorOr<ExampleDetail>> Handle(Command command, CancellationToken cancellationToken)
@@ -52,14 +56,47 @@ public static class UpdateExampleImage
                 return ExampleErrors.NotFound(request.Id);
             }
 
-            var saveResult = await _fileService.SaveFileAsync(request.ImageStream, request.ImageName, null, cancellationToken);
+            // 1. Process Image (Convert to WebP)
+            var processResult = await _imageService.ProcessAsync(
+                request.ImageStream,
+                request.ImageName,
+                maxWidth: 640,
+                generateThumbnail: false,
+                generateResponsive: false,
+                ct: cancellationToken);
+
+            if (processResult.IsError)
+            {
+                return processResult.Errors;
+            }
+
+            // 2. Save New File
+            var processed = processResult.Value;
+            var saveResult = await _fileService.SaveFileAsync(
+                processed.Main.Stream,
+                processed.Main.FileName,
+                new FileUploadOptions("examples"),
+                cancellationToken);
+
             if (saveResult.IsError)
             {
                 return saveResult.Errors;
             }
 
+            // 3. Remove Old File if exists
+            if (!string.IsNullOrEmpty(example.ImageUrl))
+            {
+                var oldFileId = example.ImageUrl.Replace("/api/files/", "");
+                if (!string.IsNullOrEmpty(oldFileId))
+                {
+                    await _fileService.DeleteFileAsync(oldFileId, cancellationToken);
+                }
+            }
+
+            // 4. Update Example
             var fileName = saveResult.Value.FileId;
-            example.ImageUrl = $"/api/files/{fileName}";
+            var subdir = saveResult.Value.Subdirectory;
+            example.ImageUrl = $"/api/files/{subdir}/{fileName}";
 
             var embedding = await _mlService.GetEmbeddingAsync(example.ImageUrl, example.Id.ToString(), cancellationToken);
             if (embedding != null)

@@ -11,10 +11,6 @@ public sealed class StorageOptions
     public long MaxFileSize { get; set; } = 10 * 1024 * 1024;
     public string[] AllowedExtensions { get; set; } = Array.Empty<string>();
     public int BufferSize { get; set; } = 81920;
-    public string[] Subdirectories { get; set; } = new[] 
-    { 
-        "products", "thumbnails", "originals", "temp", "documents" 
-    };
     
     [Required]
     public SecurityOptions Security { get; set; } = new();

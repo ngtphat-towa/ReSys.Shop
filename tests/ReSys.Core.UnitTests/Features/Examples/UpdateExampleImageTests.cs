@@ -10,6 +10,8 @@ using ReSys.Core.Features.Examples.UpdateExampleImage;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using Xunit;
 
+using ReSys.Core.Common.Imaging;
+
 namespace ReSys.Core.UnitTests.Features.Examples;
 
 public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
@@ -17,6 +19,7 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
     private readonly IApplicationDbContext _context;
     private readonly IFileService _fileService;
     private readonly IMlService _mlService;
+    private readonly IImageService _imageService;
     private readonly UpdateExampleImage.Handler _handler;
 
     public UpdateExampleImageTests(TestDatabaseFixture fixture)
@@ -24,7 +27,8 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
         _context = fixture.Context;
         _fileService = Substitute.For<IFileService>();
         _mlService = Substitute.For<IMlService>();
-        _handler = new UpdateExampleImage.Handler(_context, _fileService, _mlService);
+        _imageService = Substitute.For<IImageService>();
+        _handler = new UpdateExampleImage.Handler(_context, _fileService, _mlService, _imageService);
     }
 
     [Fact(DisplayName = "Handle: Should successfully update the image and its embedding when the example exists")]
@@ -32,16 +36,28 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var exampleId = Guid.NewGuid();
-        var example = new Example { Id = exampleId, Name = "Test", ImageUrl = "old.jpg" };
+        var example = new Example { Id = exampleId, Name = "Test", ImageUrl = "/api/files/old.jpg" };
         _context.Set<Example>().Add(example);
         await _context.SaveChangesAsync(CancellationToken.None);
 
         var stream = new MemoryStream();
         var fileName = "new.jpg";
-        var resultFileName = "saved_new.jpg";
+        var resultFileName = "saved_new.webp";
         
-        var uploadResult = new FileUploadResult(resultFileName, resultFileName, fileName, 100, "image/jpeg", "hash", "temp", DateTime.UtcNow);
-        _fileService.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), null, Arg.Any<CancellationToken>())
+        // Mock Image Processing
+        var processedImage = new ProcessedImageResult(
+            Main: new ImageVariant(new MemoryStream(), resultFileName, 800, 600, 1000),
+            Thumbnail: null,
+            Responsive: new List<ImageVariant>(),
+            OriginalWidth: 1000,
+            OriginalHeight: 1000
+        );
+
+        _imageService.ProcessAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<int?>(), Arg.Any<int?>(), Arg.Any<bool>(), Arg.Any<bool>(), Arg.Any<CancellationToken>())
+            .Returns(processedImage);
+
+        var uploadResult = new FileUploadResult(resultFileName, resultFileName, resultFileName, 100, "image/webp", "hash", "examples", DateTime.UtcNow);
+        _fileService.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<FileUploadOptions>(), Arg.Any<CancellationToken>())
             .Returns(uploadResult);
 
         _mlService.GetEmbeddingAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>()) 
@@ -55,10 +71,13 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
 
         // Assert
         result.IsError.Should().BeFalse("because the example exists and services are operational");
-        result.Value.ImageUrl.Should().Be($"/api/files/{resultFileName}");
+        result.Value.ImageUrl.Should().Be($"/api/files/examples/{resultFileName}");
 
         var dbExample = await _context.Set<Example>().Include(p => p.Embedding).FirstOrDefaultAsync(p => p.Id == exampleId);
-        dbExample!.ImageUrl.Should().Be($"/api/files/{resultFileName}");
+        dbExample!.ImageUrl.Should().Be($"/api/files/examples/{resultFileName}");
         dbExample.Embedding.Should().NotBeNull("because the ML service returned a valid embedding");
+        
+        // Verify old file was deleted
+        await _fileService.Received(1).DeleteFileAsync("old.jpg", Arg.Any<CancellationToken>());
     }
 }

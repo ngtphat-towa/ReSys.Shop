@@ -8,7 +8,7 @@ public sealed record FileUploadResult(
     string ContentType,
     string Hash,
     string Subdirectory,
-    DateTime UploadedAt,
+    DateTimeOffset UploadedAt,
     string? EncryptionKey = null,
     Dictionary<string, string>? Metadata = null);
 
@@ -20,14 +20,14 @@ public sealed record FileMetadata(
     string ContentType,
     string Hash,
     string Subdirectory,
-    DateTime CreatedAt,
+    DateTimeOffset CreatedAt,
     string Extension,
     bool IsEncrypted = false,
-    DateTime? ModifiedAt = null,
+    DateTimeOffset? ModifiedAt = null,
     Dictionary<string, string>? CustomMetadata = null);
 
 public sealed record FileUploadOptions(
-    string? Subdirectory = null,
+    string[]? Subdirectories = null,
     long? MaxFileSize = null,
     string[]? AllowedExtensions = null,
     bool ValidateContent = true,
@@ -39,4 +39,17 @@ public sealed record FileUploadOptions(
     Dictionary<string, string>? CustomMetadata = null)
 {
     public static FileUploadOptions Default => new();
+
+    /// <summary>
+    /// Convenience constructor for a single subdirectory.
+    /// </summary>
+    public FileUploadOptions(string subdirectory) : this(new[] { subdirectory })
+    {
+    }
+
+    /// <summary>
+    /// Gets the safely combined path string.
+    /// </summary>
+    public string? GetPath() => 
+        Subdirectories?.Length > 0 ? string.Join("/", Subdirectories) : null;
 }

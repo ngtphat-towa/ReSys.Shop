@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
@@ -67,7 +68,8 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(responseString, JsonSettings);
         var result = apiResponse!.Data;
 
-        result!.ImageUrl.Should().Contain(".png");
+        result!.ImageUrl.Should().Contain("/examples/");
+        result!.ImageUrl.Should().Contain(".webp");
         result.Id.Should().Be(ExampleId);
 
         // Verify DB update
@@ -76,16 +78,26 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
 
         dbExample.Should().NotBeNull();
 
-        dbExample!.ImageUrl!.Should().Contain(".png");
+        dbExample!.ImageUrl!.Should().Contain("/examples/");
+        dbExample!.ImageUrl!.Should().Contain(".webp");
 
         // Verify file storage
         var fileName = dbExample.ImageUrl!.Split('/').Last();
+        var fullPathId = $"examples/{fileName}";
         
         using var scope = Factory.Services.CreateScope();
         var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
-        var existsResult = await fileService.FileExistsAsync(fileName);
+        var existsResult = await fileService.FileExistsAsync(fullPathId);
         
         existsResult.IsError.Should().BeFalse();
         existsResult.Value.Should().BeTrue("because the file was successfully saved");
+
+        // Verify file can be loaded via API
+        var getFileResponse = await Client.GetAsync(dbExample.ImageUrl);
+        getFileResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        getFileResponse.Content.Headers.ContentType?.MediaType.Should().Be("image/webp");
+        
+        var downloadedBytes = await getFileResponse.Content.ReadAsByteArrayAsync();
+        downloadedBytes.Length.Should().BeGreaterThan(0);
     }
 }

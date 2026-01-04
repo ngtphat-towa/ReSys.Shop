@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.Common;
+using ReSys.Core.Common.Storage;
 
 namespace ReSys.Core.Features.Examples.UpdateExample;
 
@@ -28,10 +29,12 @@ public static class UpdateExample
     public class Handler : IRequestHandler<Command, ErrorOr<ExampleDetail>>
     {
         private readonly IApplicationDbContext _context;
+        private readonly IFileService _fileService;
 
-        public Handler(IApplicationDbContext context)
+        public Handler(IApplicationDbContext context, IFileService fileService)
         {
             _context = context;
+            _fileService = fileService;
         }
 
         public async Task<ErrorOr<ExampleDetail>> Handle(Command command, CancellationToken cancellationToken)
@@ -54,8 +57,17 @@ public static class UpdateExample
             example.Description = request.Description;
             example.Price = request.Price;
             
-            if (!string.IsNullOrEmpty(request.ImageUrl))
+            if (!string.IsNullOrEmpty(request.ImageUrl) && example.ImageUrl != request.ImageUrl)
             {
+                // Delete old image if it's different
+                if (!string.IsNullOrEmpty(example.ImageUrl))
+                {
+                    var oldFileId = example.ImageUrl.Replace("/api/files/", "");
+                    if (!string.IsNullOrEmpty(oldFileId))
+                    {
+                        await _fileService.DeleteFileAsync(oldFileId, cancellationToken);
+                    }
+                }
                 example.ImageUrl = request.ImageUrl;
             }
 

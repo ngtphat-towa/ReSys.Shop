@@ -3,8 +3,18 @@ using ErrorOr;
 using Microsoft.AspNetCore.StaticFiles;
 using ReSys.Core.Common.Imaging;
 using ReSys.Core.Common.Storage;
+using ReSys.Core.Common.Models;
 
 namespace ReSys.Api.Features.Files;
+
+public record FileUploadResponse(
+    int Width,
+    int Height,
+    string Format,
+    long SizeBytes,
+    string SavedName,
+    string Url,
+    string Hash);
 
 public class FilesModule : ICarterModule
 {
@@ -23,35 +33,38 @@ public class FilesModule : ICarterModule
             
             // Practical Use Case: Resize to standard max width for e-shop (e.g. 1200px)
             // and convert to efficient WebP format.
-            var (processedStream, metadata) = await imageService.ProcessImageAsync(
+            var result = await imageService.ProcessAsync(
                 stream, 
                 file.FileName, 
                 maxWidth: 1200, 
-                cancellationToken: ct);
+                ct: ct);
 
-            using (processedStream)
+            if (result.IsError)
+                return Results.BadRequest(result.FirstError.Description);
+
+            var processed = result.Value;
+            using (processed.Main.Stream)
             {
                 // We can use custom metadata for the file service
-                var options = new FileUploadOptions(
-                    Subdirectory: "products", // Organize images in products folder
-                    AllowedExtensions: new[] { ".webp" },
-                    GenerateHash: true,
-                    OverwriteExisting: false
-                );
+                var options = new FileUploadOptions("products")
+                {
+                    AllowedExtensions = new[] { ".webp" },
+                    GenerateHash = true,
+                    OverwriteExisting = false
+                };
 
-                var saveResult = await fileService.SaveFileAsync(processedStream, metadata.FileName, options, ct);
+                var saveResult = await fileService.SaveFileAsync(processed.Main.Stream, processed.Main.FileName, options, ct);
                 
                 return saveResult.Match(
-                    success => Results.Ok(new 
-                    { 
-                        metadata.Width,
-                        metadata.Height,
-                        metadata.Format,
-                        metadata.SizeBytes,
-                        SavedName = success.FileId,
-                        Url = $"/api/files/{success.FileId}", // Use FileId (which might be the filename)
+                    success => Results.Ok(ApiResponse.Success(new FileUploadResponse(
+                        processed.Main.Width,
+                        processed.Main.Height,
+                        "webp",
+                        processed.Main.Size,
+                        success.FileId,
+                        $"/api/files/{success.Subdirectory}/{success.FileId}",
                         success.Hash
-                    }),
+                    ))),
                     errors => Results.BadRequest(errors.First().Description)
                 );
             }
@@ -60,16 +73,15 @@ public class FilesModule : ICarterModule
         .WithTags("Files")
         .DisableAntiforgery();
 
-        app.MapGet("/api/files/{fileName}", async (string fileName, IFileService fileService, CancellationToken ct) =>
+        app.MapGet("/api/files/{**path}", async (string path, IFileService fileService, CancellationToken ct) =>
         {
-            var result = await fileService.GetFileStreamAsync(fileName, ct);
+            var result = await fileService.GetFileStreamAsync(path, ct);
 
             return result.Match(
                 stream => 
                 {
+                    var fileName = Path.GetFileName(path);
                     var provider = new FileExtensionContentTypeProvider();
-                    // We might need to guess content type from stream or name if not provided
-                    // Ideally we should use GetFileMetadataAsync to get the real content type
                     if (!provider.TryGetContentType(fileName, out var contentType))
                     {
                         contentType = "application/octet-stream";
@@ -85,6 +97,23 @@ public class FilesModule : ICarterModule
             );
         })
         .WithName("GetFile")
+        .WithTags("Files");
+
+        app.MapGet("/api/files/meta/{**path}", async (string path, IFileService fileService, CancellationToken ct) =>
+        {
+            var result = await fileService.GetFileMetadataAsync(path, ct);
+
+            return result.Match(
+                metadata => Results.Ok(ApiResponse.Success(metadata)),
+                errors => 
+                {
+                    if (errors.Any(e => e.Type == ErrorType.NotFound))
+                        return Results.NotFound();
+                    return Results.BadRequest(errors.First().Description);
+                }
+            );
+        })
+        .WithName("GetFileMetadata")
         .WithTags("Files");
     }
 }

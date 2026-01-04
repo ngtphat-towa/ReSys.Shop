@@ -65,8 +65,12 @@ public sealed class LocalFileService : IFileService
             ? SanitizeFileName(fileName)
             : $"{Guid.NewGuid()}_{SanitizeFileName(fileName)}";
 
-        var subdirectory = options.Subdirectory ?? "temp";
+        var subdirectory = options.GetPath() ?? "temp";
         var targetDir = Path.Combine(_storagePath, subdirectory);
+        
+        if (!Directory.Exists(targetDir))
+            Directory.CreateDirectory(targetDir);
+
         var filePath = Path.Combine(targetDir, fileId);
 
         if (!options.OverwriteExisting && File.Exists(filePath))
@@ -119,7 +123,7 @@ public sealed class LocalFileService : IFileService
                 ContentType: GetContentType(fileName),
                 Hash: hash,
                 Subdirectory: subdirectory,
-                UploadedAt: DateTime.UtcNow,
+                UploadedAt: DateTimeOffset.UtcNow,
                 EncryptionKey: encryptionKey,
                 Metadata: options.CustomMetadata
             );
@@ -225,9 +229,9 @@ public sealed class LocalFileService : IFileService
                 ContentType: GetContentType(fileId),
                 Hash: string.Empty,
                 Subdirectory: "unknown",
-                CreatedAt: fileInfo.CreationTimeUtc,
+                CreatedAt: new DateTimeOffset(fileInfo.CreationTimeUtc),
                 Extension: fileInfo.Extension,
-                ModifiedAt: fileInfo.LastWriteTimeUtc
+                ModifiedAt: new DateTimeOffset(fileInfo.LastWriteTimeUtc)
             );
         }
 
@@ -308,7 +312,7 @@ public sealed class LocalFileService : IFileService
                 var updated = metadataResult.Value with 
                 { 
                     Subdirectory = destinationSubdirectory,
-                    ModifiedAt = DateTime.UtcNow 
+                    ModifiedAt = DateTimeOffset.UtcNow 
                 };
                 await SaveMetadataAsync(fileId, updated, cancellationToken);
             }
@@ -338,11 +342,11 @@ public sealed class LocalFileService : IFileService
 
         await using var sourceStream = File.OpenRead(sourcePath);
         
-        var options = new FileUploadOptions(
-            Subdirectory: destinationSubdirectory ?? metadataResult.Value.Subdirectory,
-            GenerateHash: true,
-            ValidateContent: false
-        );
+        var options = new FileUploadOptions(destinationSubdirectory ?? metadataResult.Value.Subdirectory)
+        {
+            GenerateHash = true,
+            ValidateContent = false
+        };
 
         return await SaveFileAsync(sourceStream, metadataResult.Value.OriginalFileName, options, cancellationToken);
     }
@@ -354,13 +358,6 @@ public sealed class LocalFileService : IFileService
         if (!Directory.Exists(_storagePath))
             Directory.CreateDirectory(_storagePath);
 
-        foreach (var subdir in _options.Subdirectories)
-        {
-            var path = Path.Combine(_storagePath, subdir);
-            if (!Directory.Exists(path))
-                Directory.CreateDirectory(path);
-        }
-
         var metadataPath = Path.Combine(_storagePath, ".metadata");
         if (!Directory.Exists(metadataPath))
             Directory.CreateDirectory(metadataPath);
@@ -368,47 +365,45 @@ public sealed class LocalFileService : IFileService
 
     private string? FindFilePath(string fileId)
     {
-        foreach (var subdir in _options.Subdirectories)
+        // 1. Try as direct relative path (e.g. "examples/nested/guid_name.webp")
+        var directPath = Path.Combine(_storagePath, fileId);
+        if (File.Exists(directPath)) return directPath;
+
+        // 2. Check all existing subdirectories (recursively) using just the filename
+        var fileName = Path.GetFileName(fileId);
+        if (Directory.Exists(_storagePath))
         {
-            var path = Path.Combine(_storagePath, subdir, fileId);
-            if (File.Exists(path))
-                return path;
+            var files = Directory.GetFiles(_storagePath, fileName, SearchOption.AllDirectories);
+            // Return first match that isn't in metadata
+            var match = files.FirstOrDefault(f => !f.Contains(".metadata"));
+            if (match != null) return match;
         }
 
-        var rootPath = Path.Combine(_storagePath, fileId);
-        return File.Exists(rootPath) ? rootPath : null;
+        return null;
     }
 
-    private string GetMetadataPath(string fileId) =>
-        Path.Combine(_storagePath, ".metadata", $"{SanitizeFileName(fileId)}.json");
-
-    private async Task SaveMetadataAsync(string fileId, object metadata, CancellationToken cancellationToken)
+    private string GetMetadataPath(string fileId)
     {
-        var metadataPath = GetMetadataPath(fileId);
-        var json = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
-        await File.WriteAllTextAsync(metadataPath, json, cancellationToken);
-    }
-
-    private async Task DeleteMetadataAsync(string fileId, CancellationToken cancellationToken)
-    {
-        var metadataPath = GetMetadataPath(fileId);
-        if (File.Exists(metadataPath))
-            await Task.Run(() => File.Delete(metadataPath), cancellationToken);
-    }
-
-    private static async Task<string> CalculateFileHashAsync(string filePath, CancellationToken cancellationToken)
-    {
-        using var sha256 = SHA256.Create();
-        await using var stream = File.OpenRead(filePath);
-        var hash = await sha256.ComputeHashAsync(stream, cancellationToken);
-        return Convert.ToHexString(hash).ToLowerInvariant();
+        var fileName = Path.GetFileName(fileId);
+        return Path.Combine(_storagePath, ".metadata", $"{SanitizeSegment(fileName)}.json");
     }
 
     private static string SanitizeFileName(string fileName)
     {
+        if (fileName.Contains('/') || fileName.Contains('\\'))
+        {
+            var segments = fileName.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join(Path.DirectorySeparatorChar, segments.Select(SanitizeSegment));
+        }
+
+        return SanitizeSegment(fileName);
+    }
+
+    private static string SanitizeSegment(string segment)
+    {
         var invalidChars = Path.GetInvalidFileNameChars();
-        var sanitized = new StringBuilder(fileName.Length);
-        foreach (var c in fileName)
+        var sanitized = new StringBuilder(segment.Length);
+        foreach (var c in segment)
         {
             sanitized.Append(invalidChars.Contains(c) ? '_' : c);
         }
@@ -430,5 +425,27 @@ public sealed class LocalFileService : IFileService
             ".txt" => "text/plain",
             _ => "application/octet-stream"
         };
+    }
+
+    private async Task SaveMetadataAsync(string fileId, object metadata, CancellationToken cancellationToken)
+    {
+        var metadataPath = GetMetadataPath(fileId);
+        var json = JsonSerializer.Serialize(metadata, new JsonSerializerOptions { WriteIndented = true });
+        await File.WriteAllTextAsync(metadataPath, json, cancellationToken);
+    }
+
+    private async Task DeleteMetadataAsync(string fileId, CancellationToken cancellationToken)
+    {
+        var metadataPath = GetMetadataPath(fileId);
+        if (File.Exists(metadataPath))
+            await Task.Run(() => File.Delete(metadataPath), cancellationToken);
+    }
+
+    private static async Task<string> CalculateFileHashAsync(string filePath, CancellationToken cancellationToken)
+    {
+        using var sha256 = SHA256.Create();
+        await using var stream = File.OpenRead(filePath);
+        var hash = await sha256.ComputeHashAsync(stream, cancellationToken);
+        return Convert.ToHexString(hash).ToLowerInvariant();
     }
 }

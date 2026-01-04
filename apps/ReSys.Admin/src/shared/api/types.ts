@@ -18,7 +18,7 @@ export interface PaginationMeta {
 
 /**
  * Standard server response envelope (Problem Details / RFC 7807 compliant).
- * This represents the raw JSON structure returned by the ASP.NET Core API.
+ * Matches the backend ReSys.Core.Common.Models.ApiResponse<T> (snake_case).
  */
 export interface ApiResponse<T> {
     /** The actual payload of the response. */

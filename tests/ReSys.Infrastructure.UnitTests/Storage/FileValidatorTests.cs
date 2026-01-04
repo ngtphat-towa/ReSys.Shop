@@ -32,7 +32,7 @@ public class FileValidatorTests
         _sut = new FileValidator(_options, logger);
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return success for valid text file")]
     public async Task ValidateAsync_ValidTextFile_ReturnsSuccess()
     {
         // Arrange
@@ -47,7 +47,7 @@ public class FileValidatorTests
         result.IsError.Should().BeFalse();
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error for empty filename")]
     public async Task ValidateAsync_EmptyFileName_ReturnsError()
     {
         // Arrange
@@ -62,7 +62,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.InvalidFileName");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error for empty file stream")]
     public async Task ValidateAsync_EmptyFileStream_ReturnsError()
     {
         // Arrange
@@ -77,7 +77,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.Empty");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error for disallowed extension")]
     public async Task ValidateAsync_InvalidExtension_ReturnsError()
     {
         // Arrange
@@ -93,7 +93,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.InvalidExtension");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error when max file size is exceeded")]
     public async Task ValidateAsync_FileSizeExceeded_ReturnsError()
     {
         // Arrange
@@ -109,7 +109,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.TooLarge");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error for filenames containing dangerous characters")]
     public async Task ValidateAsync_DangerousCharacters_ReturnsInvalidFileName()
     {
         // Arrange
@@ -128,7 +128,7 @@ public class FileValidatorTests
         }
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error for dangerous file extensions")]
     public async Task ValidateAsync_DangerousExtension_ReturnsDangerousExtension()
     {
         // Arrange
@@ -143,7 +143,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.DangerousExtension");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return error when file signature does not match extension")]
     public async Task ValidateAsync_SignatureMismatch_ReturnsSignatureMismatch()
     {
         // Arrange
@@ -160,7 +160,7 @@ public class FileValidatorTests
         result.FirstError.Code.Should().Be("File.SignatureMismatch");
     }
 
-    [Fact]
+    [Fact(DisplayName = "ValidateAsync: Should return success when file signature matches extension")]
     public async Task ValidateAsync_ValidSignature_ReturnsSuccess()
     {
         // Arrange

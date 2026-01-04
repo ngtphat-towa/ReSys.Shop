@@ -18,7 +18,7 @@ public static class DependencyInjection
             .AddPersistence(configuration)
             .AddStorage(configuration)
             .AddAI(configuration)
-            .AddImaging();
+            .AddImaging(configuration);
 
         return services;
     }
