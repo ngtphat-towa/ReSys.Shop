@@ -26,6 +26,9 @@ export const exampleLocales: FeatureLocales = {
     summary: 'Publish Summary',
     status: 'Status',
     live_price: 'Live Price',
+    file_size: 'File Size',
+    file_type: 'Format',
+    uploaded_at: 'Uploaded Date',
   },
   table: {
     preview: 'Preview',

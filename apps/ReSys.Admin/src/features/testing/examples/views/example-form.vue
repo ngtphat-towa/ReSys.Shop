@@ -92,48 +92,61 @@ const loadExample = async () => {
  * 3. Handle successful redirect or backend validation error mapping.
  */
 const onSubmit = handleSubmit(async (formValues) => {
-  let result
-  if (isEdit.value) {
-    result = await exampleStore.updateExample(
-      ExampleId,
-      { ...formValues, image_url: values.image_url || undefined },
-      imageFile.value || undefined,
-    )
-  } else {
-    result = await exampleStore.createExample(formValues, imageFile.value || undefined)
-  }
+  const result = isEdit.value
+    ? await exampleStore.updateExample(ExampleId, { ...formValues, image_url: values.image_url || undefined }, imageFile.value || undefined)
+    : await exampleStore.createExample(formValues, imageFile.value || undefined);
 
   if (result.success) {
     showToast(
       'success',
       exampleLocales.common?.success || 'Success',
-      isEdit.value
-        ? exampleLocales.messages?.update_success || 'Updated'
-        : exampleLocales.messages?.create_success || 'Created',
-    )
-    router.push({ name: 'testing.examples.list' })
-  } else if (result.error?.errors) {
-    // Map backend validation errors (RFC 7807) back to VeeValidate fields.
-    // Backend typically returns keys like 'request.Name'. We strip 'request.' prefix.
-    const apiErrors = result.error.errors
-    const formErrors: Record<string, string> = {}
-    Object.keys(apiErrors).forEach((key) => {
-      const field = key.replace('request.', '')
-      const messages = apiErrors[key]
-      if (messages && messages.length > 0) {
-        formErrors[field] = messages[0]!
-      } else {
-        formErrors[field] = 'Invalid field'
-      }
-    })
-    setErrors(formErrors)
-    showToast(
-      'warn',
-      exampleLocales.common?.warning || 'Validation Failed',
-      exampleLocales.messages?.validation_failed || 'Please check the form.',
-    )
+      isEdit.value 
+        ? (exampleLocales.messages?.update_success || 'Updated') 
+        : (exampleLocales.messages?.create_success || 'Created')
+    );
+    router.push({ name: 'testing.examples.list' });
+    return;
   }
-})
+
+  const apiError = result.error;
+  if (!apiError) return;
+
+  // 1. Handle Validation Errors (400)
+  if (apiError.errors && Object.keys(apiError.errors).length > 0) {
+    const formErrors: Record<string, string> = {};
+    const unmappedMessages: string[] = [];
+    const formFields = Object.keys(values);
+
+    Object.entries(apiError.errors).forEach(([key, messages]) => {
+      // Backend keys are snake_case (e.g., 'request.image_url')
+      const normalizedKey = key.replace('request.', '').toLowerCase();
+      
+      // Look for a form field that matches or is part of the key
+      const field = formFields.find(f => normalizedKey === f || normalizedKey.includes(f));
+
+      if (field) {
+        formErrors[field] = messages[0] || 'Invalid value';
+      } else {
+        unmappedMessages.push(...messages);
+      }
+    });
+
+    setErrors(formErrors);
+
+    // Show toast for validation errors that couldn't be bound to a specific input
+    if (unmappedMessages.length > 0) {
+      showToast('warn', apiError.title || 'Validation Error', unmappedMessages.join('. '));
+    }
+  } else {
+    // 3. Handle Global Errors (409, 500, etc.)
+    // We show a toast here as a safety measure in case the global client was silent.
+    showToast(
+      apiError.status && apiError.status < 500 ? 'warn' : 'error',
+      apiError.title || exampleLocales.common?.error || 'Error',
+      apiError.detail || 'An unexpected error occurred.'
+    );
+  }
+});
 
 onMounted(() => {
   loadExample()
@@ -158,7 +171,7 @@ onMounted(() => {
             class="bg-surface-100 dark:bg-surface-800"
           />
           <div>
-            <h1 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-0">
+            <h1 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
               {{ isEdit ? exampleLocales.titles.edit : exampleLocales.titles.create }}
             </h1>
             <p class="text-sm text-surface-500 dark:text-surface-400">
