@@ -6,7 +6,7 @@ const stats = ref([
     { title: 'Total Sales', value: '$12,345', icon: 'pi pi-dollar', color: 'text-green-500' },
     { title: 'Total Orders', value: '150', icon: 'pi pi-shopping-cart', color: 'text-blue-500' },
     { title: 'New Customers', value: '45', icon: 'pi pi-users', color: 'text-yellow-500' },
-    { title: 'Products', value: '86', icon: 'pi pi-box', color: 'text-purple-500' }
+    { title: 'Examples', value: '86', icon: 'pi pi-box', color: 'text-purple-500' }
 ]);
 </script>
 

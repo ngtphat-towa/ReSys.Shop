@@ -13,18 +13,18 @@ const items = ref([
         command: () => router.push('/')
     },
     {
-        label: 'Products',
+        label: 'Examples',
         icon: 'pi pi-box',
         items: [
             {
                 label: 'List',
                 icon: 'pi pi-list',
-                command: () => router.push('/products')
+                command: () => router.push('/Examples')
             },
             {
                 label: 'Create',
                 icon: 'pi pi-plus',
-                command: () => router.push('/products/create')
+                command: () => router.push('/Examples/create')
             }
         ]
     }

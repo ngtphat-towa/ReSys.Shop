@@ -23,9 +23,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"PagedNull_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 15);
+        await SeedExamples(baseName, 15);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -47,9 +47,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"PageNull_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 10);
+        await SeedExamples(baseName, 10);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -69,9 +69,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"SizeNull_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 25);
+        await SeedExamples(baseName, 25);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -92,9 +92,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"PageZero_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 5);
+        await SeedExamples(baseName, 5);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -113,9 +113,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"PageNeg_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 5);
+        await SeedExamples(baseName, 5);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -133,9 +133,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"SizeZero_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 15);
+        await SeedExamples(baseName, 15);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -154,9 +154,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"SizeNeg_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 15);
+        await SeedExamples(baseName, 15);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -174,9 +174,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"SpecificPage_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 10);
+        await SeedExamples(baseName, 10);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName))
             .OrderBy(p => p.Name);
 
@@ -200,9 +200,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"ExceedPage_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 5);
+        await SeedExamples(baseName, 5);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -222,8 +222,8 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"Projection_{Guid.NewGuid()}";
-        _fixture.Context.Set<Product>().Add(
-            new Product 
+        _fixture.Context.Set<Example>().Add(
+            new Example 
             { 
                 Id = Guid.NewGuid(), 
                 Name = $"{baseName}_Item", 
@@ -232,7 +232,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             });
         await _fixture.Context.SaveChangesAsync(CancellationToken.None);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -256,9 +256,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"AllItems_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 25);
+        await SeedExamples(baseName, 25);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -280,9 +280,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"OnlyPage_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 20);
+        await SeedExamples(baseName, 20);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -302,9 +302,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"OnlySize_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 20);
+        await SeedExamples(baseName, 20);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -326,9 +326,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"BothProvided_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 15);
+        await SeedExamples(baseName, 15);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -351,7 +351,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var nonExistentName = $"NonExistent_{Guid.NewGuid()}";
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(nonExistentName));
 
         // Act
@@ -372,28 +372,28 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"AllProjected_{Guid.NewGuid()}";
-        _fixture.Context.Set<Product>().AddRange(
-            new Product { Id = Guid.NewGuid(), Name = $"{baseName}_1", Price = 10m },
-            new Product { Id = Guid.NewGuid(), Name = $"{baseName}_2", Price = 20m },
-            new Product { Id = Guid.NewGuid(), Name = $"{baseName}_3", Price = 30m }
+        _fixture.Context.Set<Example>().AddRange(
+            new Example { Id = Guid.NewGuid(), Name = $"{baseName}_1", Price = 10m },
+            new Example { Id = Guid.NewGuid(), Name = $"{baseName}_2", Price = 20m },
+            new Example { Id = Guid.NewGuid(), Name = $"{baseName}_3", Price = 30m }
         );
         await _fixture.Context.SaveChangesAsync(CancellationToken.None);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName))
             .OrderBy(p => p.Price);
 
         // Act
         var result = await query.ToPagedOrAllAsync(
-            p => new { ProductName = p.Name, ProductPrice = p.Price },
+            p => new { ExampleName = p.Name, ExamplePrice = p.Price },
             page: null,
             pageSize: null);
 
         // Assert
         result.Items.Should().HaveCount(3);
-        result.Items[0].ProductPrice.Should().Be(10m);
-        result.Items[1].ProductPrice.Should().Be(20m);
-        result.Items[2].ProductPrice.Should().Be(30m);
+        result.Items[0].ExamplePrice.Should().Be(10m);
+        result.Items[1].ExamplePrice.Should().Be(20m);
+        result.Items[2].ExamplePrice.Should().Be(30m);
     }
 
     [Fact(DisplayName = "ToPagedOrAllAsync: Should handle large dataset when returning all items")]
@@ -401,9 +401,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
     {
         // Arrange
         var baseName = $"LargeData_{Guid.NewGuid()}";
-        await SeedProducts(baseName, 100);
+        await SeedExamples(baseName, 100);
 
-        var query = _fixture.Context.Set<Product>()
+        var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
@@ -423,10 +423,10 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
 
     #region Helper Methods
 
-    private async Task SeedProducts(string baseName, int count)
+    private async Task SeedExamples(string baseName, int count)
     {
-        var products = Enumerable.Range(1, count)
-            .Select(i => new Product
+        var Examples = Enumerable.Range(1, count)
+            .Select(i => new Example
             {
                 Id = Guid.NewGuid(),
                 Name = $"{baseName}_{i:D3}",
@@ -434,7 +434,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             })
             .ToList();
 
-        _fixture.Context.Set<Product>().AddRange(products);
+        _fixture.Context.Set<Example>().AddRange(Examples);
         await _fixture.Context.SaveChangesAsync(CancellationToken.None);
     }
 

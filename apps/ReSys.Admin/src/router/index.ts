@@ -20,19 +20,19 @@ const router = createRouter({
           component: () => import('../views/AboutView.vue'),
         },
         {
-          path: 'products',
-          name: 'products',
-          component: () => import('../views/products/ProductList.vue'),
+          path: 'Examples',
+          name: 'Examples',
+          component: () => import('../views/Examples/ExampleList.vue'),
         },
         {
-          path: 'products/create',
-          name: 'product-create',
-          component: () => import('../views/products/ProductForm.vue'),
+          path: 'Examples/create',
+          name: 'Example-create',
+          component: () => import('../views/Examples/ExampleForm.vue'),
         },
         {
-          path: 'products/edit/:id',
-          name: 'product-edit',
-          component: () => import('../views/products/ProductForm.vue'),
+          path: 'Examples/edit/:id',
+          name: 'Example-edit',
+          component: () => import('../views/Examples/ExampleForm.vue'),
         },
       ]
     }

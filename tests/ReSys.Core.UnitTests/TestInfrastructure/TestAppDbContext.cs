@@ -15,6 +15,6 @@ public class TestAppDbContext : AppDbContext
         base.OnModelCreating(modelBuilder);
 
         // Ignore the Vector property for InMemory tests as it's not supported
-        modelBuilder.Entity<ProductEmbedding>().Ignore(e => e.Embedding);
+        modelBuilder.Entity<ExampleEmbedding>().Ignore(e => e.Embedding);
     }
 }

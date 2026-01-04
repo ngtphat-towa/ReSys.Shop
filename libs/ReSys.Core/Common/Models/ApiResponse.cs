@@ -31,7 +31,7 @@ public class ApiResponse<T> : ProblemDetails
     public IDictionary<string, string[]>? Errors { get; set; }
 
     /// <summary>
-    /// Specific error code for machine processing (e.g. "Product.NotFound").
+    /// Specific error code for machine processing (e.g. "Example.NotFound").
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // Only show if there's an error code
     public string? ErrorCode { get; set; }

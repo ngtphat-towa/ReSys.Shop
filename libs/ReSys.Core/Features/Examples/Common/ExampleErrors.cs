@@ -1,0 +1,30 @@
+using ErrorOr;
+
+namespace ReSys.Core.Features.Examples.Common;
+
+public static class ExampleErrors
+{
+    public static Error DuplicateName => Error.Conflict(
+        code: "Example.DuplicateName",
+        description: "An example with the same name already exists.");
+
+    public static Error NotFound(Guid id) => Error.NotFound(
+        code: "Example.NotFound",
+        description: $"The example with ID '{id}' was not found.");
+
+    public static Error InvalidPrice => Error.Validation(
+        code: "Example.InvalidPrice",
+        description: $"Price must be greater than or equal to {ExampleConstraints.MinPrice}.");
+
+    public static Error NameTooLong => Error.Validation(
+        code: "Example.NameTooLong",
+        description: $"Example name cannot exceed {ExampleConstraints.NameMaxLength} characters.");
+
+    public static Error NameRequired => Error.Validation(
+        code: "Example.NameRequired",
+        description: "Example name is required.");
+
+    public static Error DescriptionRequired => Error.Validation(
+        code: "Example.DescriptionRequired",
+        description: "Example description is required.");
+}

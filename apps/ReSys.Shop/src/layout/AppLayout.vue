@@ -15,10 +15,10 @@ const items = ref([
         }
     },
     {
-        label: 'Products',
+        label: 'Examples',
         icon: 'pi pi-shopping-bag',
         command: () => {
-            // router.push('/products'); // Future
+            // router.push('/Examples'); // Future
         }
     }
 ]);

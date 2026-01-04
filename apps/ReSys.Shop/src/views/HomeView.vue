@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useProductStore } from '@/stores/productStore';
+import { useExamplestore } from '@/stores/Examplestore';
 import { storeToRefs } from 'pinia';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
@@ -9,23 +9,23 @@ import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import Skeleton from 'primevue/skeleton';
 
-const productStore = useProductStore();
-const { products, loading } = storeToRefs(productStore);
+const Examplestore = useExamplestore();
+const { Examples, loading } = storeToRefs(Examplestore);
 const search = ref('');
 
-const loadProducts = async () => {
-  await productStore.fetchProducts({ 
+const loadExamples = async () => {
+  await Examplestore.fetchExamples({ 
       search: search.value,
       page_size: 20 
   });
 };
 
 const onSearch = () => {
-    loadProducts();
+    loadExamples();
 };
 
 onMounted(() => {
-    loadProducts();
+    loadExamples();
 });
 </script>
 
@@ -37,7 +37,7 @@ onMounted(() => {
             <h1 class="text-5xl font-black text-gray-900 tracking-tight leading-none mb-4">
                 Exclusive <span class="text-primary">Collections</span>
             </h1>
-            <p class="text-gray-500 text-lg max-w-md">Find the perfect products curated just for your lifestyle.</p>
+            <p class="text-gray-500 text-lg max-w-md">Find the perfect Examples curated just for your lifestyle.</p>
         </div>
         <div class="flex gap-3 w-full max-w-lg">
             <IconField iconPosition="left" class="flex-1 shadow-sm rounded-2xl overflow-hidden">
@@ -59,21 +59,21 @@ onMounted(() => {
     </div>
     
     <!-- Empty State -->
-    <div v-else-if="products.length === 0" class="text-center py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
+    <div v-else-if="Examples.length === 0" class="text-center py-32 bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-200">
         <div class="bg-white w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-md mb-6">
             <i class="pi pi-search text-4xl text-gray-300"></i>
         </div>
         <h2 class="text-3xl font-black text-gray-800 mb-2">No results found</h2>
         <p class="text-gray-400 text-lg max-w-sm mx-auto">We couldn't find anything matching your search. Try another term!</p>
-        <Button label="View All Products" class="mt-8 p-button-text font-bold" @click="search = ''; onSearch()" />
+        <Button label="View All Examples" class="mt-8 p-button-text font-bold" @click="search = ''; onSearch()" />
     </div>
 
-    <!-- Product Grid -->
+    <!-- Example Grid -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-        <Card v-for="product in products" :key="product.id" class="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 rounded-[2.5rem] group bg-white border border-gray-50">
+        <Card v-for="Example in Examples" :key="Example.id" class="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 rounded-[2.5rem] group bg-white border border-gray-50">
             <template #header>
                 <div class="relative overflow-hidden aspect-[4/5] m-4 rounded-[2rem] shadow-inner bg-gray-50">
-                    <img v-if="product.image_url" :src="product.image_url" :alt="product.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img v-if="Example.image_url" :src="Example.image_url" :alt="Example.name" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-200 transition-colors">
                         <i class="pi pi-image text-6xl"></i>
                     </div>
@@ -83,19 +83,19 @@ onMounted(() => {
                 </div>
             </template>
             <template #title>
-                <h3 class="text-xl font-black text-gray-900 line-clamp-1 mb-1 tracking-tight">{{ product.name }}</h3>
+                <h3 class="text-xl font-black text-gray-900 line-clamp-1 mb-1 tracking-tight">{{ Example.name }}</h3>
             </template>
             <template #subtitle>
                 <span class="text-3xl font-black text-primary">
-                    {{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price) }}
+                    {{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Example.price) }}
                 </span>
             </template>
             <template #content>
-                <p class="text-gray-500 line-clamp-2 text-sm leading-relaxed mt-2">{{ product.description }}</p>
+                <p class="text-gray-500 line-clamp-2 text-sm leading-relaxed mt-2">{{ Example.description }}</p>
             </template>
             <template #footer>
                 <div class="flex gap-3 mt-4">
-                    <Button label="Details" severity="secondary" outlined class="flex-1 py-3 rounded-2xl font-bold border-gray-200" @click="$router.push(`/products/${product.id}`)" />
+                    <Button label="Details" severity="secondary" outlined class="flex-1 py-3 rounded-2xl font-bold border-gray-200" @click="$router.push(`/Examples/${Example.id}`)" />
                     <Button label="Add" icon="pi pi-shopping-bag" class="flex-1 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20" />
                 </div>
             </template>

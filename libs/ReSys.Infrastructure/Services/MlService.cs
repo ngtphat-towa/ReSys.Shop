@@ -15,11 +15,11 @@ public class MlService : IMlService
         _httpClient.BaseAddress = new Uri(options.Value.ServiceUrl);
     }
 
-    public async Task<float[]?> GetEmbeddingAsync(string imageUrl, string productId, CancellationToken cancellationToken = default)
+    public async Task<float[]?> GetEmbeddingAsync(string imageUrl, string ExampleId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var mlRequest = new { image_url = imageUrl, product_id = productId };
+            var mlRequest = new { image_url = imageUrl, Example_id = ExampleId };
             var response = await _httpClient.PostAsJsonAsync("/embed", mlRequest, cancellationToken);
 
             if (response.IsSuccessStatusCode)

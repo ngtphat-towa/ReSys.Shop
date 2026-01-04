@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ReSys ML Service",
-    description="Microservice for generating product embeddings and similarity search.",
+    description="Microservice for generating Example embeddings and similarity search.",
     version="1.0.0",
     lifespan=lifespan,
     docs_url="/docs",
