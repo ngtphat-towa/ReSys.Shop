@@ -15,9 +15,6 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  optimizeDeps: {
-    include: ['@opentelemetry/resources', '@opentelemetry/api', '@opentelemetry/sdk-trace-web', '@opentelemetry/exporter-trace-otlp-http', '@opentelemetry/instrumentation-document-load', '@opentelemetry/instrumentation-fetch']
-  },
   base: '/admin/',
   server: {
     host: true,

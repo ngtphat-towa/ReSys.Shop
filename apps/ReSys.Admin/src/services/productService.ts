@@ -1,38 +1,37 @@
 import apiClient from './apiClient';
+import type { ApiResponse } from '@/types/api';
+import type { 
+    ProductListItem, 
+    ProductDetail, 
+    CreateProductRequest, 
+    UpdateProductRequest, 
+    ProductQuery 
+} from '@/types/product';
 
-export interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    image_url: string;
-    created_at: string;
-}
-
-export const getProducts = async (): Promise<Product[]> => {
-    const response = await apiClient.get<Product[]>('/products');
+export const getProducts = async (query?: ProductQuery): Promise<ApiResponse<ProductListItem[]>> => {
+    const response = await apiClient.get<ApiResponse<ProductListItem[]>>('/products', { params: query });
     return response.data;
 };
 
-export const getProductById = async (id: string): Promise<Product> => {
-    const response = await apiClient.get<Product>(`/products/${id}`);
+export const getProductById = async (id: string): Promise<ApiResponse<ProductDetail>> => {
+    const response = await apiClient.get<ApiResponse<ProductDetail>>(`/products/${id}`);
     return response.data;
 };
 
-export const createProduct = async (product: Partial<Product>): Promise<Product> => {
-    const response = await apiClient.post<Product>('/products', product);
+export const createProduct = async (request: CreateProductRequest): Promise<ApiResponse<ProductDetail>> => {
+    const response = await apiClient.post<ApiResponse<ProductDetail>>('/products', request);
     return response.data;
 };
 
-export const updateProduct = async (id: string, product: Partial<Product>): Promise<Product> => {
-    const response = await apiClient.put<Product>(`/products/${id}`, product);
+export const updateProduct = async (id: string, request: UpdateProductRequest): Promise<ApiResponse<ProductDetail>> => {
+    const response = await apiClient.put<ApiResponse<ProductDetail>>(`/products/${id}`, request);
     return response.data;
 };
 
-export const updateProductImage = async (id: string, file: File): Promise<Product> => {
+export const updateProductImage = async (id: string, file: File): Promise<ApiResponse<ProductDetail>> => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await apiClient.post<Product>(`/products/${id}/image`, formData, {
+    const response = await apiClient.post<ApiResponse<ProductDetail>>(`/products/${id}/image`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -42,4 +41,9 @@ export const updateProductImage = async (id: string, file: File): Promise<Produc
 
 export const deleteProduct = async (id: string): Promise<void> => {
     await apiClient.delete(`/products/${id}`);
+};
+
+export const getSimilarProducts = async (id: string): Promise<ApiResponse<ProductListItem[]>> => {
+    const response = await apiClient.get<ApiResponse<ProductListItem[]>>(`/products/${id}/similar`);
+    return response.data;
 };
