@@ -3,8 +3,8 @@ import { useLayout } from '@/layout/composables/layout';
 import { computed, watch, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { toastBus } from '@/shared/api/client';
-import AppTopbar from './AppTopbar.vue';
-import AppFooter from './AppFooter.vue';
+import AppTopbar from './app-topbar.vue';
+import AppFooter from './app-footer.vue';
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
 const toast = useToast();

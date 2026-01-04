@@ -11,9 +11,11 @@ export const exampleLocales: FeatureLocales = {
     edit: 'Update Example',
     breadcrumb_home: 'Dashboard',
     breadcrumb_parent: 'Examples',
+    basic_info: 'Basic Information',
   },
   descriptions: {
     list: 'Manage your store inventory and Example details.',
+    create: 'Fill in the details to add a new item.',
   },
   labels: {
     name: 'Example Name',
@@ -22,6 +24,8 @@ export const exampleLocales: FeatureLocales = {
     category: 'Category',
     media: 'Example Media',
     summary: 'Publish Summary',
+    status: 'Status',
+    live_price: 'Live Price',
   },
   table: {
     preview: 'Preview',
@@ -35,12 +39,14 @@ export const exampleLocales: FeatureLocales = {
     in_stock: 'In Stock',
     filter_placeholder: 'Search name',
     clear_filter: 'Clear Filters',
+    draft: 'Draft',
   },
   placeholders: {
     search: 'Search by name...',
     name: 'e.g. Premium Wireless Headphones',
     description: 'Provide a detailed description of the Example features...',
     upload: 'Upload New Image',
+    select_status: 'Select Status',
   },
   tooltips: {
     name: 'The public name of the product as it appears in the catalog.',
@@ -60,8 +66,11 @@ export const exampleLocales: FeatureLocales = {
   messages: {
     create_success: 'New Example has been successfully added.',
     update_success: 'Example has been successfully updated.',
+    delete_success: 'Example has been successfully removed.',
+    load_error: 'Failed to load item details.',
     validation_failed: 'Please correct the errors before saving.',
     loading: 'Loading...',
+    modifying: 'Modifying',
     no_image: 'No image selected',
     empty_list: 'No Examples found',
     ready_to_upload: 'Ready to upload',
@@ -72,5 +81,12 @@ export const exampleLocales: FeatureLocales = {
     save_edit: 'Update Changes',
     new: 'New Example',
     clear_selection: 'Clear Selection',
+    create: 'Create',
+    edit: 'Edit',
+  },
+  common: {
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
   },
 }

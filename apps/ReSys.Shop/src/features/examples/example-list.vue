@@ -1,12 +1,23 @@
 <script setup lang="ts">
+/**
+ * Shop Example List View
+ * Provides a consumer-facing catalog for browsing and searching items.
+ * Demonstrates a card-based layout with responsive design.
+ */
 import { onMounted, ref } from 'vue'
 import { useExampleStore } from './example.store'
 import { storeToRefs } from 'pinia'
+import { exampleLocales } from './example.locales'
 
+// --- STORE & SEARCH STATE ---
 const exampleStore = useExampleStore()
-const { Examples, loading } = storeToRefs(exampleStore)
+const { examples, loading } = storeToRefs(exampleStore)
 const search = ref('')
 
+/**
+ * Loads the catalog based on search input.
+ * Default page size is set to 20 for optimal browsing experience.
+ */
 const loadExamples = async () => {
   await exampleStore.fetchExamples({
     search: search.value,
@@ -14,8 +25,19 @@ const loadExamples = async () => {
   })
 }
 
+/**
+ * Triggered when user submits search.
+ */
 const onSearch = () => {
   loadExamples()
+}
+
+/**
+ * Clears the search input and refreshes the full catalog.
+ */
+const onReset = () => {
+  search.value = ''
+  onSearch()
 }
 
 onMounted(() => {
@@ -33,10 +55,10 @@ onMounted(() => {
         <h1
           class="mb-4 text-5xl font-black leading-none tracking-tight text-surface-900 dark:text-surface-0"
         >
-          Exclusive <span class="text-primary">Collections</span>
+          {{ exampleLocales.titles.hero_primary }} <span class="text-primary">{{ exampleLocales.titles.hero_highlight }}</span>
         </h1>
         <p class="max-w-md text-lg text-surface-500 dark:text-surface-400">
-          Find the perfect items curated just for your lifestyle.
+          {{ exampleLocales.descriptions?.hero }}
         </p>
       </div>
       <div class="flex w-full max-w-lg gap-3">
@@ -44,7 +66,7 @@ onMounted(() => {
           <InputIcon class="pi pi-search" />
           <InputText
             v-model="search"
-            placeholder="Search our catalog..."
+            :placeholder="exampleLocales.placeholders?.search"
             class="w-full py-4 text-lg transition-colors border-none bg-surface-50 dark:bg-surface-800 focus:bg-surface-0 dark:focus:bg-surface-950"
             @keyup.enter="onSearch"
           />
@@ -53,7 +75,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Loading State -->
+    <!-- Loading Skeleton Grid -->
     <div v-if="loading" class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
       <div
         v-for="i in 8"
@@ -67,9 +89,9 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- Empty State / No Results -->
     <div
-      v-else-if="Examples.length === 0"
+      v-else-if="examples.length === 0"
       class="text-center py-32 bg-surface-50 dark:bg-surface-800/50 rounded-[3rem] border-2 border-dashed border-surface-200 dark:border-surface-700"
     >
       <div
@@ -78,26 +100,23 @@ onMounted(() => {
         <i class="text-4xl pi pi-search text-surface-300 dark:text-surface-600"></i>
       </div>
       <h2 class="mb-2 text-3xl font-black text-surface-800 dark:text-surface-100">
-        No results found
+        {{ exampleLocales.messages?.empty_list }}
       </h2>
       <p class="max-w-sm mx-auto text-lg text-surface-400 dark:text-surface-500">
-        We couldn't find anything matching your search. Try another term!
+        {{ exampleLocales.messages?.empty_description }}
       </p>
       <Button
-        label="View All Examples"
+        :label="exampleLocales.actions.view_all"
         class="mt-8 font-bold p-button-text"
-        @click="
-          search = ''
-          onSearch()
-        "
+        @click="onReset"
       />
     </div>
 
-    <!-- Example Grid -->
+    <!-- Catalog Grid -->
     <div v-else class="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
       <Card
-        v-for="Example in Examples"
-        :key="Example.id"
+        v-for="example in examples"
+        :key="example.id"
         class="overflow-hidden border-none shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 rounded-[2.5rem] group bg-surface-0 dark:bg-surface-900 border border-surface-50 dark:border-surface-800"
       >
         <template #header>
@@ -105,9 +124,9 @@ onMounted(() => {
             class="relative overflow-hidden aspect-[4/5] m-4 rounded-[2rem] shadow-inner bg-surface-50 dark:bg-surface-800"
           >
             <img
-              v-if="Example.image_url"
-              :src="Example.image_url"
-              :alt="Example.name"
+              v-if="example.image_url"
+              :src="example.image_url"
+              :alt="example.name"
               class="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
             />
             <div
@@ -131,14 +150,14 @@ onMounted(() => {
           <h3
             class="mb-1 text-xl font-black tracking-tight text-surface-900 dark:text-surface-0 line-clamp-1"
           >
-            {{ Example.name }}
+            {{ example.name }}
           </h3>
         </template>
         <template #subtitle>
           <span class="text-3xl font-black text-primary">
             {{
               new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                Example.price,
+                example.price,
               )
             }}
           </span>
@@ -147,20 +166,20 @@ onMounted(() => {
           <p
             class="mt-2 text-sm italic leading-relaxed text-surface-500 dark:text-surface-400 line-clamp-2"
           >
-            {{ Example.description || 'No description available' }}
+            {{ example.description || exampleLocales.table?.no_details }}
           </p>
         </template>
         <template #footer>
           <div class="flex gap-3 mt-4">
             <Button
-              label="Details"
+              :label="exampleLocales.actions.details"
               severity="secondary"
               outlined
               class="flex-1 py-3 font-bold rounded-2xl border-surface-200 dark:border-surface-700"
-              @click="$router.push(`/Examples/${Example.id}`)"
+              @click="$router.push({ name: 'shop.examples.detail', params: { id: example.id } })"
             />
             <Button
-              label="Add"
+              :label="exampleLocales.actions.add"
               icon="pi pi-shopping-bag"
               class="flex-1 py-3 font-bold shadow-lg rounded-2xl shadow-primary/20"
             />

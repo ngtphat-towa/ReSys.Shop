@@ -3,6 +3,8 @@ import { onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useExampleStore } from './example.store';
 import { storeToRefs } from 'pinia';
+import { exampleLocales } from './example.locales';
+import AppBreadcrumb from '@/shared/components/breadcrumb.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -30,6 +32,8 @@ watch(() => route.params.id, (newId) => {
 
 <template>
     <div class="container mx-auto p-4 md:p-12">
+        <AppBreadcrumb :locales="exampleLocales" />
+
         <div v-if="loading && !currentExample" class="flex flex-col gap-16 animate-pulse">
             <div class="flex flex-col lg:flex-row gap-16">
                 <div class="w-full lg:w-1/2 aspect-square bg-surface-100 dark:bg-surface-800 rounded-[3rem]"></div>
@@ -55,7 +59,7 @@ watch(() => route.params.id, (newId) => {
                                 </div>
                             </div>
                             <div class="absolute top-12 right-12">
-                                <Tag severity="success" value="Premium Quality" class="px-6 py-2 text-sm font-black shadow-2xl rounded-full" />
+                                <Tag severity="success" :value="exampleLocales.messages?.premium" class="px-6 py-2 text-sm font-black shadow-2xl rounded-full" />
                             </div>
                         </div>
                     </div>
@@ -64,13 +68,13 @@ watch(() => route.params.id, (newId) => {
                 <!-- Example Info -->
                 <div class="w-full lg:w-1/2 flex flex-col justify-center">
                     <div class="mb-10">
-                        <Button label="Back to Catalog" icon="pi pi-arrow-left" text severity="secondary" @click="router.push('/')" class="mb-6 font-bold" />
+                        <Button :label="exampleLocales.actions.back_to_catalog" icon="pi pi-arrow-left" text severity="secondary" @click="router.push({ name: 'shop.home' })" class="mb-6 font-bold" />
                         <h1 class="text-6xl font-black text-surface-900 dark:text-surface-0 leading-[1.1] mb-4 tracking-tighter">{{ currentExample.name }}</h1>
                         <div class="flex items-center gap-4">
                             <div class="flex text-yellow-400">
                                 <i v-for="i in 5" :key="i" class="pi pi-star-fill text-sm"></i>
                             </div>
-                            <span class="text-surface-400 dark:text-surface-500 text-sm font-bold uppercase tracking-widest">In Stock & Ready to ship</span>
+                            <span class="text-surface-400 dark:text-surface-500 text-sm font-bold uppercase tracking-widest">{{ exampleLocales.labels?.rating_in_stock }}</span>
                         </div>
                     </div>
 
@@ -78,18 +82,18 @@ watch(() => route.params.id, (newId) => {
                         <span class="text-5xl font-black text-primary block mb-2">
                             {{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(currentExample.price) }}
                         </span>
-                        <p class="text-surface-500 dark:text-surface-400 font-medium">Free express delivery on this item.</p>
+                        <p class="text-surface-500 dark:text-surface-400 font-medium">{{ exampleLocales.labels?.free_delivery }}</p>
                     </div>
 
                     <Divider class="my-0" />
 
                     <div class="py-12">
-                        <h3 class="text-xl font-black text-surface-900 dark:text-surface-0 mb-4 uppercase tracking-widest">The Details</h3>
-                        <p class="text-surface-600 dark:text-surface-300 leading-[1.8] text-lg whitespace-pre-line">{{ currentExample.description || 'No detailed description available for this item.' }}</p>
+                        <h3 class="text-xl font-black text-surface-900 dark:text-surface-0 mb-4 uppercase tracking-widest">{{ exampleLocales.labels?.details }}</h3>
+                        <p class="text-surface-600 dark:text-surface-300 leading-[1.8] text-lg whitespace-pre-line">{{ currentExample.description || exampleLocales.messages?.no_details_desc }}</p>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-4 mt-8">
-                        <Button label="Add to Shopping Bag" icon="pi pi-shopping-bag" class="flex-1 py-5 text-xl font-black rounded-3xl shadow-2xl shadow-primary/30" />
+                        <Button :label="exampleLocales.actions.add_to_bag" icon="pi pi-shopping-bag" class="flex-1 py-5 text-xl font-black rounded-3xl shadow-2xl shadow-primary/30" />
                         <Button icon="pi pi-heart" severity="secondary" outlined class="p-5 px-6 rounded-3xl border-surface-200 dark:border-surface-700" />
                     </div>
 
@@ -99,8 +103,8 @@ watch(() => route.params.id, (newId) => {
                                 <i class="pi pi-truck text-xl"></i>
                             </div>
                             <div>
-                                <p class="font-black text-surface-900 dark:text-surface-0">Fast Shipping</p>
-                                <p class="text-sm text-surface-500 dark:text-surface-400">Arrives in 2-3 days</p>
+                                <p class="font-black text-surface-900 dark:text-surface-0">{{ exampleLocales.labels?.shipping }}</p>
+                                <p class="text-sm text-surface-500 dark:text-surface-400">{{ exampleLocales.messages?.shipping_desc }}</p>
                             </div>
                         </div>
                         <div class="p-6 bg-surface-50 dark:bg-surface-800 rounded-3xl border border-surface-100 dark:border-surface-700 flex items-center gap-5">
@@ -108,8 +112,8 @@ watch(() => route.params.id, (newId) => {
                                 <i class="pi pi-shield text-xl"></i>
                             </div>
                             <div>
-                                <p class="font-black text-surface-900 dark:text-surface-0">Secure Store</p>
-                                <p class="text-sm text-surface-500 dark:text-surface-400">100% money back</p>
+                                <p class="font-black text-surface-900 dark:text-surface-0">{{ exampleLocales.labels?.secure }}</p>
+                                <p class="text-sm text-surface-500 dark:text-surface-400">{{ exampleLocales.messages?.secure_desc }}</p>
                             </div>
                         </div>
                     </div>
@@ -120,13 +124,13 @@ watch(() => route.params.id, (newId) => {
             <div v-if="similarExamples.length > 0">
                 <div class="flex justify-between items-end mb-12">
                     <div>
-                        <h2 class="text-4xl font-black text-surface-900 dark:text-surface-0 tracking-tighter">You May Also <span class="text-primary">Love</span></h2>
-                        <p class="text-surface-500 dark:text-surface-400 text-lg mt-2 font-medium">Curated recommendations based on your current choice.</p>
+                        <h2 class="text-4xl font-black text-surface-900 dark:text-surface-0 tracking-tighter">{{ exampleLocales.titles.recommendations_primary }} <span class="text-primary">{{ exampleLocales.titles.recommendations_highlight }}</span></h2>
+                        <p class="text-surface-500 dark:text-surface-400 text-lg mt-2 font-medium">{{ exampleLocales.titles.recommendations_desc }}</p>
                     </div>
-                    <Button label="Explore All" severity="secondary" text class="font-bold" />
+                    <Button :label="exampleLocales.actions.explore_all" severity="secondary" text class="font-bold" />
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
-                    <Card v-for="sim in similarExamples" :key="sim.id" class="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all cursor-pointer group rounded-[2.5rem] bg-surface-0 dark:bg-surface-900 border border-surface-50 dark:border-surface-800" @click="router.push(`/Examples/${sim.id}`)">
+                    <Card v-for="sim in similarExamples" :key="sim.id" class="overflow-hidden border-none shadow-sm hover:shadow-xl transition-all cursor-pointer group rounded-[2.5rem] bg-surface-0 dark:bg-surface-900 border border-surface-50 dark:border-surface-800" @click="router.push({ name: 'shop.examples.detail', params: { id: sim.id } })">
                         <template #header>
                             <div class="aspect-square overflow-hidden bg-surface-50 dark:bg-surface-800 m-3 rounded-[1.8rem]">
                                 <img v-if="sim.image_url" :src="sim.image_url" :alt="sim.name" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -152,9 +156,9 @@ watch(() => route.params.id, (newId) => {
             <div class="bg-surface-0 dark:bg-surface-900 w-24 h-24 rounded-full flex items-center justify-center mx-auto shadow-md mb-8">
                 <i class="pi pi-exclamation-triangle text-4xl text-surface-300 dark:text-surface-600"></i>
             </div>
-            <h2 class="text-4xl font-black text-surface-900 dark:text-surface-0 mb-4 tracking-tighter">Example Not Found</h2>
-            <p class="text-surface-500 dark:text-surface-400 text-lg mb-12 max-w-md mx-auto">The item you're looking for might have been moved or is no longer available.</p>
-            <Button label="Return to Shop" icon="pi pi-home" @click="router.push('/')" class="px-8 py-4 rounded-2xl font-bold shadow-xl shadow-primary/20" />
+            <h2 class="text-4xl font-black text-surface-900 dark:text-surface-0 mb-4 tracking-tighter">{{ exampleLocales.messages?.not_found }}</h2>
+            <p class="text-surface-500 dark:text-surface-400 text-lg mb-12 max-w-md mx-auto">{{ exampleLocales.messages?.not_found_desc }}</p>
+            <Button :label="exampleLocales.actions.return" icon="pi pi-home" @click="router.push({ name: 'shop.home' })" class="px-8 py-4 rounded-2xl font-bold shadow-xl shadow-primary/20" />
         </div>
     </div>
 </template>

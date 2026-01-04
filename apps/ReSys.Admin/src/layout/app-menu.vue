@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import AppMenuItem from './AppMenuItem.vue';
-import type { MenuItem } from './AppMenuItem.vue';
+import AppMenuItem from './app-menu-item.vue';
+import type { MenuItem } from './app-menu-item.vue';
 
 const model = ref<MenuItem[]>([
     {
@@ -21,8 +21,8 @@ const model = ref<MenuItem[]>([
                 label: 'Examples', 
                 icon: 'pi pi-fw pi-database', 
                 items: [
-                    { label: 'Catalog List', icon: 'pi pi-fw pi-list', to: '/Examples' },
-                    { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: '/Examples/create' }
+                    { label: 'Catalog List', icon: 'pi pi-fw pi-list', to: { name: 'testing.examples.list' } },
+                    { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: { name: 'testing.examples.create' } }
                 ]
             }
         ]

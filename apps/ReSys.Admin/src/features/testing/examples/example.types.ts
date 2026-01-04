@@ -1,14 +1,14 @@
 import type { ApiResponse } from '@/shared/api/types'
-import type { ExampleInput } from './example.validator'
+import type { ExampleFormData } from './example.validator'
 
 /**
  * Shared types for the Example feature
  */
-export interface ExampleListItem extends ExampleInput {
+export interface ExampleListItem extends ExampleFormData {
   id: string
 }
 
-export interface ExampleDetail extends ExampleInput {
+export interface ExampleDetail extends ExampleFormData {
   id: string
   created_at: string
 }
@@ -16,8 +16,8 @@ export interface ExampleDetail extends ExampleInput {
 /**
  * Semantic requests
  */
-export interface CreateExampleRequest extends ExampleInput {}
-export interface UpdateExampleRequest extends ExampleInput {}
+export interface CreateExampleRequest extends ExampleFormData {}
+export interface UpdateExampleRequest extends ExampleFormData {}
 
 export interface ExampleQuery {
   search?: string
@@ -32,4 +32,4 @@ export interface ExampleQuery {
   page_size?: number
 }
 
-export type { ApiResponse, ExampleInput }
+export type { ApiResponse }

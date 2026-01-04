@@ -21,6 +21,8 @@ export interface FeatureLocales {
   table?: Record<string, string>
   /** Configuration for confirmation dialogs. */
   confirm?: Record<string, string | ((...args: any[]) => string)>
+  /** Feature-specific common strings. */
+  common?: Record<string, string>
 }
 
 /**
@@ -50,6 +52,8 @@ export interface GeneralLocales {
   navigation: {
     dashboard: string
     home: string
+    about: string
+    testing: string
     profile: string
     settings: string
     logout: string

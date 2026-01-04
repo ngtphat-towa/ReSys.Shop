@@ -21,6 +21,8 @@ export const generalLocales: GeneralLocales = {
   navigation: {
     dashboard: 'Dashboard',
     home: 'Home',
+    about: 'About',
+    testing: 'Testing',
     profile: 'Profile',
     settings: 'Settings',
     logout: 'Logout',

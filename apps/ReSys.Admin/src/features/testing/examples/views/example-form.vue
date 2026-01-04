@@ -13,7 +13,8 @@ import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { ExampleSchema } from '../example.validator'
 import { exampleLocales } from '../example.locales'
-import ExampleMediaUpload from '../components/ExampleMediaUpload.vue'
+import ExampleMediaUpload from '../components/media-upload.vue'
+import AppBreadcrumb from '@/shared/components/breadcrumb.vue'
 
 // --- ROUTING & STORE ---
 const route = useRoute()
@@ -56,28 +57,39 @@ const handleFileChange = (file: File | null) => {
 
 /**
  * Loads the existing data if we are in edit mode.
+ * Fetches the example details by ID from the store and populates the form fields.
+ * If fetching fails, redirects the user back to the list view.
  */
 const loadExample = async () => {
   if (!isEdit.value) return
   const result = await exampleStore.fetchExampleById(ExampleId)
   if (result.success) {
     const data = result.data
+    // Update VeeValidate form state with server data
     setValues({
       name: data.name,
-      description: data.description,
+      description: data.description || '',
       price: data.price,
-      image_url: data.image_url,
+      image_url: data.image_url || null,
     })
   } else {
-    showToast('error', 'Error', 'Failed to load item details.')
-    router.push('/Examples')
+    showToast(
+      'error',
+      exampleLocales.common?.error || 'Error',
+      exampleLocales.messages?.load_error || 'Failed to load item details.',
+    )
+    router.push({ name: 'testing.examples.list' })
   }
 }
 
 /**
  * Main form submission handler.
  * Decides between create and update based on current mode.
- * Orchestrates multi-step submission (Data -> Image).
+ *
+ * Flow:
+ * 1. Submit basic JSON data (Create or Update).
+ * 2. If a new image file was selected, upload it in a second step via multipart/form-data.
+ * 3. Handle successful redirect or backend validation error mapping.
  */
 const onSubmit = handleSubmit(async (formValues) => {
   let result
@@ -94,24 +106,30 @@ const onSubmit = handleSubmit(async (formValues) => {
   if (result.success) {
     showToast(
       'success',
-      'Success',
+      exampleLocales.common?.success || 'Success',
       isEdit.value
         ? exampleLocales.messages?.update_success || 'Updated'
         : exampleLocales.messages?.create_success || 'Created',
     )
-    router.push('/Examples')
+    router.push({ name: 'testing.examples.list' })
   } else if (result.error?.errors) {
-    // Map backend validation errors (RFC 7807) back to VeeValidate fields
+    // Map backend validation errors (RFC 7807) back to VeeValidate fields.
+    // Backend typically returns keys like 'request.Name'. We strip 'request.' prefix.
     const apiErrors = result.error.errors
     const formErrors: Record<string, string> = {}
     Object.keys(apiErrors).forEach((key) => {
       const field = key.replace('request.', '')
-      formErrors[field] = apiErrors[key][0] || 'Invalid field'
+      const messages = apiErrors[key]
+      if (messages && messages.length > 0) {
+        formErrors[field] = messages[0]!
+      } else {
+        formErrors[field] = 'Invalid field'
+      }
     })
     setErrors(formErrors)
     showToast(
       'warn',
-      'Validation Failed',
+      exampleLocales.common?.warning || 'Validation Failed',
       exampleLocales.messages?.validation_failed || 'Please check the form.',
     )
   }
@@ -126,35 +144,7 @@ onMounted(() => {
   <form @submit="onSubmit" class="p-6 mx-auto">
     <!-- Header -->
     <div class="mb-6">
-      <nav class="flex mb-4 text-sm" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-3">
-          <li class="inline-flex items-center">
-            <router-link
-              to="/"
-              class="transition-colors text-surface-500 hover:text-primary dark:text-surface-400"
-            >
-              <i class="mr-2 pi pi-home"></i> {{ exampleLocales.titles.breadcrumb_home }}
-            </router-link>
-          </li>
-          <li>
-            <div class="flex items-center">
-              <i class="pi pi-chevron-right text-surface-400 mx-2 text-[10px]"></i>
-              <router-link
-                to="/Examples"
-                class="transition-colors text-surface-500 hover:text-primary dark:text-surface-400"
-              >
-                {{ exampleLocales.titles.breadcrumb_parent }}
-              </router-link>
-            </div>
-          </li>
-          <li aria-current="page">
-            <div class="flex items-center">
-              <i class="pi pi-chevron-right text-surface-400 mx-2 text-[10px]"></i>
-              <span class="font-bold text-primary">{{ isEdit ? 'Edit' : 'Create' }}</span>
-            </div>
-          </li>
-        </ol>
-      </nav>
+      <AppBreadcrumb :locales="exampleLocales" />
 
       <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div class="flex items-center gap-4">
@@ -164,7 +154,7 @@ onMounted(() => {
             text
             rounded
             severity="secondary"
-            @click="router.push('/Examples')"
+            @click="router.push({ name: 'testing.examples.list' })"
             class="bg-surface-100 dark:bg-surface-800"
           />
           <div>
@@ -174,8 +164,8 @@ onMounted(() => {
             <p class="text-sm text-surface-500 dark:text-surface-400">
               {{
                 isEdit
-                  ? `Modifying: ${name || exampleLocales.messages?.loading}`
-                  : 'Fill in the details to add a new item.'
+                  ? `${exampleLocales.messages?.modifying || 'Modifying'}: ${name || exampleLocales.messages?.loading}`
+                  : (exampleLocales.descriptions?.create || 'Fill in the details to add a new item.')
               }}
             </p>
           </div>
@@ -186,7 +176,7 @@ onMounted(() => {
             :label="exampleLocales.actions.cancel"
             severity="secondary"
             text
-            @click="router.push('/Examples')"
+            @click="router.push({ name: 'testing.examples.list' })"
           />
           <Button
             type="submit"
@@ -206,9 +196,9 @@ onMounted(() => {
           class="overflow-hidden border-none shadow-sm rounded-2xl border-surface-100 dark:border-surface-800 bg-surface-0 dark:bg-surface-900"
         >
           <template #title>
-            <span class="text-xl font-bold text-surface-800 dark:text-surface-50"
-              >Basic Information</span
-            >
+            <span class="text-xl font-bold text-surface-800 dark:text-surface-50">{{
+              exampleLocales.titles.basic_info
+            }}</span>
           </template>
           <template #content>
             <div class="flex flex-col gap-6 pt-2">
@@ -300,7 +290,7 @@ onMounted(() => {
       <!-- Media -->
       <div class="space-y-6 lg:col-span-1">
         <ExampleMediaUpload
-          :modelValue="values.image_url"
+          :modelValue="values.image_url || null"
           @update:modelValue="(val) => setValues({ ...values, image_url: val })"
           :locales="exampleLocales"
           @file-change="handleFileChange"
@@ -318,15 +308,19 @@ onMounted(() => {
           <template #content>
             <div class="flex flex-col gap-4">
               <div class="flex items-center justify-between text-sm">
-                <span class="font-medium text-surface-500">Status</span>
+                <span class="font-medium text-surface-500">{{
+                  exampleLocales.labels?.status
+                }}</span>
                 <Badge
-                  :value="isEdit ? exampleLocales.table?.active : 'Draft'"
+                  :value="isEdit ? exampleLocales.table?.active : exampleLocales.table?.draft"
                   :severity="isEdit ? 'success' : 'warning'"
                 ></Badge>
               </div>
               <Divider class="my-0" />
               <div class="flex items-center justify-between">
-                <span class="font-medium text-surface-500">Live Price</span>
+                <span class="font-medium text-surface-500">{{
+                  exampleLocales.labels?.live_price
+                }}</span>
                 <span class="text-xl font-black text-primary">{{
                   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
                     price || 0,

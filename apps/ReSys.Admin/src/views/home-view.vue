@@ -67,8 +67,8 @@ const stats = ref([
             <div class="card bg-surface-0 dark:bg-surface-900 p-6 border border-surface-100 dark:border-surface-800 rounded-2xl shadow-sm h-full">
                 <h5 class="text-xl font-bold text-surface-900 dark:text-surface-0 mb-6">Quick Actions</h5>
                 <div class="grid grid-cols-2 gap-4">
-                    <Button label="Add Example" icon="pi pi-plus" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push('/Examples/create')"></Button>
-                    <Button label="View Catalog" icon="pi pi-list" severity="secondary" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push('/Examples')"></Button>
+                    <Button label="Add Example" icon="pi pi-plus" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push({ name: 'testing.examples.create' })"></Button>
+                    <Button label="View Catalog" icon="pi pi-list" severity="secondary" class="p-4 flex flex-col items-center gap-2" outlined @click="$router.push({ name: 'testing.examples.list' })"></Button>
                 </div>
             </div>
         </div>

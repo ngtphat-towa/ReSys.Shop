@@ -12,6 +12,7 @@ import { storeToRefs } from 'pinia'
 import { exampleLocales } from '../example.locales'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import { showToast } from '@/shared/api/client'
+import AppBreadcrumb from '@/shared/components/breadcrumb.vue'
 
 // --- STORE & ROUTING ---
 const exampleStore = useExampleStore()
@@ -47,6 +48,7 @@ const statuses = ref(['Active', 'Inactive', 'Out of Stock'])
 
 /**
  * Initial data fetch.
+ * This is called when the component is mounted to populate the initial list.
  */
 const loadExamples = async () => {
   await exampleStore.fetchExamples()
@@ -54,6 +56,7 @@ const loadExamples = async () => {
 
 /**
  * Handles DataTable pagination events.
+ * Maps PrimeVue's 0-indexed page to the API's 1-indexed page.
  */
 const onPage = (event: any) => {
   exampleStore.fetchExamples({
@@ -64,6 +67,7 @@ const onPage = (event: any) => {
 
 /**
  * Handles DataTable sorting events.
+ * Synchronizes sortField and sortOrder with the backend query state.
  */
 const onSort = (event: any) => {
   exampleStore.fetchExamples({
@@ -75,6 +79,7 @@ const onSort = (event: any) => {
 
 /**
  * Triggers a filtered search based on current filter values.
+ * Collects values from the PrimeVue 'filters' reactive object and resets to page 1.
  */
 const onFilter = () => {
   exampleStore.fetchExamples({
@@ -107,12 +112,16 @@ const clearFilters = () => {
   onFilter()
 }
 
+/**
+ * Navigates to the edit form for a specific item.
+ */
 const editExample = (id: string) => {
-  router.push(`/Examples/edit/${id}`)
+  router.push({ name: 'testing.examples.edit', params: { id } })
 }
 
 /**
  * Shows a confirmation dialog before deleting an item.
+ * Uses the localized confirm object for header and message content.
  */
 const confirmDelete = (Example: any) => {
   confirm.require({
@@ -132,7 +141,11 @@ const confirmDelete = (Example: any) => {
     accept: async () => {
       const result = await exampleStore.deleteExample(Example.id)
       if (result.success) {
-        showToast('success', 'Deleted', 'Example has been removed.')
+        showToast(
+          'success',
+          exampleLocales.common?.success || 'Deleted',
+          exampleLocales.messages?.delete_success || 'Example has been removed.',
+        )
       }
     },
   })
@@ -145,11 +158,12 @@ onMounted(() => {
 
 <template>
   <div class="p-6">
+    <AppBreadcrumb :locales="exampleLocales" />
     <div class="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
       <div>
-        <h1 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-0">
+        <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-0">
           {{ exampleLocales.titles.list }}
-        </h1>
+        </h2>
         <div class="flex items-center gap-2 mt-1">
           <span class="text-surface-500 dark:text-surface-400">
             {{ exampleLocales.descriptions?.list }}
@@ -161,7 +175,7 @@ onMounted(() => {
         <Button
           :label="exampleLocales.actions.new"
           icon="pi pi-plus"
-          @click="router.push('/Examples/create')"
+          @click="router.push({ name: 'testing.examples.create' })"
           class="px-4 shadow-lg rounded-xl"
         />
       </div>
@@ -180,8 +194,8 @@ onMounted(() => {
         @sort="onSort"
         @filter="onFilter"
         :paginator="true"
-        :rows="query.page_size"
-        :first="(query?.page - 1) * query?.page_size"
+        :rows="query.page_size || 10"
+        :first="((query.page || 1) - 1) * (query.page_size || 10)"
         :sortField="query.sort_by"
         :sortOrder="query.is_descending ? -1 : 1"
         filterDisplay="menu"
@@ -311,7 +325,7 @@ onMounted(() => {
             <Select
               v-model="filterModel.value"
               :options="statuses"
-              placeholder="Select Status"
+              :placeholder="exampleLocales.placeholders?.select_status || 'Select Status'"
               @change="filterCallback()"
               class="p-column-filter"
               style="min-width: 12rem"

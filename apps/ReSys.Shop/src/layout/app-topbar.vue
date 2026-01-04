@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useLayout } from '@/layout/composables/layout';
 import { useRouter } from 'vue-router';
+import { generalLocales } from '@/shared/locales/general.locales';
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
 const router = useRouter();
@@ -19,12 +20,18 @@ const router = useRouter();
         </div>
 
         <div class="layout-topbar-actions">
-            <div class="layout-topbar-menu hidden lg:flex gap-6 mr-8">
-                <router-link to="/" class="text-surface-600 dark:text-surface-300 font-bold hover:text-primary transition-colors">Home</router-link>
-                <router-link to="/about" class="text-surface-600 dark:text-surface-300 font-bold hover:text-primary transition-colors">About</router-link>
+            <div class="layout-topbar-menu hidden lg:flex items-center gap-6 mr-8">
+                <router-link :to="{ name: 'shop.home' }" class="flex items-center gap-2 text-surface-600 dark:text-surface-300 font-bold hover:text-primary transition-colors">
+                    <i class="pi pi-home"></i>
+                    <span>{{ generalLocales.navigation.home }}</span>
+                </router-link>
+                <router-link :to="{ name: 'shop.about' }" class="flex items-center gap-2 text-surface-600 dark:text-surface-300 font-bold hover:text-primary transition-colors">
+                    <i class="pi pi-info-circle"></i>
+                    <span>{{ generalLocales.navigation.about }}</span>
+                </router-link>
             </div>
 
-            <div class="layout-config-menu">
+            <div class="layout-config-menu flex items-center gap-2">
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>

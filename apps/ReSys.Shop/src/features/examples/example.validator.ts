@@ -9,11 +9,11 @@ export const ExampleSchema = zod.object({
         .min(1, 'Example name is required.')
         .max(255, 'Example name cannot exceed 255 characters.'),
     description: zod.string()
-        .min(1, 'Example description is required.')
-        .max(2000, 'Example description cannot exceed 2000 characters.'),
+        .max(2000, 'Example description cannot exceed 2000 characters.')
+        .optional(),
     price: zod.number()
         .min(0.01, 'Price must be at least $0.01.'),
-    image_url: zod.string().optional()
+    image_url: zod.string().nullable().optional()
 });
 
 /**
