@@ -8,11 +8,14 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" />
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
     <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\infrastructure\aspire\ReSys.ServiceDefaults\ReSys.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\libs\ReSys.Core\ReSys.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ReSys.Core.Common.Telemetry;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Imaging;
 using ReSys.Infrastructure.Persistence;
@@ -11,6 +12,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.RegisterModule("Infrastructure", "Core");
+
         services
             .AddPersistence(configuration)
             .AddStorage(configuration)
@@ -24,7 +27,6 @@ public static class DependencyInjection
     {
         using var scope = app.ApplicationServices.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // ensure database created
         context.Database.EnsureCreated();
 
         return app;

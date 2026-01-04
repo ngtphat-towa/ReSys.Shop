@@ -27,4 +27,8 @@ public static class ExampleErrors
     public static Error DescriptionRequired => Error.Validation(
         code: "Example.DescriptionRequired",
         description: "Example description is required.");
+
+    public static Error DescriptionTooLong => Error.Validation(
+        code: "Example.DescriptionTooLong",
+        description: $"Example description cannot exceed {ExampleConstraints.DescriptionMaxLength} characters.");
 }

@@ -11,7 +11,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.OpenTelemetry() // Added for Aspire/OTel
+    .WriteTo.OpenTelemetry()
     .CreateBootstrapLogger();
 
 try
@@ -50,9 +50,9 @@ try
 
     var app = builder.Build();
 
-    app.MapDefaultEndpoints();
-
-    // Configure Pipeline
+    // ---------------------------------------------------------
+    // Configure Pipeline (Clean Delegation)
+    // ---------------------------------------------------------
     app.UseInfrastructure();
     app.UseCore();
     app.UsePresentation();

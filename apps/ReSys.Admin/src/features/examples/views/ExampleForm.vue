@@ -4,6 +4,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { useExampleStore } from '../example.store';
 import { storeToRefs } from 'pinia';
 import { showToast } from '@/shared/api/api-client';
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
+import { ExampleSchema } from '../example.validator';
+import { ExampleLocales } from '../example.locales';
 
 const route = useRoute();
 const router = useRouter()
@@ -13,11 +17,20 @@ const { loading } = storeToRefs(exampleStore)
 const isEdit = computed(() => route.params.id !== undefined)
 const ExampleId = route.params.id as string
 
-const form = ref({
-  name: '',
-  description: '',
-  price: 0 as number | null,
-})
+// 1. Initialize VeeValidate Form with Zod Schema
+const { defineField, handleSubmit, errors, setValues, setErrors } = useForm({
+  validationSchema: toTypedSchema(ExampleSchema),
+  initialValues: {
+    name: '',
+    description: '',
+    price: 0.01
+  }
+});
+
+const [name, nameProps] = defineField('name');
+const [description, descriptionProps] = defineField('description');
+const [price, priceProps] = defineField('price');
+
 const imageFile = ref<File | null>(null)
 const currentImageUrl = ref('')
 
@@ -30,50 +43,51 @@ const loadExample = async () => {
   try {
     const response = await exampleStore.fetchExampleById(ExampleId)
     const data = response.data
-    form.value.name = data.name
-    form.value.description = data.description
-    form.value.price = data.price
-    currentImageUrl.value = data.image_url
+    setValues({
+        name: data.name,
+        description: data.description,
+        price: data.price
+    });
+    currentImageUrl.value = data.image_url || '';
   } catch (e) {
     router.push('/Examples')
   }
 }
 
-const saveExample = async () => {
-  if (!form.value.name || form.value.price === null) {
-    showToast('warn', 'Validation', 'Name and Price are required.')
-    return
-  }
-
+const saveExample = handleSubmit(async (values) => {
   try {
     if (isEdit.value) {
       await exampleStore.updateExample(
         ExampleId,
         {
-          name: form.value.name,
-          description: form.value.description,
-          price: form.value.price as number,
+          ...values,
           image_url: currentImageUrl.value,
         },
         imageFile.value || undefined,
       )
-      showToast('success', 'Updated', 'Example has been successfully updated.')
+      showToast('success', 'Updated', ExampleLocales.messages.update_success)
     } else {
       await exampleStore.createExample(
-        {
-          name: form.value.name,
-          description: form.value.description,
-          price: form.value.price ?? 0,
-        },
+        values,
         imageFile.value || undefined,
       )
-      showToast('success', 'Created', 'New Example has been successfully added.')
+      showToast('success', 'Created', ExampleLocales.messages.create_success)
     }
     router.push('/Examples')
-  } catch (e) {
-    // Handled by store/apiClient
+  } catch (e: any) {
+    if (e.response?.data?.errors) {
+        const apiErrors = e.response.data.errors;
+        const formErrors: Record<string, string> = {};
+        
+        Object.keys(apiErrors).forEach(key => {
+            const field = key.replace('request.', '');
+            formErrors[field] = apiErrors[key][0];
+        });
+        
+        setErrors(formErrors);
+    }
   }
-}
+});
 
 onMounted(() => {
   loadExample()
@@ -87,13 +101,13 @@ onMounted(() => {
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
                         <router-link to="/" class="text-sm font-medium text-surface-500 hover:text-primary dark:text-surface-400">
-                            <i class="pi pi-home mr-2"></i> Dashboard
+                            <i class="pi pi-home mr-2"></i> {{ ExampleLocales.titles.breadcrumb_home }}
                         </router-link>
                     </li>
                     <li>
                         <div class="flex items-center">
                             <i class="pi pi-chevron-right text-surface-400 mx-2 text-xs"></i>
-                            <router-link to="/Examples" class="text-sm font-medium text-surface-500 hover:text-primary dark:text-surface-400">Examples</router-link>
+                            <router-link to="/Examples" class="text-sm font-medium text-surface-500 hover:text-primary dark:text-surface-400">{{ ExampleLocales.titles.breadcrumb_parent }}</router-link>
                         </div>
                     </li>
                     <li aria-current="page">
@@ -110,16 +124,16 @@ onMounted(() => {
                     <Button icon="pi pi-arrow-left" text rounded severity="secondary" @click="router.push('/Examples')" class="bg-surface-100 dark:bg-surface-800" />
                     <div>
                         <h1 class="text-3xl font-black text-surface-900 dark:text-surface-0 tracking-tight">
-                            {{ isEdit ? 'Update Product' : 'Create New Product' }}
+                            {{ isEdit ? ExampleLocales.titles.edit : ExampleLocales.titles.create }}
                         </h1>
                         <p class="text-surface-500 dark:text-surface-400 text-sm">
-                            {{ isEdit ? `Modifying: ${form.name || 'Loading...'}` : 'Fill in the details to add a new item to your catalog.' }}
+                            {{ isEdit ? `Modifying: ${name || ExampleLocales.messages.loading}` : 'Fill in the details to add a new item to your catalog.' }}
                         </p>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <Button label="Cancel" severity="secondary" text @click="router.push('/Examples')" />
-                    <Button :label="isEdit ? 'Update Changes' : 'Create Product'" icon="pi pi-check" @click="saveExample" :loading="loading" class="rounded-xl px-6" />
+                    <Button :label="ExampleLocales.actions.cancel" severity="secondary" text @click="router.push('/Examples')" />
+                    <Button :label="isEdit ? ExampleLocales.actions.save_edit : ExampleLocales.actions.save_create" icon="pi pi-check" @click="saveExample" :loading="loading" class="rounded-xl px-6" />
                 </div>
             </div>
         </div>
@@ -137,46 +151,64 @@ onMounted(() => {
           <template #content>
             <div class="flex flex-col gap-6 pt-2">
               <div class="flex flex-col gap-2">
-                <label for="name" class="font-bold text-surface-700 dark:text-surface-200"
-                  >Example Name</label
-                >
+                <div class="flex items-center gap-2">
+                    <label for="name" class="font-bold text-surface-700 dark:text-surface-200">{{ ExampleLocales.labels.name }}</label>
+                    <i class="pi pi-info-circle text-surface-400 cursor-help" v-tooltip="ExampleLocales.tooltips.name"></i>
+                </div>
                 <InputText
                   id="name"
-                  v-model="form.name"
+                  v-model="name"
+                  v-bind="nameProps"
                   class="w-full"
-                  placeholder="e.g. Premium Wireless Headphones"
+                  :invalid="!!errors.name"
+                  :placeholder="ExampleLocales.placeholders.name"
                 />
+                <small v-if="errors.name" class="text-red-500 font-medium ml-1">
+                    {{ errors.name }}
+                </small>
               </div>
 
               <div class="flex flex-col gap-2">
-                <label for="description" class="font-bold text-surface-700 dark:text-surface-200"
-                  >Description</label
-                >
+                <div class="flex items-center gap-2">
+                    <label for="description" class="font-bold text-surface-700 dark:text-surface-200">{{ ExampleLocales.labels.description }}</label>
+                    <i class="pi pi-info-circle text-surface-400 cursor-help" v-tooltip="ExampleLocales.tooltips.description"></i>
+                </div>
                 <Textarea
                   id="description"
-                  v-model="form.description"
+                  v-model="description"
+                  v-bind="descriptionProps"
                   rows="6"
                   class="w-full"
-                  placeholder="Provide a detailed description of the Example features..."
+                  :invalid="!!errors.description"
+                  :placeholder="ExampleLocales.placeholders.description"
                 />
+                <small v-if="errors.description" class="text-red-500 font-medium ml-1">
+                    {{ errors.description }}
+                </small>
               </div>
 
               <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="flex flex-col gap-2">
-                  <label for="price" class="font-bold text-surface-700 dark:text-surface-200"
-                    >Price (USD)</label
-                  >
+                  <div class="flex items-center gap-2">
+                    <label for="price" class="font-bold text-surface-700 dark:text-surface-200">{{ ExampleLocales.labels.price }}</label>
+                    <i class="pi pi-info-circle text-surface-400 cursor-help" v-tooltip="ExampleLocales.tooltips.price"></i>
+                  </div>
                   <InputNumber
                     id="price"
-                    v-model="form.price"
+                    v-model="price"
+                    v-bind="priceProps"
                     mode="currency"
                     currency="USD"
                     locale="en-US"
                     class="w-full"
+                    :invalid="!!errors.price"
                   />
+                  <small v-if="errors.price" class="text-red-500 font-medium ml-1">
+                    {{ errors.price }}
+                  </small>
                 </div>
                 <div class="flex flex-col gap-2">
-                  <label class="font-bold text-surface-700 dark:text-surface-200">Category</label>
+                  <label class="font-bold text-surface-700 dark:text-surface-200">{{ ExampleLocales.labels.category }}</label>
                   <InputText
                     disabled
                     value="Default Category"
@@ -194,7 +226,8 @@ onMounted(() => {
                     <template #title>
                         <div class="flex items-center gap-2">
                             <i class="pi pi-image text-primary"></i>
-                            <span class="text-xl font-bold text-surface-800 dark:text-surface-50">Product Media</span>
+                            <span class="text-xl font-bold text-surface-800 dark:text-surface-50">{{ ExampleLocales.labels.media }}</span>
+                            <i class="pi pi-info-circle text-surface-400 cursor-help text-sm" v-tooltip="ExampleLocales.tooltips.media"></i>
                         </div>
                     </template>
                     <template #content>
@@ -215,7 +248,7 @@ onMounted(() => {
                             </div>
                             <div v-else class="rounded-xl aspect-square border-2 border-dashed border-surface-200 dark:border-surface-700 flex flex-col items-center justify-center bg-surface-50 dark:bg-surface-800 text-surface-400">
                                 <i class="pi pi-image text-5xl mb-3 opacity-20"></i>
-                                <span class="text-sm font-medium">No image selected</span>
+                                <span class="text-sm font-medium">{{ ExampleLocales.messages.no_image }}</span>
                             </div>
 
                             <FileUpload 
@@ -225,7 +258,7 @@ onMounted(() => {
                                 :maxFileSize="1000000" 
                                 @select="onFileSelect" 
                                 :auto="false" 
-                                chooseLabel="Upload New Image"
+                                :chooseLabel="ExampleLocales.placeholders.upload"
                                 class="w-full p-button-outlined rounded-xl"
                             />
                         </div>
@@ -234,7 +267,7 @@ onMounted(() => {
 
                 <Card class="border-none shadow-sm rounded-2xl overflow-hidden border border-surface-100 dark:border-surface-800 bg-surface-0 dark:bg-surface-900">
                     <template #title>
-                        <span class="text-lg font-bold text-surface-800 dark:text-surface-50">Publish Summary</span>
+                        <span class="text-lg font-bold text-surface-800 dark:text-surface-50">{{ ExampleLocales.labels.summary }}</span>
                     </template>
                     <template #content>
                         <div class="flex flex-col gap-4">
@@ -249,7 +282,7 @@ onMounted(() => {
                             <Divider class="my-0" />
                             <div class="flex justify-between items-center">
                                 <span class="text-surface-500 font-medium">Final Price</span>
-                                <span class="text-xl font-black text-primary">{{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(form.price || 0) }}</span>
+                                <span class="text-xl font-black text-primary">{{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price || 0) }}</span>
                             </div>
                         </div>
                     </template>

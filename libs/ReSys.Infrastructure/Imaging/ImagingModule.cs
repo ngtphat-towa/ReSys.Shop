@@ -1,13 +1,15 @@
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Imaging;
 
+using ReSys.Core.Common.Telemetry;
+
 namespace ReSys.Infrastructure.Imaging;
 
 public static class ImagingModule
 {
     public static IServiceCollection AddImaging(this IServiceCollection services)
     {
-        Serilog.Log.Information("[Infrastructure] Initializing Imaging Module...");
+        services.RegisterModule("Infrastructure", "Imaging");
         services.AddSingleton<IImageService, ImageService>();
         return services;
     }

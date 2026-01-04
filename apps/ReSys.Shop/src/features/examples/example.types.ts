@@ -1,12 +1,9 @@
 import type { ApiResponse } from '@/shared/api/api.types';
+import type { ExampleInput } from './example.validator';
 
-export interface ExampleInput {
-    name: string;
-    description: string;
-    price: number;
-    image_url?: string;
-}
-
+/**
+ * Shared types for the Example feature in Shop
+ */
 export interface ExampleListItem extends ExampleInput {
     id: string;
 }
@@ -29,4 +26,4 @@ export interface ExampleQuery {
     page_size?: number;
 }
 
-export type { ApiResponse };
+export type { ApiResponse, ExampleInput };

@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Behaviors;
+using ReSys.Core.Common.Telemetry;
 
 namespace ReSys.Core;
 
@@ -9,7 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCore(this IServiceCollection services, params Assembly[] assemblies)
     {
-        Serilog.Log.Information("[Core] Initializing Core Layer (MediatR, Behaviors, Validators)...");
+        services.RegisterModule("Core", "Application");
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
@@ -33,7 +34,6 @@ public static class DependencyInjection
 
     public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseCore(this Microsoft.AspNetCore.Builder.IApplicationBuilder app)
     {
-        // Placeholder for core pipeline setup if needed in the future
         return app;
     }
 }

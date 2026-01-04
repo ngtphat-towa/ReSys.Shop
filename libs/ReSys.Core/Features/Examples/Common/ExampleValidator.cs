@@ -17,7 +17,10 @@ public abstract class ExampleValidator<T> : AbstractValidator<T> where T : Examp
         RuleFor(x => x.Description)
             .NotEmpty()
                 .WithErrorCode(ExampleErrors.DescriptionRequired.Code)
-                .WithMessage(ExampleErrors.DescriptionRequired.Description);
+                .WithMessage(ExampleErrors.DescriptionRequired.Description)
+            .MaximumLength(ExampleConstraints.DescriptionMaxLength)
+                .WithErrorCode(ExampleErrors.DescriptionTooLong.Code)
+                .WithMessage(ExampleErrors.DescriptionTooLong.Description);
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(ExampleConstraints.MinPrice)

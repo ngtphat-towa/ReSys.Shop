@@ -21,19 +21,26 @@ export const useExampleStore = defineStore('example', () => {
     const currentExample = ref<ExampleDetail | null>(null);
     const loading = ref(false);
     const totalRecords = ref(0);
-    const pagination = ref({
+    
+    // Unified query state
+    const query = ref<ExampleQuery>({
         page: 1,
-        pageSize: 10
+        page_size: 10,
+        search: '',
+        sort_by: 'name',
+        is_descending: false
     });
 
-    async function fetchExamples(query?: ExampleQuery) {
+    async function fetchExamples(newQuery?: Partial<ExampleQuery>) {
         loading.value = true;
+        
+        // Update local query state if new params provided
+        if (newQuery) {
+            query.value = { ...query.value, ...newQuery };
+        }
+
         try {
-            const response = await getExamples({
-                page: pagination.value.page,
-                page_size: pagination.value.pageSize,
-                ...query
-            });
+            const response = await getExamples(query.value);
             examples.value = response.data;
             totalRecords.value = response.meta?.total_count ?? 0;
             return response;
@@ -94,7 +101,7 @@ export const useExampleStore = defineStore('example', () => {
         currentExample,
         loading,
         totalRecords,
-        pagination,
+        query,
         fetchExamples,
         fetchExampleById,
         createExample,

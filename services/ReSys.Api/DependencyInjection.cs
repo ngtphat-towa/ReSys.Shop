@@ -3,6 +3,8 @@ using ReSys.Api.Infrastructure;
 using ReSys.Api.Infrastructure.Documentation;
 using ReSys.Api.Infrastructure.Middleware;
 using ReSys.Api.Infrastructure.Serialization;
+using ReSys.Core.Common.Telemetry;
+using Serilog;
 
 namespace ReSys.Api;
 
@@ -10,7 +12,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        Serilog.Log.Information("[Presentation] Initializing API Presentation Layer...");
+        services.RegisterModule("Presentation", "API");
         services
             .AddCustomSerialization() // Using your extension
             .AddDocumentation()       // Using the documentation extension
@@ -34,17 +36,27 @@ public static class DependencyInjection
 
     public static WebApplication UsePresentation(this WebApplication app)
     {
+        // 1. Safety Net (Exception Handling)
         app.UseExceptionHandler();
-        
-        // Global Query Normalization (Must be before routing)
+
+        // 2. Structured Request Logging (Serilog)
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        });
+
+        // 3. Health Checks
+        app.MapDefaultEndpoints();
+
+        // 4. Normalization & Security
         app.UseMiddleware<SnakeCaseQueryMiddleware>();
-
-        // Documentation Pipeline (OpenAPI/Scalar)
         app.UseDocumentation();
-
+        
         app.UseHttpsRedirection();
         app.UseCors();
         app.UseAuthorization();
+
+        // 5. Execution (Vertical Slices)
         app.MapCarter();
 
         return app;

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace ReSys.Api.Infrastructure;
 
@@ -10,7 +11,11 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
-        var problemDetails = new ProblemDetails();
+        var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
+        var problemDetails = new ProblemDetails
+        {
+            Extensions = { ["traceId"] = traceId }
+        };
 
         if (exception is BadHttpRequestException badRequestEx)
         {

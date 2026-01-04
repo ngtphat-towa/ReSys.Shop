@@ -1,16 +1,9 @@
 import type { ApiResponse } from '@/shared/api/api.types';
+import type { ExampleInput } from './example.validator';
 
 /**
- * Mirror of the Backend 'ExampleInput'
- * Use this for shared form logic
+ * Shared types for the Example feature
  */
-export interface ExampleInput {
-    name: string;
-    description: string;
-    price: number;
-    image_url?: string;
-}
-
 export interface ExampleListItem extends ExampleInput {
     id: string;
 }
@@ -21,10 +14,9 @@ export interface ExampleDetail extends ExampleInput {
 }
 
 /**
- * Semantic requests - keeps your code descriptive
+ * Semantic requests
  */
 export interface CreateExampleRequest extends ExampleInput {}
-
 export interface UpdateExampleRequest extends ExampleInput {}
 
 export interface ExampleQuery {
@@ -40,5 +32,4 @@ export interface ExampleQuery {
     page_size?: number;
 }
 
-// Re-export ApiResponse for convenience if features need it directly
-export type { ApiResponse };
+export type { ApiResponse, ExampleInput };

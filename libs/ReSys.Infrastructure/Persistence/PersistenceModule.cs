@@ -3,13 +3,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Data;
 
+using ReSys.Core.Common.Telemetry;
+
 namespace ReSys.Infrastructure.Persistence;
 
 public static class PersistenceModule
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
-        Serilog.Log.Information("[Infrastructure] Initializing Persistence Module...");
+        services.RegisterModule("Infrastructure", "Persistence");
         var connectionString = configuration.GetConnectionString("shopdb");
 
         services.AddDbContext<AppDbContext>(options =>
