@@ -4,7 +4,6 @@ import { updatePreset, updateSurfacePalette } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
 import Lara from '@primevue/themes/lara';
 import Nora from '@primevue/themes/nora';
-import SelectButton from 'primevue/selectbutton';
 import { ref } from 'vue';
 
 const { layoutConfig, isDarkTheme, changeMenuMode } = useLayout();
@@ -93,7 +92,7 @@ function onMenuModeChange() {
 
 <template>
     <div
-        class="config-panel hidden absolute top-[3.25rem] right-0 w-64 p-4 bg-surface-0 dark:bg-surface-900 border border-surface rounded-border origin-top shadow-lg"
+        class="config-panel hidden absolute top-13 right-0 w-64 p-4 bg-surface-0 dark:bg-surface-900 border border-surface rounded-border origin-top shadow-lg"
     >
         <div class="flex flex-col gap-4">
             <div>

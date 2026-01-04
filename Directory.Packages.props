@@ -3,20 +3,18 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-  
   <!-- Aspire -->
   <ItemGroup>
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.0.0" />
     <PackageVersion Include="Aspire.Hosting.Python" Version="9.0.0" />
+    <PackageVersion Include="MockQueryable.NSubstitute" Version="8.0.0" />
   </ItemGroup>
-
   <!-- YARP -->
   <ItemGroup>
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.2.0" />
   </ItemGroup>
-
   <!-- ASP.NET Core & Extensions (v9.0.11) -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.11" />
@@ -43,14 +41,12 @@
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.5.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="9.0.0" />
   </ItemGroup>
-
   <!-- Identity & Security -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.AspNetCore.Identity" Version="10.0.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
     <PackageVersion Include="Google.Apis.Auth" Version="1.69.0" />
   </ItemGroup>
-
   <!-- API Documentation -->
   <ItemGroup>
     <PackageVersion Include="Carter" Version="9.0.0" />
@@ -60,7 +56,6 @@
     <PackageVersion Include="Swashbuckle.AspNetCore.Annotations" Version="7.2.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
   </ItemGroup>
-
   <!-- Database & ORM -->
   <ItemGroup>
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
@@ -71,7 +66,6 @@
     <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
     <PackageVersion Include="EFCore.BulkExtensions" Version="9.0.2" />
   </ItemGroup>
-
   <!-- CQRS, Validation & Mapping -->
   <ItemGroup>
     <PackageVersion Include="MediatR" Version="12.4.1" />
@@ -82,7 +76,6 @@
     <PackageVersion Include="Mapster.DependencyInjection" Version="1.0.1" />
     <PackageVersion Include="ErrorOr" Version="2.0.1" />
   </ItemGroup>
-
   <!-- Storage -->
   <ItemGroup>
     <PackageVersion Include="FluentStorage" Version="6.0.0" />
@@ -91,13 +84,11 @@
     <PackageVersion Include="FluentStorage.GCP" Version="6.0.0" />
     <PackageVersion Include="Google.Cloud.Storage.V1" Version="4.13.0" />
   </ItemGroup>
-
   <!-- JSON -->
   <ItemGroup>
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.0" />
   </ItemGroup>
-
   <!-- Observability -->
   <ItemGroup>
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
@@ -111,15 +102,13 @@
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.0" />
   </ItemGroup>
-
   <!-- Utilities -->
   <ItemGroup>
     <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="Humanizer.Core" Version="3.0.1" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.6" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.7" />
     <PackageVersion Include="Slugify.Core" Version="5.1.1" />
   </ItemGroup>
-
   <!-- Code Analysis / Build Tools -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="4.11.0" />
@@ -128,7 +117,6 @@
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.11.0" />
   </ItemGroup>
-
   <!-- Testing -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />

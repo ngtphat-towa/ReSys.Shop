@@ -8,7 +8,6 @@ public static class NamingHelper
     {
         if (string.IsNullOrEmpty(str)) return str;
 
-        // Estimate capacity: original length + 20% for underscores is usually enough
         var builder = new StringBuilder(str.Length + (str.Length / 5));
         var state = SnakeCaseState.Start;
 
@@ -18,14 +17,22 @@ public static class NamingHelper
         {
             char current = span[i];
 
-            if (current == ' ')
+            if (current == ' ' || current == '_' || current == '.')
             {
-                if (state != SnakeCaseState.Start)
+                if (state != SnakeCaseState.Start && state != SnakeCaseState.NewWord)
                 {
                     state = SnakeCaseState.NewWord;
                 }
+
+                if (current == '.')
+                {
+                    builder.Append('.');
+                    state = SnakeCaseState.Start;
+                }
+                continue;
             }
-            else if (char.IsUpper(current))
+
+            if (char.IsUpper(current))
             {
                 switch (state)
                 {
@@ -34,7 +41,7 @@ public static class NamingHelper
                         if (i > 0 && hasNext)
                         {
                             char next = span[i + 1];
-                            if (!char.IsUpper(next) && next != '_')
+                            if (!char.IsUpper(next) && next != '_' && next != ' ' && next != '.')
                             {
                                 builder.Append('_');
                             }
@@ -44,15 +51,13 @@ public static class NamingHelper
                     case SnakeCaseState.NewWord:
                         builder.Append('_');
                         break;
+                    case SnakeCaseState.Start:
+                        // Don't add underscore at the very beginning
+                        break;
                 }
 
                 builder.Append(char.ToLowerInvariant(current));
                 state = SnakeCaseState.Upper;
-            }
-            else if (current == '_')
-            {
-                builder.Append('_');
-                state = SnakeCaseState.Start;
             }
             else
             {
@@ -81,28 +86,17 @@ public static class NamingHelper
     {
         if (string.IsNullOrEmpty(str)) return str;
 
-        // Optimization: If no underscores
-        if (!str.Contains('_'))
-        {
-            // If already capitalized, return original reference to avoid allocation
-            if (char.IsUpper(str[0]))
-            {
-                return str;
-            }
-            // Otherwise standardize to Pascal (e.g. "search" -> "Search")
-            return char.ToUpperInvariant(str[0]) + str.Substring(1);
-        }
-
         var builder = new StringBuilder(str.Length);
         bool newWord = true;
-        
+
         ReadOnlySpan<char> span = str.AsSpan();
 
         foreach (char c in span)
         {
-            if (c == '_')
+            if (c == '_' || c == ' ' || c == '.')
             {
                 newWord = true;
+                if (c == '.') builder.Append('.');
                 continue;
             }
 
@@ -113,7 +107,7 @@ public static class NamingHelper
             }
             else
             {
-                builder.Append(c);
+                builder.Append(char.ToLowerInvariant(c));
             }
         }
 

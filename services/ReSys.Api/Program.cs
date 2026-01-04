@@ -2,7 +2,7 @@ using ReSys.Api;
 using ReSys.Core;
 using ReSys.Infrastructure;
 
-using ReSys.Infrastructure.Options;
+using ReSys.Infrastructure.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Interfaces;
-using ReSys.Infrastructure.Data;
+using ReSys.Core.Common.Data;
+using ReSys.Infrastructure.Persistence;
 
 namespace ReSys.Core.UnitTests.TestInfrastructure;
 

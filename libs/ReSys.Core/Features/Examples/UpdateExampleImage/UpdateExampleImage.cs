@@ -1,8 +1,10 @@
 using ErrorOr;
 using MediatR;
-using ReSys.Core.Entities;
+using ReSys.Core.Common.AI;
+using ReSys.Core.Common.Data;
+using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.Common;
-using ReSys.Core.Interfaces;
+using ReSys.Core.Common.Storage;
 
 namespace ReSys.Core.Features.Examples.UpdateExampleImage;
 
@@ -50,7 +52,13 @@ public static class UpdateExampleImage
                 return ExampleErrors.NotFound(request.Id);
             }
 
-            var fileName = await _fileService.SaveFileAsync(request.ImageStream, request.ImageName, cancellationToken);
+            var saveResult = await _fileService.SaveFileAsync(request.ImageStream, request.ImageName, null, cancellationToken);
+            if (saveResult.IsError)
+            {
+                return saveResult.Errors;
+            }
+
+            var fileName = saveResult.Value.FileId;
             example.ImageUrl = $"/api/files/{fileName}";
 
             var embedding = await _mlService.GetEmbeddingAsync(example.ImageUrl, example.Id.ToString(), cancellationToken);

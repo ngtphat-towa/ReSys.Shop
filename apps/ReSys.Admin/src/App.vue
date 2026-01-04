@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import Toast from 'primevue/toast';
-import ConfirmDialog from 'primevue/confirmdialog';
 import { useToast } from 'primevue/usetoast';
 import { watch } from 'vue';
-import { toastBus } from '@/services/apiClient';
+import { toastBus } from '@/shared/api/api-client';
 
 const toast = useToast();
 

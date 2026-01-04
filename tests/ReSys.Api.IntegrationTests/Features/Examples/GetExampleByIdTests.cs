@@ -1,9 +1,9 @@
-using ReSys.Core.Entities;
 using ReSys.Core.Features.Examples.Common;
 using ReSys.Core.Common.Models;
 using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Domain;
 
 namespace ReSys.Api.IntegrationTests.Features.Examples;
 

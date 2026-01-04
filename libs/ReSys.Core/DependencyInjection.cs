@@ -1,7 +1,7 @@
 using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using ReSys.Core.Behaviors;
+using ReSys.Core.Common.Behaviors;
 
 namespace ReSys.Core;
 

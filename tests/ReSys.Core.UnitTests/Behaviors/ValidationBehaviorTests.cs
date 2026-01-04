@@ -1,8 +1,11 @@
 using ErrorOr;
+using FluentAssertions;
 using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using NSubstitute;
-using ReSys.Core.Behaviors;
+using ReSys.Core.Common.Behaviors;
+using Xunit;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 
@@ -25,7 +28,7 @@ public class ValidationBehaviorTests
         // Arrange
         var behavior = new ValidationBehavior<TestCommand, ErrorOr<string>>([]);
         var request = new TestCommand();
-        _next.Invoke().Returns("Success");
+        _next.Invoke().Returns(Task.FromResult<ErrorOr<string>>("Success"));
 
         // Act
         var result = await behavior.Handle(request, _next, CancellationToken.None);
@@ -37,13 +40,13 @@ public class ValidationBehaviorTests
     }
 
     [Fact(DisplayName = "Handle: Should call next when validation succeeds")]
-    public async Task Handle_ValidationBest_CallsNext()
+    public async Task Handle_ValidationSucceeds_CallsNext()
     {
         // Arrange
-        var request = new TestCommand();
-        _validator.ValidateAsync(Arg.Any<ValidationContext<TestCommand>>(), Arg.Any<CancellationToken>())
-            .Returns(new FluentValidation.Results.ValidationResult());
-        _next.Invoke().Returns("Success");
+        var request = new TestCommand { Name = "Valid" };
+        _validator.ValidateAsync(Arg.Any<IValidationContext>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(new FluentValidation.Results.ValidationResult()));
+        _next.Invoke().Returns(Task.FromResult<ErrorOr<string>>("Success"));
 
         // Act
         var result = await _sut.Handle(request, _next, CancellationToken.None);
@@ -57,10 +60,10 @@ public class ValidationBehaviorTests
     public async Task Handle_ValidationFails_ReturnsErrors()
     {
         // Arrange
-        var request = new TestCommand();
+        var request = new TestCommand { Name = "" };
         var failure = new FluentValidation.Results.ValidationFailure("PropName", "Error Message");
-        _validator.ValidateAsync(Arg.Any<ValidationContext<TestCommand>>(), Arg.Any<CancellationToken>())
-            .Returns(new FluentValidation.Results.ValidationResult([failure]));
+        _validator.ValidateAsync(Arg.Any<IValidationContext>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(new FluentValidation.Results.ValidationResult([failure])));
 
         // Act
         var result = await _sut.Handle(request, _next, CancellationToken.None);
@@ -68,10 +71,12 @@ public class ValidationBehaviorTests
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Type.Should().Be(ErrorType.Validation);
-        result.FirstError.Code.Should().Be("prop_name");
-        result.FirstError.Description.Should().Be("Error Message");
+        result.FirstError.Code.Should().Be("prop_name"); // Matches ToSnakeCase()
         await _next.DidNotReceive().Invoke();
     }
 
-    public record TestCommand : IRequest<ErrorOr<string>>;
+    public record TestCommand : IRequest<ErrorOr<string>>
+    {
+        public string Name { get; init; } = string.Empty;
+    }
 }

@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
-using ReSys.Core.Interfaces;
+using ReSys.Core.Common.Data;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 

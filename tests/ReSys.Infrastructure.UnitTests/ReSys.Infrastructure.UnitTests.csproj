@@ -8,6 +8,9 @@
     <PackageReference Include="NSubstitute" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="SixLabors.ImageSharp">
+      <NoWarn>NU1902;NU1903</NoWarn>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,7 @@
-using ReSys.Core.Entities;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Domain;
+
+
 using System.Net;
 
 namespace ReSys.Api.IntegrationTests.Features.Examples;

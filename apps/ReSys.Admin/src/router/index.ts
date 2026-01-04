@@ -22,17 +22,17 @@ const router = createRouter({
         {
           path: 'Examples',
           name: 'Examples',
-          component: () => import('../views/Examples/ExampleList.vue'),
+          component: () => import('../features/examples/views/ExampleList.vue'),
         },
         {
           path: 'Examples/create',
           name: 'Example-create',
-          component: () => import('../views/Examples/ExampleForm.vue'),
+          component: () => import('../features/examples/views/ExampleForm.vue'),
         },
         {
           path: 'Examples/edit/:id',
           name: 'Example-edit',
-          component: () => import('../views/Examples/ExampleForm.vue'),
+          component: () => import('../features/examples/views/ExampleForm.vue'),
         },
       ]
     }

@@ -1,11 +1,15 @@
 using System.Net.Http.Headers;
 using System.Text;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Core.Entities;
+using ReSys.Core.Domain;
 using ReSys.Core.Features.Examples.Common;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Models;
+using FluentAssertions;
+using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using ReSys.Core.Common.Storage;
 
 namespace ReSys.Api.IntegrationTests.Features.Examples;
 
@@ -20,7 +24,7 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         Context.Set<Example>().Add(new Example 
         { 
             Id = ExampleId, 
-            Name = "ImageTest", 
+            Name = $"ImageTest_{Guid.NewGuid()}", 
             Description = "Desc", 
             Price = 10,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -29,12 +33,26 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         await Context.SaveChangesAsync(CancellationToken.None);
 
         using var content = new MultipartFormDataContent();
-        // Create dummy image content
-        var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes("fake image content"));
+        
+        // Find real PNG asset
+        var projectRoot = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "..", ".."));
+        var assetPath = Path.Combine(projectRoot, "tests", "TestAssets", "sample.png");
+        
+        if (!File.Exists(assetPath))
+        {
+            // Fallback for bin execution
+            assetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAssets", "sample.png");
+        }
+
+        if (!File.Exists(assetPath))
+        {
+             throw new FileNotFoundException($"Test asset not found at {assetPath}. Current directory: {Directory.GetCurrentDirectory()}");
+        }
+
+        var imageBytes = await File.ReadAllBytesAsync(assetPath);
+        var fileContent = new ByteArrayContent(imageBytes);
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
         
-        // Add to multipart form: name="image", filename="test-image.png"
-        // 'image' matches IFormFile parameter name in endpoint
         content.Add(fileContent, "image", "test-image.png");
 
         // Act
@@ -49,19 +67,22 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(responseString, JsonSettings);
         var result = apiResponse!.Data;
 
-        result!.ImageUrl.Should().Contain("test-image.png");
+        result!.ImageUrl.Should().Contain(".png");
         result.Id.Should().Be(ExampleId);
 
         // Verify DB update
         ((DbContext)Context).ChangeTracker.Clear();
         var dbExample = await Context.Set<Example>().FindAsync(ExampleId);
-        dbExample!.ImageUrl.Should().Contain("test-image.png");
+        dbExample!.ImageUrl.Should().Contain(".png");
 
         // Verify file storage
-        // ImageUrl format: /api/files/{fileName}
         var fileName = dbExample!.ImageUrl.Split('/').Last();
-        var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "test-storage", fileName);
         
-        File.Exists(storagePath).Should().BeTrue($"File should exist at {storagePath}");
+        using var scope = Factory.Services.CreateScope();
+        var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
+        var existsResult = await fileService.FileExistsAsync(fileName);
+        
+        existsResult.IsError.Should().BeFalse();
+        existsResult.Value.Should().BeTrue("because the file was successfully saved");
     }
 }

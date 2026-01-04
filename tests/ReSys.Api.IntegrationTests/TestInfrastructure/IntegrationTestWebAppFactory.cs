@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ReSys.Infrastructure.Data;
 using Respawn;
 using Testcontainers.PostgreSql;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using ReSys.Core.Interfaces;
-using ReSys.Infrastructure.Options;
+using ReSys.Core.Common.Data;
+using ReSys.Core.Common.AI;
+using ReSys.Infrastructure.Persistence;
+using ReSys.Infrastructure.Storage;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 

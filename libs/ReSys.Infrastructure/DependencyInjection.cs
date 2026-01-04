@@ -1,10 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ReSys.Core.Interfaces;
-using ReSys.Infrastructure.Data;
-using ReSys.Infrastructure.Options;
-using ReSys.Infrastructure.Services;
+using ReSys.Infrastructure.AI;
+using ReSys.Infrastructure.Imaging;
+using ReSys.Infrastructure.Persistence;
+using ReSys.Infrastructure.Storage;
 
 namespace ReSys.Infrastructure;
 
@@ -12,25 +11,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("shopdb");
-
-        services.AddDbContext<AppDbContext>(options =>
-        {
-            options.UseNpgsql(connectionString, npgsqlOptions =>
-            {
-                npgsqlOptions.UseVector();
-                npgsqlOptions.MigrationsAssembly("ReSys.Migrations");
-            });
-        });
-
-        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
-
-        services.Configure<MlOptions>(configuration.GetSection(MlOptions.SectionName));
-        services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
-        
-        services.AddHttpClient<IMlService, MlService>();
-
-        services.AddSingleton<IFileService, LocalFileService>();
+        services
+            .AddPersistence(configuration)
+            .AddStorage(configuration)
+            .AddAI(configuration)
+            .AddImaging();
 
         return services;
     }
