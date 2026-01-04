@@ -1,64 +1,81 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-import Menubar from 'primevue/menubar';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useLayout } from '@/layout/composables/layout';
+import { computed, watch, ref } from 'vue';
+import AppTopbar from './AppTopbar.vue';
+import AppFooter from './AppFooter.vue';
 
-const router = useRouter();
+const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
 
-const items = ref([
-    {
-        label: 'Home',
-        icon: 'pi pi-home',
-        command: () => {
-            router.push('/');
-        }
-    },
-    {
-        label: 'Examples',
-        icon: 'pi pi-shopping-bag',
-        command: () => {
-            // router.push('/Examples'); // Future
-        }
+const containerClass = computed(() => {
+    return {
+        'layout-overlay': layoutConfig.menuMode === 'overlay',
+        'layout-static': layoutConfig.menuMode === 'static',
+        'layout-static-inactive': layoutState.staticMenuInactive && layoutConfig.menuMode === 'static',
+        'layout-overlay-active': layoutState.overlayMenuActive,
+        'layout-mobile-active': layoutState.mobileMenuActive,
+    };
+});
+
+const outsideClickListener = ref<((event: MouseEvent) => void) | null>(null);
+
+watch(() => layoutState.mobileMenuActive, (newVal) => {
+    if (newVal) {
+        bindOutsideClickListener();
+    } else {
+        unbindOutsideClickListener();
     }
-]);
+});
+
+const bindOutsideClickListener = () => {
+    if (!outsideClickListener.value) {
+        outsideClickListener.value = (event: MouseEvent) => {
+            if (isOutsideClicked(event)) {
+                hideMobileMenu();
+            }
+        };
+        document.addEventListener('click', outsideClickListener.value);
+    }
+};
+
+const unbindOutsideClickListener = () => {
+    if (outsideClickListener.value) {
+        document.removeEventListener('click', outsideClickListener.value);
+        outsideClickListener.value = null;
+    }
+};
+
+const isOutsideClicked = (event: MouseEvent) => {
+    const sidebarEl = document.querySelector('.layout-sidebar');
+    const topbarEl = document.querySelector('.layout-menu-button');
+
+    return !(sidebarEl?.isSameNode(event.target as Node) || sidebarEl?.contains(event.target as Node) || topbarEl?.isSameNode(event.target as Node) || topbarEl?.contains(event.target as Node));
+};
 </script>
 
 <template>
-    <div class="min-h-screen flex flex-col bg-slate-50">
-        <header class="sticky top-0 z-50 shadow-sm">
-            <Menubar :model="items" class="border-none rounded-none px-4 lg:px-8">
-                <template #start>
-                    <div class="text-xl font-bold text-primary mr-4 cursor-pointer" @click="router.push('/')">
-                        ReSys Shop
-                    </div>
-                </template>
-                <template #end>
-                    <div class="flex items-center gap-2">
-                        <span class="p-input-icon-left">
-                            <i class="pi pi-search" />
-                            <input type="text" placeholder="Search..." class="p-inputtext p-component p-inputtext-sm" />
-                        </span>
-                    </div>
-                </template>
-            </Menubar>
-        </header>
-
-        <main class="flex-grow container mx-auto px-4 py-8">
-            <RouterView />
-        </main>
-
-        <footer class="bg-slate-900 text-white py-8 mt-auto">
-            <div class="container mx-auto px-4 text-center">
-                <p>&copy; 2025 ReSys Shop. All rights reserved.</p>
+    <div class="layout-wrapper" :class="containerClass">
+        <AppTopbar />
+        <div class="layout-main-container">
+            <div class="layout-main">
+                <router-view />
             </div>
-        </footer>
+            <AppFooter />
+        </div>
+        <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
     </div>
+    <Toast class="layout-toast" />
+    <ConfirmDialog />
 </template>
 
-<style scoped>
-:deep(.p-menubar) {
-    background-color: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(8px);
+<style lang="scss" scoped>
+/* Position toast below the top bar */
+:global(.p-toast.p-component.p-toast-top-right) {
+    top: 5rem;
+}
+
+/* For shop, we don't have a sidebar usually, so we adjust main padding */
+.layout-main-container {
+    margin-left: 0 !important;
+    padding-top: 5rem;
 }
 </style>
