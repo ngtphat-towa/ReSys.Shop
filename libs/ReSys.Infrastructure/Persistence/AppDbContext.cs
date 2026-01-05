@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
+using ReSys.Infrastructure.Persistence.Converters;
 
 namespace ReSys.Infrastructure.Persistence;
 
@@ -10,27 +11,18 @@ public class AppDbContext : DbContext, IApplicationDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("vector");
+        modelBuilder.HasPostgresEnum<ReSys.Core.Domain.ExampleStatus>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-
-        // Ensure all DateTimeOffset properties are UTC when reading/writing
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            foreach (var property in entityType.GetProperties())
-            {
-                if (property.ClrType == typeof(DateTimeOffset) || property.ClrType == typeof(DateTimeOffset?))
-                {
-                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTimeOffset, DateTimeOffset>(
-                        v => v.ToUniversalTime(),
-                        v => v.ToUniversalTime()));
-                }
-            }
-        }
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        // Use 'timestamp with time zone' for DateTimeOffset to natively support UTC in PostgreSQL
-        configurationBuilder.Properties<DateTimeOffset>().HaveColumnType("timestamp with time zone");
-        configurationBuilder.Properties<DateTimeOffset?>().HaveColumnType("timestamp with time zone");
+        configurationBuilder.Properties<DateTimeOffset>()
+            .HaveColumnType("timestamp with time zone")
+            .HaveConversion<UtcDateTimeOffsetConverter>();
+
+        configurationBuilder.Properties<DateTimeOffset?>()
+            .HaveColumnType("timestamp with time zone")
+            .HaveConversion<UtcDateTimeOffsetConverter>();
     }
 }

@@ -49,6 +49,8 @@ public static class CreateExample
                 Description = request.Description,
                 Price = request.Price,
                 ImageUrl = request.ImageUrl,
+                Status = request.Status,
+                HexColor = request.HexColor,
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
@@ -62,6 +64,8 @@ public static class CreateExample
                 Description = example.Description,
                 Price = example.Price,
                 ImageUrl = example.ImageUrl,
+                Status = example.Status,
+                HexColor = example.HexColor,
                 CreatedAt = example.CreatedAt
             };
         }

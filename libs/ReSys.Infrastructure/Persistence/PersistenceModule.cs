@@ -5,6 +5,8 @@ using ReSys.Core.Common.Data;
 
 using ReSys.Core.Common.Telemetry;
 
+using ReSys.Infrastructure.Persistence.Interceptors;
+
 namespace ReSys.Infrastructure.Persistence;
 
 public static class PersistenceModule
@@ -14,13 +16,18 @@ public static class PersistenceModule
         services.RegisterModule("Infrastructure", "Persistence");
         var connectionString = configuration.GetConnectionString("shopdb");
 
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddSingleton<AuditableEntityInterceptor>();
+
+        services.AddDbContextPool<AppDbContext>((sp, options) =>
         {
+            var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+            
             options.UseNpgsql(connectionString, npgsqlOptions =>
             {
                 npgsqlOptions.UseVector();
                 npgsqlOptions.MigrationsAssembly("ReSys.Migrations");
-            });
+            })
+            .AddInterceptors(interceptor);
         });
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());

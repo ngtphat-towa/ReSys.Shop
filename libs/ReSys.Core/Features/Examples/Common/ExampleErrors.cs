@@ -31,4 +31,8 @@ public static class ExampleErrors
     public static Error DescriptionTooLong => Error.Validation(
         code: "Example.DescriptionTooLong",
         description: $"Example description cannot exceed {ExampleConstraints.DescriptionMaxLength} characters.");
+
+    public static Error InvalidHexColor => Error.Validation(
+        code: "Example.InvalidHexColor",
+        description: "Invalid Hex Color format. It must be a valid hex code (e.g., #FFFFFF).");
 }

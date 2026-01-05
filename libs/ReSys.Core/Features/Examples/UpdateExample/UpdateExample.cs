@@ -56,6 +56,8 @@ public static class UpdateExample
             example.Name = request.Name;
             example.Description = request.Description;
             example.Price = request.Price;
+            example.Status = request.Status;
+            example.HexColor = request.HexColor;
             
             if (!string.IsNullOrEmpty(request.ImageUrl) && example.ImageUrl != request.ImageUrl)
             {
@@ -80,6 +82,8 @@ public static class UpdateExample
                 Description = example.Description,
                 Price = example.Price,
                 ImageUrl = example.ImageUrl,
+                Status = example.Status,
+                HexColor = example.HexColor,
                 CreatedAt = example.CreatedAt
             };
         }

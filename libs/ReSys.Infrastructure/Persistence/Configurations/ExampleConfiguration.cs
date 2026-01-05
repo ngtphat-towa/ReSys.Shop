@@ -18,6 +18,9 @@ public class ExampleConfiguration : IEntityTypeConfiguration<Example>
         builder.Property(e => e.Price)
             .HasPrecision(ExampleConstraints.PricePrecision, ExampleConstraints.PriceScale);
 
+        builder.Property(e => e.HexColor)
+            .HasMaxLength(ExampleConstraints.HexColorMaxLength);
+
         builder.HasIndex(e => e.Name).IsUnique();
     }
 }

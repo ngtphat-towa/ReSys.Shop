@@ -21,6 +21,7 @@ public static class GetExamples
         public string? Name { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
+        public ExampleStatus[]? Status { get; set; }
         public DateTimeOffset? CreatedFrom { get; set; }
         public DateTimeOffset? CreatedTo { get; set; }
         public string? SortBy { get; set; }
@@ -69,6 +70,11 @@ public static class GetExamples
             if (request.MaxPrice.HasValue)
             {
                 dbQuery = dbQuery.Where(x => x.Price <= request.MaxPrice.Value);
+            }
+
+            if (request.Status != null && request.Status.Length > 0)
+            {
+                dbQuery = dbQuery.Where(x => request.Status.Contains(x.Status));
             }
 
             if (request.CreatedFrom.HasValue)

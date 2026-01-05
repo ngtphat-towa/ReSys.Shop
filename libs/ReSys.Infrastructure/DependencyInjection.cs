@@ -1,5 +1,10 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Telemetry;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Imaging;
@@ -23,11 +28,17 @@ public static class DependencyInjection
         return services;
     }
 
-    public static Microsoft.AspNetCore.Builder.IApplicationBuilder UseInfrastructure(this Microsoft.AspNetCore.Builder.IApplicationBuilder app)
+    public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        context.Database.EnsureCreated();
+        var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+        if (env.IsDevelopment())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            context.Database.EnsureCreated();
+            context.Database.Migrate();
+        }
 
         return app;
     }

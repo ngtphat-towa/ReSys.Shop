@@ -11,6 +11,8 @@ public record ExampleBase
     public string? Description { get; set; }
     public decimal Price { get; set; }
     public string? ImageUrl { get; set; }
+    public ExampleStatus Status { get; set; }
+    public string? HexColor { get; set; }
 }
 
 // Input for Create/Update
@@ -29,7 +31,9 @@ public record ExampleListItem : ExampleBase
         Name = x.Name,
         Description = x.Description,
         Price = x.Price,
-        ImageUrl = x.ImageUrl
+        ImageUrl = x.ImageUrl,
+        Status = x.Status,
+        HexColor = x.HexColor
     };
 }
 
@@ -46,6 +50,8 @@ public record ExampleDetail : ExampleBase
         Description = x.Description,
         Price = x.Price,
         ImageUrl = x.ImageUrl,
+        Status = x.Status,
+        HexColor = x.HexColor,
         CreatedAt = x.CreatedAt
     };
 }

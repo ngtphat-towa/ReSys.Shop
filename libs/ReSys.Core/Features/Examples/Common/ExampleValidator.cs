@@ -23,5 +23,14 @@ public abstract class ExampleValidator<T> : AbstractValidator<T> where T : Examp
             .GreaterThanOrEqualTo(ExampleConstraints.MinPrice)
                 .WithErrorCode(ExampleErrors.InvalidPrice.Code)
                 .WithMessage(ExampleErrors.InvalidPrice.Description);
+
+        RuleFor(x => x.HexColor)
+            .Matches(ExampleConstraints.HexColorRegex)
+                .WithErrorCode(ExampleErrors.InvalidHexColor.Code)
+                .WithMessage(ExampleErrors.InvalidHexColor.Description)
+            .MaximumLength(ExampleConstraints.HexColorMaxLength)
+                .WithErrorCode(ExampleErrors.InvalidHexColor.Code)
+                .WithMessage(ExampleErrors.InvalidHexColor.Description)
+            .When(x => !string.IsNullOrEmpty(x.HexColor));
     }
 }
