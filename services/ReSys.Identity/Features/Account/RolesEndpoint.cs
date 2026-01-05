@@ -14,7 +14,8 @@ public class RolesEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/roles")
-                       .WithTags("Roles");
+                       .WithTags("Roles")
+                       .RequireAuthorization();
 
         group.MapGet("/", GetRoles);
         group.MapGet("/{id}", GetRoleById);

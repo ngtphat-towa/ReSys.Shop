@@ -13,12 +13,15 @@ public class UsersEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/users")
-                       .WithTags("Users");
+                       .WithTags("Users")
+                       .RequireAuthorization(); // TODO: Add "Permissions.Users.Manage" policy later
 
         group.MapGet("/", GetUsers);
         group.MapGet("/{id}", GetUserById);
         group.MapPost("/", CreateUser);
         group.MapPut("/{id}", UpdateUser);
+        group.MapDelete("/{id}", DeleteUser);
+        group.MapPost("/{id}/roles", AssignRoles);
     }
 
     private async Task<IResult> GetUsers(UserManager<ApplicationUser> userManager)
@@ -30,7 +33,8 @@ public class UsersEndpoint : ICarterModule
             u.Email ?? "", 
             u.FirstName ?? "", 
             u.LastName ?? "", 
-            u.UserType.ToString()));
+            u.UserType.ToString(),
+            Array.Empty<string>())); // TODO: Include roles if needed
             
         return Results.Ok(response);
     }
@@ -40,13 +44,56 @@ public class UsersEndpoint : ICarterModule
         var user = await userManager.FindByIdAsync(id);
         if (user == null) return Results.NotFound();
         
+        var roles = await userManager.GetRolesAsync(user);
+        
         return Results.Ok(new UserResponse(
             user.Id, 
             user.UserName ?? "", 
             user.Email ?? "", 
             user.FirstName ?? "", 
             user.LastName ?? "", 
-            user.UserType.ToString()));
+            user.UserType.ToString(),
+            roles));
+    }
+
+    private async Task<IResult> DeleteUser(string id, UserManager<ApplicationUser> userManager)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null) return Results.NotFound();
+
+        var result = await userManager.DeleteAsync(user);
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+
+        return Results.NoContent();
+    }
+
+    private async Task<IResult> AssignRoles(
+        string id, 
+        [FromBody] AssignRolesRequest request,
+        UserManager<ApplicationUser> userManager)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null) return Results.NotFound();
+
+        var currentRoles = await userManager.GetRolesAsync(user);
+        
+        // Add new roles
+        var rolesToAdd = request.RoleNames.Except(currentRoles).ToList();
+        if (rolesToAdd.Any())
+        {
+            var addResult = await userManager.AddToRolesAsync(user, rolesToAdd);
+            if (!addResult.Succeeded) return Results.BadRequest(addResult.Errors.Select(e => e.Description));
+        }
+
+        // Remove old roles (optional: if AssignRoles implies SET vs ADD. Usually SET is safer for admin UIs)
+        var rolesToRemove = currentRoles.Except(request.RoleNames).ToList();
+        if (rolesToRemove.Any())
+        {
+            var removeResult = await userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            if (!removeResult.Succeeded) return Results.BadRequest(removeResult.Errors.Select(e => e.Description));
+        }
+
+        return Results.NoContent();
     }
 
     private async Task<IResult> CreateUser(

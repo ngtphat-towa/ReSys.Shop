@@ -1,13 +1,44 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Respawn;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
 using Testcontainers.PostgreSql;
 using ReSys.Core.Common.Data;
 using ReSys.Infrastructure.Persistence;
 
 namespace ReSys.Identity.IntegrationTests.Infrastructure;
+
+public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+{
+    public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger, UrlEncoder encoder)
+        : base(options, logger, encoder)
+    {
+    }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var claims = new[] 
+        { 
+            new Claim(ClaimTypes.Name, "TestUser"), 
+            new Claim(ClaimTypes.NameIdentifier, "test-user-id"),
+            new Claim("permission", "Permissions.Users.Manage") // Grant all perms for now
+        };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, "Test");
+
+        return Task.FromResult(AuthenticateResult.Success(ticket));
+    }
+}
 
 public class IdentityTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -26,6 +57,26 @@ public class IdentityTestWebAppFactory : WebApplicationFactory<Program>, IAsyncL
     {
         builder.UseSetting("ConnectionStrings:shopdb", _connectionString);
         builder.UseSetting("ML:ServiceUrl", "http://fake-ml");
+
+        builder.ConfigureTestServices(services =>
+        {
+            services.AddAuthentication(defaultScheme: "Test")
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+                
+            // Bypass OpenIddict validation for "Test" scheme if needed, 
+            // but usually we just want to bypass the [Authorize] check by providing a user.
+            // The app uses OpenIddict Validation, which checks Bearer tokens.
+            // By adding "Test" scheme and setting it as default, [Authorize] will use it?
+            // No, OpenIddict registers itself.
+            // We need to force [Authorize] to accept "Test" scheme OR make "Test" the default.
+            
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder("Test")
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
+        });
 
         builder.ConfigureServices(services =>
         {

@@ -6,4 +6,5 @@ public record UserResponse(
     string Email, 
     string FirstName, 
     string LastName, 
-    string UserType);
+    string UserType,
+    IEnumerable<string> Roles);

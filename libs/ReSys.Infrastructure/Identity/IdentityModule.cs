@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,7 +141,18 @@ public static class IdentityModule
          services.AddSingleton<IConfigureOptions<OpenIddict.Validation.OpenIddictValidationOptions>, ConfigureIdentityValidationOptions>();
          
          services.AddAuthentication(OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-         services.AddAuthorization();
+         services.AddAuthorization(options =>
+         {
+             // TODO: We could dynamically register policies for all known permissions here
+             // or use a custom IPolicyProvider. For simplicity, we register the handler.
+         });
+         
+         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+         // Register a custom Policy Provider to auto-create policies for permissions?
+         // For now, let's keep it simple and assume we register them manually or use a helper.
+         // Actually, a dynamic policy provider is best for "Permissions.X.Y".
+         
+         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 
          return services;
     }
