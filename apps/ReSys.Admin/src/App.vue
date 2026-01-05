@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import { useToast } from 'primevue/usetoast';
 import { watch } from 'vue';
-import { toastBus } from '@/shared/api/client';
+import { useToast } from 'primevue/usetoast';
+import { toastBus } from '@/shared/composables/toast.use';
 
 const toast = useToast();
 
