@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using OpenIddict.Server;
 using OpenIddict.Server.AspNetCore;
 using ReSys.Core.Common.Security;
@@ -112,16 +114,30 @@ public static class IdentityModule
     /// Registers the OpenIddict VALIDATION components (JWT Bearer).
     /// Used by APIs that need to validate tokens but not issue them.
     /// </summary>
-    public static IServiceCollection AddIdentityValidation(this IServiceCollection services, string authorityUrl)
+    public static IServiceCollection AddIdentityValidation(this IServiceCollection services, IConfiguration configuration)
     {
+         // 1. Bind and Validate Options
+         services.AddOptions<IdentityValidationOptions>()
+             .Configure(options => 
+             {
+                 // Aspire/Service Discovery convention: services:{name}:http
+                 options.Authority = configuration["services:identity:http"] 
+                                     ?? configuration["Identity:Url"] // Fallback
+                                     ?? string.Empty;
+             })
+             .ValidateDataAnnotations()
+             .ValidateOnStart();
+
+         // 2. Register OpenIddict Validation
          services.AddOpenIddict()
             .AddValidation(options =>
             {
-                // Note: The issuer URI must match the one from the discovery document.
-                options.SetIssuer(authorityUrl);
+                // Configuration is handled by ConfigureIdentityValidationOptions
                 options.UseSystemNetHttp();
                 options.UseAspNetCore();
             });
+         
+         services.AddSingleton<IConfigureOptions<OpenIddict.Validation.OpenIddictValidationOptions>, ConfigureIdentityValidationOptions>();
          
          services.AddAuthentication(OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
          services.AddAuthorization();

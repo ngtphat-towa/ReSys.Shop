@@ -48,18 +48,12 @@ try
         .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
         .AddInfrastructure(builder.Configuration);
     
-    // Identity Validation Configuration
-    var identityUrl = builder.Configuration["services:identity:http"];
-    if (string.IsNullOrEmpty(identityUrl))
-    {
-        // In Development, we might accept a default if we are sure, but for "Standard Implementation", we enforce config.
-        // However, Aspire injects this. If it's missing, the app isn't wired correctly.
-        // We will throw to ensure no "uncertainty".
-        throw new InvalidOperationException("Identity Service URL is missing in configuration (services:identity:http).");
-    }
-
+    // API needs to Validate tokens.
+    // The URL is retrieved from Configuration via Options Pattern (IdentityValidationOptions).
+    // It looks for 'services:identity:http' (Aspire) or 'Identity:Url'.
+    // Validation happens on startup (ValidateOnStart).
     builder.Services.AddIdentityStorage(); 
-    builder.Services.AddIdentityValidation(identityUrl); 
+    builder.Services.AddIdentityValidation(builder.Configuration); 
 
     builder.Services.AddAuthorization();
 
