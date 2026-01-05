@@ -20,6 +20,10 @@ export interface MenuItem {
 const route = useRoute();
 const { layoutState } = useLayout();
 
+defineOptions({
+    name: 'AppMenuItem'
+});
+
 const props = defineProps<{
     item: MenuItem;
     index?: number;
@@ -107,7 +111,7 @@ const itemClick = (event: Event, item: MenuItem) => {
         <!-- 4. Recursive Submenu -->
         <Transition v-if="item.items && item.visible !== false" name="layout-submenu">
             <ul v-show="root ? true : active || isActive" class="layout-submenu">
-                <app-menu-item v-for="(child, i) in item.items" :key="child.label + '_' + i" :item="child" :index="i" :root="false" />
+                <AppMenuItem v-for="(child, i) in item.items" :key="child.label + '_' + i" :item="child" :index="i" :root="false" />
             </ul>
         </Transition>
     </li>

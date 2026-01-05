@@ -33,7 +33,7 @@ const model = ref<MenuItem[]>([
 <template>
     <ul class="layout-menu">
         <template v-for="(item, i) in model" :key="item.label">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i" :root="true"></app-menu-item>
+            <AppMenuItem v-if="!item.separator" :item="item" :index="i" :root="true"></AppMenuItem>
             <li v-if="item.separator" class="menu-separator"></li>
         </template>
     </ul>
