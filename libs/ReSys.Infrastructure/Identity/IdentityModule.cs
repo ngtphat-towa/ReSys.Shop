@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using OpenIddict.Server;
+using OpenIddict.Server.AspNetCore;
 using ReSys.Core.Common.Security;
 using ReSys.Core.Domain.Identity;
 using ReSys.Infrastructure.Persistence;
@@ -61,7 +63,9 @@ public static class IdentityModule
             {
                 // Enable the authorization, logout, token and userinfo endpoints.
                 options.SetAuthorizationEndpointUris("connect/authorize")
-                       .SetTokenEndpointUris("connect/token");
+                       .SetEndSessionEndpointUris("connect/logout")
+                       .SetTokenEndpointUris("connect/token")
+                       .SetUserInfoEndpointUris("connect/userinfo");
 
                 // Enable the client credentials flow.
                 options.AllowClientCredentialsFlow();
@@ -77,14 +81,17 @@ public static class IdentityModule
                 options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
 
                 // Encryption and Signing Credentials
-                // TODO: Replace with real certificates in Production
+                // For Production: Use AddEncryptionCertificate/AddSigningCertificate with X509Certificate2 from KeyVault/SecretStore.
+                // For Development: The following generates temporary certificates.
                 options.AddDevelopmentEncryptionCertificate()
                        .AddDevelopmentSigningCertificate();
 
                 // Register the ASP.NET Core host and configure the ASP.NET Core-specific options.
                 options.UseAspNetCore()
                        .EnableAuthorizationEndpointPassthrough()
+                       .EnableEndSessionEndpointPassthrough()
                        .EnableTokenEndpointPassthrough()
+                       .EnableUserInfoEndpointPassthrough()
                        .EnableStatusCodePagesIntegration();
             })
 

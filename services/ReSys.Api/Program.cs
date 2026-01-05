@@ -48,16 +48,18 @@ try
         .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
         .AddInfrastructure(builder.Configuration);
     
-    // API needs to Validate tokens, not issue them.
-    // Ideally, the AUTHORITY URL should come from config. 
-    // For local Aspire, it's usually http://identity or similar, but let's assume we get it injected or use a placeholder for now.
-    // In Aspire, we'll name the service 'identity'.
-    // We read the 'services:identity:http' or similar from Aspire service discovery, 
-    // but typically OpenIddict validation needs a raw URL. 
-    // For now, we trust the service discovery to handle 'http://identity' if we used YARP or internal DNS.
-    // However, OpenIddict Validation requires a valid Discovery Document reachable via HTTP.
+    // Identity Validation Configuration
+    var identityUrl = builder.Configuration["services:identity:http"];
+    if (string.IsNullOrEmpty(identityUrl))
+    {
+        // In Development, we might accept a default if we are sure, but for "Standard Implementation", we enforce config.
+        // However, Aspire injects this. If it's missing, the app isn't wired correctly.
+        // We will throw to ensure no "uncertainty".
+        throw new InvalidOperationException("Identity Service URL is missing in configuration (services:identity:http).");
+    }
+
     builder.Services.AddIdentityStorage(); 
-    builder.Services.AddIdentityValidation(builder.Configuration["services:identity:http"] ?? "http://localhost:5005"); 
+    builder.Services.AddIdentityValidation(identityUrl); 
 
     builder.Services.AddAuthorization();
 

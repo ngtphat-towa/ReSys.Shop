@@ -48,6 +48,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseSetting("services:identity:http", "http://fake-identity-auth");
+
         builder.ConfigureServices(services =>
         {
             // Remove ALL registrations for AppDbContext (including pooling-related ones)

@@ -166,5 +166,13 @@ public class ConnectEndpoint : ICarterModule
             if (principal.HasScope(Scopes.Profile) || principal.HasScope(Scopes.Email))
                 yield return Destinations.IdentityToken;
         }
+
+        // Also include Roles in Identity Token if 'roles' scope is requested
+        if (claim.Type == Claims.Role && principal.HasScope(Scopes.Roles))
+        {
+             yield return Destinations.IdentityToken;
+        }
+        
+        // Permissions usually go only in Access Token
     }
 }
