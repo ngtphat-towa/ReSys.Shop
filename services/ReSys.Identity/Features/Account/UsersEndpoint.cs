@@ -22,6 +22,34 @@ public class UsersEndpoint : ICarterModule
         group.MapPut("/{id}", UpdateUser);
         group.MapDelete("/{id}", DeleteUser);
         group.MapPost("/{id}/roles", AssignRoles);
+        group.MapPost("/{id}/lock", LockUser);
+        group.MapPost("/{id}/unlock", UnlockUser);
+    }
+
+    private async Task<IResult> LockUser(
+        string id, 
+        [FromBody] LockUserRequest request,
+        UserManager<ApplicationUser> userManager)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null) return Results.NotFound();
+
+        var lockoutEnd = request.LockoutEnd ?? DateTimeOffset.MaxValue;
+        var result = await userManager.SetLockoutEndDateAsync(user, lockoutEnd);
+        
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+        return Results.NoContent();
+    }
+
+    private async Task<IResult> UnlockUser(string id, UserManager<ApplicationUser> userManager)
+    {
+        var user = await userManager.FindByIdAsync(id);
+        if (user == null) return Results.NotFound();
+
+        var result = await userManager.SetLockoutEndDateAsync(user, null);
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+        
+        return Results.NoContent();
     }
 
     private async Task<IResult> GetUsers(UserManager<ApplicationUser> userManager)

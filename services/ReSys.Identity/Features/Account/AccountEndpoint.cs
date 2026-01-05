@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ReSys.Core.Domain.Identity;
 using ReSys.Identity.Features.Account.Contracts;
+using ReSys.Core.Common.Mailing;
 
 namespace ReSys.Identity.Features.Account;
 
@@ -12,12 +13,48 @@ public class AccountEndpoint : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/account")
-                       .WithTags("Account")
-                       .RequireAuthorization();
+                       .WithTags("Account");
 
-        group.MapGet("/profile", GetProfile);
-        group.MapPut("/profile", UpdateProfile);
-        group.MapPost("/change-password", ChangePassword);
+        // Authenticated routes
+        group.MapGet("/profile", GetProfile).RequireAuthorization();
+        group.MapPut("/profile", UpdateProfile).RequireAuthorization();
+        group.MapPost("/change-password", ChangePassword).RequireAuthorization();
+        
+        // Public routes
+        group.MapPost("/forgot-password", ForgotPassword);
+        group.MapPost("/reset-password", ResetPassword);
+    }
+
+    private async Task<IResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        UserManager<ApplicationUser> userManager,
+        IMailService mailService)
+    {
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user == null) 
+        {
+            // Don't reveal user existence
+            return Results.Ok();
+        }
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+        // In real app, build a link to Frontend UI with token
+        await mailService.SendEmailAsync(request.Email, "Reset Password", $"Token: {token}");
+        
+        return Results.Ok();
+    }
+
+    private async Task<IResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        UserManager<ApplicationUser> userManager)
+    {
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user == null) return Results.Ok(); // Don't reveal
+
+        var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+
+        return Results.Ok();
     }
 
     private async Task<IResult> GetProfile(

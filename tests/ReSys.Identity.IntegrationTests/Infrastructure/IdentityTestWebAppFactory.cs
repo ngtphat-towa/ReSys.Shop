@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Testcontainers.PostgreSql;
 using ReSys.Core.Common.Data;
+using ReSys.Core.Common.Mailing;
 using ReSys.Infrastructure.Persistence;
 
 namespace ReSys.Identity.IntegrationTests.Infrastructure;
@@ -42,6 +43,8 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
 
 public class IdentityTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public MockEmailSender EmailSender { get; } = new();
+
     private readonly PostgreSqlContainer _dbContainer;
     private string _connectionString = null!;
     private Respawner _respawner = null!;
@@ -57,19 +60,15 @@ public class IdentityTestWebAppFactory : WebApplicationFactory<Program>, IAsyncL
     {
         builder.UseSetting("ConnectionStrings:shopdb", _connectionString);
         builder.UseSetting("ML:ServiceUrl", "http://fake-ml");
+        builder.UseSetting("Serilog:Bypass", "true");
 
         builder.ConfigureTestServices(services =>
         {
+            services.AddSingleton<IMailService>(EmailSender);
+
             services.AddAuthentication(defaultScheme: "Test")
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
-                
-            // Bypass OpenIddict validation for "Test" scheme if needed, 
-            // but usually we just want to bypass the [Authorize] check by providing a user.
-            // The app uses OpenIddict Validation, which checks Bearer tokens.
-            // By adding "Test" scheme and setting it as default, [Authorize] will use it?
-            // No, OpenIddict registers itself.
-            // We need to force [Authorize] to accept "Test" scheme OR make "Test" the default.
-            
+
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder("Test")

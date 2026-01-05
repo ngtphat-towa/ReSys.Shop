@@ -20,7 +20,35 @@ public class RolesEndpoint : ICarterModule
         group.MapGet("/", GetRoles);
         group.MapGet("/{id}", GetRoleById);
         group.MapPost("/", CreateRole);
+        group.MapPut("/{id}", UpdateRole);
+        group.MapDelete("/{id}", DeleteRole);
         group.MapPut("/{id}/permissions", UpdateRolePermissions);
+    }
+
+    private async Task<IResult> UpdateRole(
+        string id,
+        [FromBody] UpdateRoleRequest request,
+        RoleManager<ApplicationRole> roleManager)
+    {
+        var role = await roleManager.FindByIdAsync(id);
+        if (role == null) return Results.NotFound();
+
+        role.Name = request.Name;
+        var result = await roleManager.UpdateAsync(role);
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+
+        return Results.NoContent();
+    }
+
+    private async Task<IResult> DeleteRole(string id, RoleManager<ApplicationRole> roleManager)
+    {
+        var role = await roleManager.FindByIdAsync(id);
+        if (role == null) return Results.NotFound();
+
+        var result = await roleManager.DeleteAsync(role);
+        if (!result.Succeeded) return Results.BadRequest(result.Errors.Select(e => e.Description));
+
+        return Results.NoContent();
     }
 
     private async Task<IResult> GetRoles(RoleManager<ApplicationRole> roleManager)
