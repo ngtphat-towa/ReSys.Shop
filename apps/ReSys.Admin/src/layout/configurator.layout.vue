@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@/layout/composables/layout.composable';
 import { updatePreset, updateSurfacePalette } from '@primevue/themes';
 import Aura from '@primevue/themes/aura';
 import Lara from '@primevue/themes/lara';
 import Nora from '@primevue/themes/nora';
 import { ref } from 'vue';
 
-const { layoutConfig, isDarkTheme, changeMenuMode } = useLayout();
+const { layoutConfig, changeMenuMode } = useLayout();
 
-const presets: Record<string, any> = {
+const presets: Record<string, unknown> = {
     Aura,
     Lara,
     Nora
@@ -22,7 +22,16 @@ const menuModeOptions = ref([
     { label: 'Overlay', value: 'overlay' }
 ]);
 
-const primaryColors = ref([
+interface ColorPalette {
+    [key: number]: string;
+}
+
+interface PrimaryColor {
+    name: string;
+    palette: ColorPalette;
+}
+
+const primaryColors = ref<PrimaryColor[]>([
     { name: 'emerald', palette: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22' } },
     { name: 'green', palette: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d', 950: '#052e16' } },
     { name: 'lime', palette: { 50: '#f7fee7', 100: '#ecfccb', 200: '#d9f99d', 300: '#bef264', 400: '#a3e635', 500: '#84cc16', 600: '#65a30d', 700: '#4d7c0f', 800: '#3f6212', 900: '#365314', 950: '#1a2e05' } },
@@ -40,7 +49,12 @@ const primaryColors = ref([
     { name: 'rose', palette: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 800: '#9f1239', 900: '#881337', 950: '#4c0519' } }
 ]);
 
-const surfaces = ref([
+interface SurfaceColor {
+    name: string;
+    palette: ColorPalette;
+}
+
+const surfaces = ref<SurfaceColor[]>([
     { name: 'slate', palette: { 0: '#ffffff', 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' } },
     { name: 'gray', palette: { 0: '#ffffff', 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827', 950: '#030712' } },
     { name: 'zinc', palette: { 0: '#ffffff', 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#d4d4d8', 400: '#a1a1aa', 500: '#71717a', 600: '#52525b', 700: '#3f3f46', 800: '#27272a', 900: '#18181b', 950: '#09090b' } },
@@ -87,19 +101,19 @@ function getPresetExt() {
     };
 }
 
-function updateColors(type: 'primary' | 'surface', color: any) {
+function updateColors(type: 'primary' | 'surface', color: PrimaryColor | SurfaceColor) {
     if (type === 'primary') {
-        (layoutConfig as any).primary = color.name;
+        layoutConfig.primary = color.name;
         updatePreset(getPresetExt());
     } else if (type === 'surface') {
-        (layoutConfig as any).surface = color.name;
+        layoutConfig.surface = color.name;
         updateSurfacePalette(color.palette);
     }
 }
 
 function onPresetChange() {
-    (layoutConfig as any).preset = preset.value;
-    updatePreset(presets[preset.value]);
+    layoutConfig.preset = preset.value;
+    updatePreset(presets[preset.value] as Record<string, unknown>);
 }
 
 function onMenuModeChange() {

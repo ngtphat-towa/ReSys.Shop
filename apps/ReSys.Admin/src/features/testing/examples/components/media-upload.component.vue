@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted, watch } from 'vue';
-import { fileService } from '@/shared/api/file.service';
-import type { FileMetadata } from '@/shared/api/file.types';
+import { fileService } from '@/shared/api/api.file.service';
+import type { FileMetadata } from '@/shared/api/api.file.types';
 
 /**
  * Component Props
@@ -10,6 +10,7 @@ import type { FileMetadata } from '@/shared/api/file.types';
  */
 interface Props {
     modelValue: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     locales: any;
 }
 
@@ -93,12 +94,12 @@ const displayFormat = computed(() => {
  */
 const formatDisplayDate = (dateStr?: string) => {
     if (!dateStr || dateStr.startsWith('0001')) return null;
-    
+
     // Ensure UTC format if missing 'Z' or offset
-    const utcDateStr = (dateStr.endsWith('Z') || dateStr.includes('+')) 
-        ? dateStr 
+    const utcDateStr = (dateStr.endsWith('Z') || dateStr.includes('+'))
+        ? dateStr
         : `${dateStr}Z`;
-        
+
     const date = new Date(utcDateStr);
     if (isNaN(date.getTime())) return null;
 
@@ -135,7 +136,7 @@ const onFileChange = (event: Event) => {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         if (localPreviewUrl.value) URL.revokeObjectURL(localPreviewUrl.value);
-        
+
         imageFile.value = file;
         localPreviewUrl.value = URL.createObjectURL(file);
         metadata.value = null; // Clear server metadata for local file
@@ -217,19 +218,19 @@ onUnmounted(() => {
                     </div>
 
                     <!-- Metadata Details Section -->
-                    <div v-if="metadata || imageFile" class="p-4 rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface-100 dark:border-surface-700">
+                    <div v-if="metadata || imageFile" class="p-4 border rounded-xl bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-700">
                         <div class="flex flex-col gap-2 text-xs">
-                            <div class="flex justify-between items-center">
-                                <span class="text-surface-500 font-medium">{{ locales.labels?.file_size }}</span>
-                                <span class="text-surface-900 dark:text-surface-0 font-bold">{{ imageFile ? formatSize(imageFile.size) : formatSize(metadata?.file_size || 0) }}</span>
+                            <div class="flex items-center justify-between">
+                                <span class="font-medium text-surface-500">{{ locales.labels?.file_size }}</span>
+                                <span class="font-bold text-surface-900 dark:text-surface-0">{{ imageFile ? formatSize(imageFile.size) : formatSize(metadata?.file_size || 0) }}</span>
                             </div>
-                            <div v-if="displayFormat" class="flex justify-between items-center">
-                                <span class="text-surface-500 font-medium">{{ locales.labels?.file_type }}</span>
-                                <span class="text-surface-900 dark:text-surface-0 font-bold uppercase">{{ displayFormat }}</span>
+                            <div v-if="displayFormat" class="flex items-center justify-between">
+                                <span class="font-medium text-surface-500">{{ locales.labels?.file_type }}</span>
+                                <span class="font-bold uppercase text-surface-900 dark:text-surface-0">{{ displayFormat }}</span>
                             </div>
-                            <div v-if="formatDisplayDate(metadata?.created_at)" class="flex justify-between items-center">
-                                <span class="text-surface-500 font-medium">{{ locales.labels?.uploaded_at }}</span>
-                                <span class="text-surface-900 dark:text-surface-0 font-bold">{{ formatDisplayDate(metadata!.created_at) }}</span>
+                            <div v-if="formatDisplayDate(metadata?.created_at)" class="flex items-center justify-between">
+                                <span class="font-medium text-surface-500">{{ locales.labels?.uploaded_at }}</span>
+                                <span class="font-bold text-surface-900 dark:text-surface-0">{{ formatDisplayDate(metadata?.created_at) }}</span>
                             </div>
                         </div>
                     </div>

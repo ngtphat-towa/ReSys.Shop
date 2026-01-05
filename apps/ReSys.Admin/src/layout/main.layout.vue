@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@/layout/composables/layout.composable';
 import { computed, watch, ref } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import { toastBus } from '@/shared/api/client';
-import AppTopbar from './app-topbar.vue';
-import AppFooter from './app-footer.vue';
+import AppTopbar from './topbar.layout.vue';
+import AppFooter from './footer.layout.vue';
+import AppSidebar from './sidebar.layout.vue';
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout();
-const toast = useToast();
-
-watch(toastBus, (newValue) => {
-    if (newValue) {
-        toast.add(newValue);
-        toastBus.value = null;
-    }
-});
 
 const containerClass = computed(() => {
     return {
@@ -65,6 +56,7 @@ const isOutsideClicked = (event: MouseEvent) => {
 <template>
     <div class="layout-wrapper" :class="containerClass">
         <AppTopbar />
+        <AppSidebar />
         <div class="layout-main-container">
             <div class="layout-main">
                 <router-view />
@@ -78,14 +70,22 @@ const isOutsideClicked = (event: MouseEvent) => {
 </template>
 
 <style lang="scss" scoped>
-/* Position toast below the top bar */
+.layout-toast {
+    :deep(.p-toast-message-content) {
+        padding: 1rem;
+    }
+}
+
+/* Position toast below the top bar (4rem height + some margin) */
 :global(.p-toast.p-component.p-toast-top-right) {
     top: 5rem;
 }
 
-/* For shop, we don't have a sidebar usually, so we adjust main padding */
-.layout-main-container {
-    margin-left: 0 !important;
-    padding-top: 5rem;
+:global(.p-toast.p-component.p-toast-top-left) {
+    top: 5rem;
+}
+
+:global(.p-toast.p-component.p-toast-top-center) {
+    top: 5rem;
 }
 </style>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import AppMenuItem from './app-menu-item.vue';
-import type { MenuItem } from './app-menu-item.vue';
+import AppMenuItem from './menu-item.layout.vue';
+import type { MenuItem } from './menu-item.layout.vue';
 
 const model = ref<MenuItem[]>([
     {

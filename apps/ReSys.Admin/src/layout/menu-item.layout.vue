@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLayout } from '@/layout/composables/layout';
+import { useLayout } from '@/layout/composables/layout.composable';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -18,7 +18,7 @@ export interface MenuItem {
 }
 
 const route = useRoute();
-const { layoutState, isDesktop } = useLayout();
+const { layoutState } = useLayout();
 
 const props = defineProps<{
     item: MenuItem;

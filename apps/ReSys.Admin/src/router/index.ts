@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AppLayout from '../layout/app-layout.vue'
-import HomeView from '../views/home-view.vue'
+import AppLayout from '../layout/main.layout.vue'
+import HomeView from '../views/home.view.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,7 +18,7 @@ const router = createRouter({
         {
           path: 'about',
           name: 'about',
-          component: () => import('../views/about-view.vue'),
+          component: () => import('../views/about.view.vue'),
           meta: { breadcrumb: 'navigation.about' }
         },
         {
@@ -32,18 +32,18 @@ const router = createRouter({
                 {
                   path: '',
                   name: 'testing.examples.list',
-                  component: () => import('../features/testing/examples/views/example-list.vue'),
+                  component: () => import('../features/testing/examples/views/example-list.view.vue'),
                 },
                 {
                   path: 'create',
                   name: 'testing.examples.create',
-                  component: () => import('../features/testing/examples/views/example-form.vue'),
+                  component: () => import('../features/testing/examples/views/example-form.view.vue'),
                   meta: { breadcrumb: 'actions.create' }
                 },
                 {
                   path: 'edit/:id',
                   name: 'testing.examples.edit',
-                  component: () => import('../features/testing/examples/views/example-form.vue'),
+                  component: () => import('../features/testing/examples/views/example-form.view.vue'),
                   meta: { breadcrumb: 'actions.edit' }
                 }
               ]

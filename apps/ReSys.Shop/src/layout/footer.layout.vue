@@ -1,5 +1,6 @@
 <script setup lang="ts"></script>
 
+
 <template>
     <div class="layout-footer bg-surface-0 dark:bg-surface-900 border-t border-surface-100 dark:border-surface-800 py-12">
         <div class="container mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12">

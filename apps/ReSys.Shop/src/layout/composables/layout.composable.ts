@@ -1,4 +1,4 @@
-import { computed, reactive, readonly } from 'vue';
+import { computed, reactive } from 'vue';
 
 export interface LayoutConfig {
     preset: string;
@@ -15,7 +15,7 @@ export interface LayoutState {
     configSidebarVisible: boolean;
     sidebarExpanded: boolean;
     menuHoverActive: boolean;
-    activeMenuItem: any;
+    activeMenuItem: string | null;
     activePath: string | null;
     mobileMenuActive: boolean;
     anchored: boolean;
@@ -24,7 +24,7 @@ export interface LayoutState {
 const layoutConfig = reactive<LayoutConfig>({
     preset: 'Aura',
     primary: 'emerald',
-    surface: 'slate',
+    surface: null,
     darkTheme: false,
     menuMode: 'static'
 });

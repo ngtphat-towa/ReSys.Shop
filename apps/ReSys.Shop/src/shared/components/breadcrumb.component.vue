@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -8,7 +9,7 @@ import { generalLocales } from '@/shared/locales/general.locales';
  * @property locales Optional feature-specific locales to resolve keys against.
  */
 interface Props {
-  locales?: any;
+  locales?: Record<string, unknown>;
 }
 
 const props = defineProps<Props>();
@@ -18,16 +19,16 @@ const route = useRoute();
  * Resolves a dot-notation key (e.g., 'navigation.home') against
  * feature locales first, then general locales.
  */
-const resolveLabel = (key: string) => {
+const resolveLabel = (key: string): string => {
   if (!key) return '';
   
   const parts = key.split('.');
   
   // 1. Try resolving against feature locales (passed via props)
-  let current: any = props.locales;
+  let current: unknown = props.locales;
   for (const part of parts) {
-    if (current && current[part]) {
-      current = current[part];
+    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[part];
     } else {
       current = null;
       break;
@@ -39,8 +40,8 @@ const resolveLabel = (key: string) => {
   // 2. Try resolving against general locales
   current = generalLocales;
   for (const part of parts) {
-    if (current && current[part]) {
-      current = current[part];
+    if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[part];
     } else {
       current = null;
       break;

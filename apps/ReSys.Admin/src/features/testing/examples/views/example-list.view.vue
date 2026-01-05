@@ -9,22 +9,31 @@ import { useExampleStore } from '../example.store'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { storeToRefs } from 'pinia'
+import { ExampleStatus, STATUS_COLORS, type ExampleListItem } from '../example.types'
 import { exampleLocales } from '../example.locales'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import { showToast } from '@/shared/api/client'
-import AppBreadcrumb from '@/shared/components/breadcrumb.vue'
+import type { 
+  DataTablePageEvent, 
+  DataTableSortEvent, 
+  DataTableFilterMeta 
+} from 'primevue/datatable'
+import { useToast } from '@/shared/composables/toast.use'
+import { useFormatter } from '@/shared/composables/formatter.use'
+import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 
 // --- STORE & ROUTING ---
 const exampleStore = useExampleStore()
 const { examples, loading, totalRecords, query } = storeToRefs(exampleStore)
 const router = useRouter()
 const confirm = useConfirm()
+const { formatCurrency } = useFormatter()
+const { showToast } = useToast()
 
 /**
  * PrimeVue Filter Configuration
  * Maps internal UI filters to the API query parameters.
  */
-const filters = ref<any>({
+const filters = ref<DataTableFilterMeta>({
   global: { value: query.value.search, matchMode: FilterMatchMode.CONTAINS },
   name: {
     operator: FilterOperator.AND,
@@ -36,13 +45,14 @@ const filters = ref<any>({
       { value: query.value.min_price || null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO },
     ],
   },
-  status: {
-    operator: FilterOperator.OR,
-    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
-  },
+  status: { value: query.value.status || null, matchMode: FilterMatchMode.IN },
 })
 
-const statuses = ref(['Active', 'Inactive', 'Out of Stock'])
+const statuses = ref([
+  { label: 'Draft', value: ExampleStatus.Draft },
+  { label: 'Active', value: ExampleStatus.Active },
+  { label: 'Archived', value: ExampleStatus.Archived },
+])
 
 // --- DATA ACTIONS ---
 
@@ -58,9 +68,9 @@ const loadExamples = async () => {
  * Handles DataTable pagination events.
  * Maps PrimeVue's 0-indexed page to the API's 1-indexed page.
  */
-const onPage = (event: any) => {
+const onPage = (event: DataTablePageEvent) => {
   exampleStore.fetchExamples({
-    page: event.page + 1,
+    page: event.page !== undefined ? event.page + 1 : 1,
     page_size: event.rows,
   })
 }
@@ -69,9 +79,9 @@ const onPage = (event: any) => {
  * Handles DataTable sorting events.
  * Synchronizes sortField and sortOrder with the backend query state.
  */
-const onSort = (event: any) => {
+const onSort = (event: DataTableSortEvent) => {
   exampleStore.fetchExamples({
-    sort_by: event.sortField,
+    sort_by: event.sortField as string,
     is_descending: event.sortOrder === -1,
     page: 1,
   })
@@ -82,10 +92,16 @@ const onSort = (event: any) => {
  * Collects values from the PrimeVue 'filters' reactive object and resets to page 1.
  */
 const onFilter = () => {
+  const globalFilter = filters.value.global as { value: string | null };
+  const nameFilter = filters.value.name as { constraints: { value: string | null }[] };
+  const priceFilter = filters.value.price as { constraints: { value: number | null }[] };
+  const statusFilter = filters.value.status as { value: ExampleStatus[] | null };
+
   exampleStore.fetchExamples({
-    search: filters.value.global.value,
-    name: filters.value.name.constraints[0]?.value,
-    min_price: filters.value.price.constraints[0]?.value,
+    search: globalFilter.value || undefined,
+    name: nameFilter.constraints[0]?.value || undefined,
+    min_price: priceFilter.constraints[0]?.value || undefined,
+    status: statusFilter.value || undefined,
     page: 1,
   })
 }
@@ -104,10 +120,7 @@ const clearFilters = () => {
       operator: FilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO }],
     },
-    status: {
-      operator: FilterOperator.OR,
-      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
-    },
+    status: { value: null, matchMode: FilterMatchMode.IN },
   }
   onFilter()
 }
@@ -120,12 +133,27 @@ const editExample = (id: string) => {
 }
 
 /**
+ * Creates a duplicate of an existing item.
+ * @param id The unique identifier of the item to duplicate.
+ */
+const duplicateExample = async (id: string) => {
+  const result = await exampleStore.duplicateExample(id)
+  if (result.success) {
+    showToast(
+      'success',
+      exampleLocales.common?.success || 'Success',
+      'Item duplicated successfully',
+    )
+  }
+}
+
+/**
  * Shows a confirmation dialog before deleting an item.
  * Uses the localized confirm object for header and message content.
  */
-const confirmDelete = (Example: any) => {
+const confirmDelete = (Example: ExampleListItem) => {
   confirm.require({
-    message: (exampleLocales.confirm!.delete_message as Function)(Example.name),
+    message: (exampleLocales.confirm!.delete_message as (name: string) => string)(Example.name),
     header: exampleLocales.confirm!.delete_header as string,
     icon: 'pi pi-info-circle',
     rejectLabel: exampleLocales.confirm!.reject_label as string,
@@ -207,7 +235,7 @@ onMounted(() => {
             <IconField iconPosition="left" class="w-full md:w-72">
               <InputIcon class="pi pi-search" />
               <InputText
-                v-model="filters.global.value"
+                v-model="(filters.global as any).value"
                 :placeholder="exampleLocales.placeholders?.search"
                 @keyup.enter="onFilter"
                 class="w-full rounded-xl"
@@ -263,7 +291,7 @@ onMounted(() => {
               <span class="font-bold text-surface-900 dark:text-surface-0">{{
                 slotProps.data.name
               }}</span>
-              <span 
+              <span
                 class="text-[10px] truncate text-surface-500 dark:text-surface-400 max-w-50 cursor-pointer hover:text-primary hover:underline transition-colors font-mono"
                 @click="editExample(slotProps.data.id)"
                 v-tooltip.bottom="'Click to Edit'"
@@ -291,15 +319,25 @@ onMounted(() => {
           </template>
         </Column>
 
+        <Column field="hex_color" :header="exampleLocales.labels?.color" class="w-24">
+          <template #body="slotProps">
+            <div v-if="slotProps.data.hex_color" class="flex items-center gap-2">
+              <div
+                class="w-4 h-4 rounded-full border border-surface-200 shadow-sm"
+                :style="{ backgroundColor: slotProps.data.hex_color.startsWith('#') ? slotProps.data.hex_color : '#' + slotProps.data.hex_color }"
+              ></div>
+              <span class="text-[10px] font-mono text-surface-500">{{
+                slotProps.data.hex_color.startsWith('#') ? slotProps.data.hex_color : '#' + slotProps.data.hex_color
+              }}</span>
+            </div>
+          </template>
+        </Column>
+
         <Column field="price" :header="exampleLocales.table?.price" sortable dataType="numeric">
           <template #body="slotProps">
             <div class="flex flex-col">
               <span class="font-black text-surface-900 dark:text-surface-0">
-                {{
-                  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                    slotProps.data.price,
-                  )
-                }}
+                {{ formatCurrency(slotProps.data.price) }}
               </span>
               <span class="text-[10px] text-primary font-bold uppercase">{{
                 exampleLocales.table?.in_stock
@@ -318,19 +356,20 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="status" :header="exampleLocales.table?.status" class="w-24">
-          <template #body>
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 rounded-full bg-primary"></div>
-              <span class="text-xs font-medium text-surface-700 dark:text-surface-200">{{
-                exampleLocales.table?.active
-              }}</span>
-            </div>
+        <Column field="status" :header="exampleLocales.table?.status" class="w-32">
+          <template #body="slotProps">
+            <Badge
+              :value="(exampleLocales.labels && exampleLocales.labels[`status_${ExampleStatus[slotProps.data.status as ExampleStatus].toLowerCase()}`]) || ExampleStatus[slotProps.data.status as ExampleStatus]"
+              :severity="STATUS_COLORS[slotProps.data.status as ExampleStatus].severity"
+              class="px-3 py-1 font-bold rounded-full"
+            />
           </template>
           <template #filter="{ filterModel, filterCallback }">
-            <Select
+            <MultiSelect
               v-model="filterModel.value"
               :options="statuses"
+              optionLabel="label"
+              optionValue="value"
               :placeholder="exampleLocales.placeholders?.select_status || 'Select Status'"
               @change="filterCallback()"
               class="p-column-filter"
@@ -339,17 +378,25 @@ onMounted(() => {
             >
               <template #option="slotProps">
                 <Badge
-                  :value="slotProps.option"
-                  :severity="slotProps.option === 'Active' ? 'success' : 'secondary'"
+                  :value="slotProps.option.label"
+                  :severity="STATUS_COLORS[slotProps.option.value as ExampleStatus].severity"
                 ></Badge>
               </template>
-            </Select>
+            </MultiSelect>
           </template>
         </Column>
 
-        <Column :header="exampleLocales.table?.actions" class="w-32 text-right">
+        <Column :header="exampleLocales.table?.actions" class="w-40 text-right">
           <template #body="slotProps">
             <div class="flex justify-end gap-1">
+              <Button
+                icon="pi pi-copy"
+                severity="secondary"
+                text
+                rounded
+                @click="duplicateExample(slotProps.data.id)"
+                v-tooltip.top="'Duplicate'"
+              />
               <Button
                 icon="pi pi-pencil"
                 severity="secondary"

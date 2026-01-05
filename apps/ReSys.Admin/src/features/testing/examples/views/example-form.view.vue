@@ -4,36 +4,42 @@
  * Orchestrates creating and editing Example entities.
  * Uses VeeValidate + Zod for robust form state and validation.
  */
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useExampleStore } from '../example.store'
 import { storeToRefs } from 'pinia'
-import { showToast } from '@/shared/api/client'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { ExampleSchema } from '../example.validator'
+import { ExampleSchema } from '../example.schema'
+import { ExampleStatus, STATUS_COLORS } from '../example.types'
 import { exampleLocales } from '../example.locales'
-import ExampleMediaUpload from '../components/media-upload.vue'
-import AppBreadcrumb from '@/shared/components/breadcrumb.vue'
+import { useFormatter } from '@/shared/composables/formatter.use'
+import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
+import ExampleMediaUpload from '../components/media-upload.component.vue'
+import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 
 // --- ROUTING & STORE ---
 const route = useRoute()
 const router = useRouter()
 const exampleStore = useExampleStore()
 const { loading } = storeToRefs(exampleStore)
+const { formatCurrency } = useFormatter()
+const { handleApiResult } = useApiErrorHandler()
 
 /** True if we are in "Edit" mode (id exists in route). */
 const isEdit = computed(() => route.params.id !== undefined)
-const ExampleId = route.params.id as string
+const ExampleId = computed(() => route.params.id as string)
 
 // --- FORM INITIALIZATION (VeeValidate) ---
-const { defineField, handleSubmit, errors, setValues, setErrors, values } = useForm({
+const { defineField, handleSubmit, errors, setValues, setErrors, values, resetForm } = useForm({
   validationSchema: toTypedSchema(ExampleSchema),
   initialValues: {
     name: '',
     description: '',
     price: 0.01,
     image_url: null as string | null,
+    status: ExampleStatus.Draft,
+    hex_color: '#3B82F6',
   },
 })
 
@@ -41,6 +47,14 @@ const { defineField, handleSubmit, errors, setValues, setErrors, values } = useF
 const [name] = defineField('name')
 const [description] = defineField('description')
 const [price] = defineField('price')
+const [status] = defineField('status')
+const [hex_color] = defineField('hex_color')
+
+const statusOptions = computed(() => [
+  { label: exampleLocales.labels?.status_draft, value: ExampleStatus.Draft, icon: 'pi pi-pencil' },
+  { label: exampleLocales.labels?.status_active, value: ExampleStatus.Active, icon: 'pi pi-check' },
+  { label: exampleLocales.labels?.status_archived, value: ExampleStatus.Archived, icon: 'pi pi-box' },
+])
 
 // --- MEDIA STATE ---
 const imageFile = ref<File | null>(null)
@@ -61,9 +75,19 @@ const handleFileChange = (file: File | null) => {
  * If fetching fails, redirects the user back to the list view.
  */
 const loadExample = async () => {
-  if (!isEdit.value) return
-  const result = await exampleStore.fetchExampleById(ExampleId)
-  if (result.success) {
+  if (!isEdit.value) {
+    exampleStore.clearCurrent()
+    resetForm()
+    return
+  }
+
+  const result = await exampleStore.fetchExampleById(ExampleId.value)
+  const handled = handleApiResult(result, {
+    errorTitle: exampleLocales.common?.error,
+    genericError: exampleLocales.messages?.load_error
+  })
+
+  if (handled && result.data) {
     const data = result.data
     // Update VeeValidate form state with server data
     setValues({
@@ -71,13 +95,10 @@ const loadExample = async () => {
       description: data.description || '',
       price: data.price,
       image_url: data.image_url || null,
+      status: data.status,
+      hex_color: data.hex_color || '#3B82F6',
     })
-  } else {
-    showToast(
-      'error',
-      exampleLocales.common?.error || 'Error',
-      exampleLocales.messages?.load_error || 'Failed to load item details.',
-    )
+  } else if (!handled) {
     router.push({ name: 'testing.examples.list' })
   }
 }
@@ -93,60 +114,29 @@ const loadExample = async () => {
  */
 const onSubmit = handleSubmit(async (formValues) => {
   const result = isEdit.value
-    ? await exampleStore.updateExample(ExampleId, { ...formValues, image_url: values.image_url || undefined }, imageFile.value || undefined)
+    ? await exampleStore.updateExample(ExampleId.value, { ...formValues, image_url: values.image_url || undefined }, imageFile.value || undefined)
     : await exampleStore.createExample(formValues, imageFile.value || undefined);
 
-  if (result.success) {
-    showToast(
-      'success',
-      exampleLocales.common?.success || 'Success',
-      isEdit.value 
-        ? (exampleLocales.messages?.update_success || 'Updated') 
-        : (exampleLocales.messages?.create_success || 'Created')
-    );
+  const handled = handleApiResult(result, {
+    setErrors,
+    fieldNames: Object.keys(values),
+    successTitle: exampleLocales.common?.success,
+    successMessage: isEdit.value
+        ? (exampleLocales.messages?.update_success || 'Updated')
+        : (exampleLocales.messages?.create_success || 'Created'),
+    errorTitle: exampleLocales.common?.error,
+    genericError: exampleLocales.messages?.load_error
+  });
+
+  if (handled) {
     router.push({ name: 'testing.examples.list' });
-    return;
-  }
-
-  const apiError = result.error;
-  if (!apiError) return;
-
-  // 1. Handle Validation Errors (400)
-  if (apiError.errors && Object.keys(apiError.errors).length > 0) {
-    const formErrors: Record<string, string> = {};
-    const unmappedMessages: string[] = [];
-    const formFields = Object.keys(values);
-
-    Object.entries(apiError.errors).forEach(([key, messages]) => {
-      // Backend keys are snake_case (e.g., 'request.image_url')
-      const normalizedKey = key.replace('request.', '').toLowerCase();
-      
-      // Look for a form field that matches or is part of the key
-      const field = formFields.find(f => normalizedKey === f || normalizedKey.includes(f));
-
-      if (field) {
-        formErrors[field] = messages[0] || 'Invalid value';
-      } else {
-        unmappedMessages.push(...messages);
-      }
-    });
-
-    setErrors(formErrors);
-
-    // Show toast for validation errors that couldn't be bound to a specific input
-    if (unmappedMessages.length > 0) {
-      showToast('warn', apiError.title || 'Validation Error', unmappedMessages.join('. '));
-    }
-  } else {
-    // 3. Handle Global Errors (409, 500, etc.)
-    // We show a toast here as a safety measure in case the global client was silent.
-    showToast(
-      apiError.status && apiError.status < 500 ? 'warn' : 'error',
-      apiError.title || exampleLocales.common?.error || 'Error',
-      apiError.detail || 'An unexpected error occurred.'
-    );
   }
 });
+
+/** Watch for ID changes (e.g., when clicking a similar item) to reload the form */
+watch(() => route.params.id, () => {
+  loadExample()
+})
 
 onMounted(() => {
   loadExample()
@@ -171,9 +161,9 @@ onMounted(() => {
             class="bg-surface-100 dark:bg-surface-800"
           />
           <div>
-            <h1 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
+            <h2 class="text-3xl font-black tracking-tight text-surface-900 dark:text-surface-50">
               {{ isEdit ? exampleLocales.titles.edit : exampleLocales.titles.create }}
-            </h1>
+            </h2>
             <p class="text-sm text-surface-500 dark:text-surface-400">
               {{
                 isEdit
@@ -228,11 +218,11 @@ onMounted(() => {
                 <InputText
                   id="name"
                   v-model="name"
-                  class="w-full"
+                  class="w-full rounded-xl"
                   :invalid="!!errors.name"
                   :placeholder="exampleLocales.placeholders?.name"
                 />
-                <small v-if="errors.name" class="font-medium text-red-500">{{ errors.name }}</small>
+                <small v-if="errors.name" class="font-medium text-danger">{{ errors.name }}</small>
               </div>
 
               <div class="flex flex-col gap-2">
@@ -251,16 +241,101 @@ onMounted(() => {
                   id="description"
                   v-model="description"
                   rows="6"
-                  class="w-full"
+                  class="w-full rounded-xl"
                   :invalid="!!errors.description"
                   :placeholder="exampleLocales.placeholders?.description"
                 />
-                <small v-if="errors.description" class="font-medium text-red-500">{{
+                <small v-if="errors.description" class="font-medium text-danger">{{
                   errors.description
                 }}</small>
               </div>
 
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div class="flex flex-col gap-2">
+                  <label class="font-bold text-surface-700 dark:text-surface-200">{{
+                    exampleLocales.labels?.brand_color
+                  }}</label>
+                  <div class="flex items-stretch gap-3">
+                    <ColorPicker
+                      v-model="hex_color"
+                      format="hex"
+                      :invalid="!!errors.hex_color"
+                      :pt="{
+                        root: { class: 'flex w-8' },
+                        input: { class: 'rounded-xl h-full w-full' }
+                      }"
+                    />
+                    <InputText
+                      v-model="hex_color"
+                      class="flex-1 rounded-xl"
+                      placeholder="#3B82F6"
+                      :invalid="!!errors.hex_color"
+                    />
+                  </div>
+                  <small v-if="errors.hex_color" class="font-medium text-danger">{{
+                    errors.hex_color
+                  }}</small>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="font-bold text-surface-700 dark:text-surface-200">{{
+                    exampleLocales.labels?.status
+                  }}</label>
+                  <Select
+                    v-model="status"
+                    :options="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :placeholder="exampleLocales.placeholders?.select_status"
+                    class="w-full rounded-xl"
+                    :invalid="!!errors.status"
+                    :pt="{
+                      label: { class: 'py-1.5 flex items-center' },
+                      option: ({ context }) => ({
+                        class: [
+                          'flex items-center gap-2 px-4 py-3 transition-all duration-200 cursor-pointer',
+                          {
+                            // Dynamic Hover Effects
+                            'hover:bg-warn-50 dark:hover:bg-warn-950/20 hover:text-warn-600':
+                              context.option.value === ExampleStatus.Draft,
+                            'hover:bg-success-50 dark:hover:bg-success-950/20 hover:text-success-600':
+                              context.option.value === ExampleStatus.Active,
+                            'hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-700':
+                              context.option.value === ExampleStatus.Archived,
+
+                            // Selected State
+                            'bg-surface-50 dark:bg-surface-800/50 border-l-4 border-primary':
+                              context.selected,
+                          },
+                        ],
+                      }),
+                    }"
+                  >
+                    <template #value="slotProps">
+                      <div v-if="slotProps.value !== null" class="flex items-center gap-2 leading-none">
+                        <i
+                          :class="statusOptions.find((o) => o.value === slotProps.value)?.icon"
+                          class="text-surface-500"
+                        ></i>
+                        <Badge
+                          :value="statusOptions.find((o) => o.value === slotProps.value)?.label"
+                          :severity="STATUS_COLORS[slotProps.value as ExampleStatus].severity"
+                          class="px-2 py-0 text-[10px] font-bold uppercase rounded-md h-5 flex items-center"
+                        />
+                      </div>
+                    </template>
+                    <template #option="slotProps">
+                      <i :class="slotProps.option.icon" class="text-surface-500"></i>
+                      <span class="text-sm font-medium">{{ slotProps.option.label }}</span>
+                    </template>
+                  </Select>
+                  <small v-if="errors.status" class="font-medium text-danger">{{
+                    errors.status
+                  }}</small>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div class="flex flex-col gap-2">
                   <div class="flex items-center gap-2">
                     <label for="price" class="font-bold text-surface-700 dark:text-surface-200">{{
@@ -277,21 +352,23 @@ onMounted(() => {
                     mode="currency"
                     currency="USD"
                     locale="en-US"
-                    class="w-full"
+                    class="w-full rounded-xl"
+                    inputClass="rounded-xl"
                     :invalid="!!errors.price"
                   />
-                  <small v-if="errors.price" class="font-medium text-red-500">{{
+                  <small v-if="errors.price" class="font-medium text-danger">{{
                     errors.price
                   }}</small>
                 </div>
+
                 <div class="flex flex-col gap-2">
                   <label class="font-bold text-surface-700 dark:text-surface-200">{{
                     exampleLocales.labels?.category
                   }}</label>
                   <InputText
                     disabled
-                    value="Default Category"
-                    class="bg-surface-50 dark:bg-surface-800 opacity-60"
+                    :value="exampleLocales.labels?.category_default"
+                    class="bg-surface-50 dark:bg-surface-800 opacity-60 rounded-xl"
                   />
                 </div>
               </div>
@@ -325,9 +402,19 @@ onMounted(() => {
                   exampleLocales.labels?.status
                 }}</span>
                 <Badge
-                  :value="isEdit ? exampleLocales.table?.active : exampleLocales.table?.draft"
-                  :severity="isEdit ? 'success' : 'warning'"
+                  :value="statusOptions.find((o) => o.value === status)?.label"
+                  :severity="STATUS_COLORS[status as ExampleStatus].severity"
                 ></Badge>
+              </div>
+              <div v-if="hex_color" class="flex items-center justify-between text-sm">
+                <span class="font-medium text-surface-500">{{ exampleLocales.labels?.brand_color }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs text-surface-400">{{ hex_color.startsWith('#') ? hex_color : '#' + hex_color }}</span>
+                  <div
+                    class="w-4 h-4 border rounded-full border-surface-200"
+                    :style="{ backgroundColor: hex_color.startsWith('#') ? hex_color : '#' + hex_color }"
+                  ></div>
+                </div>
               </div>
               <Divider class="my-0" />
               <div class="flex items-center justify-between">
@@ -335,9 +422,7 @@ onMounted(() => {
                   exampleLocales.labels?.live_price
                 }}</span>
                 <span class="text-xl font-black text-primary">{{
-                  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                    price || 0,
-                  )
+                  formatCurrency(price || 0)
                 }}</span>
               </div>
             </div>

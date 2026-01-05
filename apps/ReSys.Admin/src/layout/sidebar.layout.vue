@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppMenu from './app-menu.vue';
+import AppMenu from './menu.layout.vue';
 </script>
 
 <template>

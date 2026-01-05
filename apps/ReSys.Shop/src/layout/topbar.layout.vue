@@ -1,10 +1,9 @@
+
 <script setup lang="ts">
-import { useLayout } from '@/layout/composables/layout';
-import { useRouter } from 'vue-router';
+import { useLayout } from '@/layout/composables/layout.composable';
 import { generalLocales } from '@/shared/locales/general.locales';
 
 const { toggleDarkMode, isDarkTheme } = useLayout();
-const router = useRouter();
 </script>
 
 <template>
