@@ -16,18 +16,21 @@ public static class PersistenceModule
         services.RegisterModule("Infrastructure", "Persistence");
         var connectionString = configuration.GetConnectionString("shopdb");
 
-        services.AddSingleton<AuditableEntityInterceptor>();
+        services.AddScoped<AuditableEntityInterceptor>();
+        services.AddScoped<DispatchDomainEventsInterceptor>();
 
         services.AddDbContextPool<AppDbContext>((sp, options) =>
         {
-            var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+            var auditInterceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+            var eventInterceptor = sp.GetRequiredService<DispatchDomainEventsInterceptor>();
             
             options.UseNpgsql(connectionString, npgsqlOptions =>
             {
                 npgsqlOptions.UseVector();
                 npgsqlOptions.MigrationsAssembly("ReSys.Migrations");
             })
-            .AddInterceptors(interceptor);
+            .AddInterceptors(auditInterceptor, eventInterceptor)
+            .UseOpenIddict();
         });
 
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());

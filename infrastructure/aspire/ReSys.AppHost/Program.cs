@@ -15,9 +15,17 @@ var postgres = builder.AddPostgres("postgres", password: dbPassword)
 
 var db = postgres.AddDatabase("shopdb");
 
+// Identity Service
+var identity = builder.AddProject<Projects.ReSys_Identity>("identity")
+    .WithReference(db)
+    .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/health")
+    .WaitFor(db);
+
 // Backend API
 var api = builder.AddProject<Projects.ReSys_Api>("api")
     .WithReference(db)
+    .WithReference(identity)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WaitFor(db);

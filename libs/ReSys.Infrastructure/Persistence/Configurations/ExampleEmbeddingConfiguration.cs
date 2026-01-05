@@ -8,8 +8,12 @@ public class ExampleEmbeddingConfiguration : IEntityTypeConfiguration<ExampleEmb
 {
     public void Configure(EntityTypeBuilder<ExampleEmbedding> builder)
     {
+        // Primary Key
         builder.HasKey(e => e.ExampleId);
-        builder.Property(e => e.Embedding).HasColumnType("vector(384)");
+
+        // Properties
+        builder.Property(e => e.Embedding)
+            .HasColumnType("vector(384)");
         
         builder.HasOne(e => e.Example)
             .WithOne(p => p.Embedding)

@@ -1,8 +1,8 @@
 using ReSys.Core.UnitTests.TestInfrastructure;
-using ReSys.Core.Features.Examples.Common;
-using ReSys.Core.Features.Examples.CreateExample;
+using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Domain;
 using ReSys.Core.Common.Data;
+using ReSys.Core.Features.Testing.Examples.CreateExample;
 
 namespace ReSys.Core.UnitTests.Features.Examples;
 

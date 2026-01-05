@@ -1,12 +1,18 @@
 using System.Text;
 using System.Text.Json;
+
 using ErrorOr;
+
 using FluentAssertions;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using NSubstitute;
+
 using ReSys.Core.Common.Storage;
 using ReSys.Infrastructure.Storage;
+
 using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
@@ -26,14 +32,14 @@ public class LocalFileServiceTests : IDisposable
         _securityService = Substitute.For<IFileSecurityService>();
 
         _testStoragePath = Path.Combine(Directory.GetCurrentDirectory(), "test_storage_" + Guid.NewGuid());
-        options.Value.Returns(new StorageOptions 
-        { 
+        options.Value.Returns(new StorageOptions
+        {
             LocalPath = _testStoragePath,
             BufferSize = 4096
         });
 
         _sut = new LocalFileService(options, logger, _validator, _securityService);
-        
+
         // Default success for validation
         _validator.ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<FileUploadOptions>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success);
@@ -52,7 +58,7 @@ public class LocalFileServiceTests : IDisposable
     {
         var content = "test content";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
-        
+
         var result = await _sut.SaveFileAsync(stream, "test.txt", cancellationToken: TestContext.Current.CancellationToken);
 
         result.IsError.Should().BeFalse();
@@ -132,7 +138,7 @@ public class LocalFileServiceTests : IDisposable
         var result = await _sut.SaveFileAsync(stream2, fileName, options, TestContext.Current.CancellationToken);
 
         result.IsError.Should().BeFalse();
-        
+
         var savedContent = await File.ReadAllTextAsync(Path.Combine(_testStoragePath, "temp", fileName), TestContext.Current.CancellationToken);
         savedContent.Should().Be("new content");
     }
@@ -174,15 +180,15 @@ public class LocalFileServiceTests : IDisposable
         var fileId = "encrypted.txt";
         var content = "secret content";
         var metadata = new FileMetadata(fileId, fileId, fileId, 100, "text/plain", "hash", "temp", DateTime.UtcNow, ".txt", IsEncrypted: true);
-        
+
         Directory.CreateDirectory(Path.Combine(_testStoragePath, ".metadata"));
         Directory.CreateDirectory(Path.Combine(_testStoragePath, "temp"));
-        
+
         await File.WriteAllTextAsync(Path.Combine(_testStoragePath, ".metadata", fileId + ".json"), JsonSerializer.Serialize(metadata), TestContext.Current.CancellationToken);
         await File.WriteAllTextAsync(Path.Combine(_testStoragePath, "temp", fileId), "encrypted_blob", TestContext.Current.CancellationToken);
 
         _securityService.DecryptFileAsync(Arg.Any<Stream>(), Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(x => 
+            .Returns(x =>
             {
                 var outStream = x.ArgAt<Stream>(1);
                 outStream.Write(Encoding.UTF8.GetBytes(content));
@@ -210,7 +216,7 @@ public class LocalFileServiceTests : IDisposable
     {
         var fileId = "fail_decrypt.txt";
         var metadata = new FileMetadata(fileId, fileId, fileId, 100, "text/plain", "hash", "temp", DateTime.UtcNow, ".txt", IsEncrypted: true);
-        
+
         Directory.CreateDirectory(Path.Combine(_testStoragePath, ".metadata"));
         Directory.CreateDirectory(Path.Combine(_testStoragePath, "temp"));
         await File.WriteAllTextAsync(Path.Combine(_testStoragePath, ".metadata", fileId + ".json"), JsonSerializer.Serialize(metadata), TestContext.Current.CancellationToken);
@@ -361,9 +367,9 @@ public class LocalFileServiceTests : IDisposable
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("1"));
         await _sut.SaveFileAsync(stream, "1.txt", new FileUploadOptions("temp"), TestContext.Current.CancellationToken);
-        
+
         var result = await _sut.ListFilesAsync("temp", TestContext.Current.CancellationToken);
-        
+
         result.IsError.Should().BeFalse();
         result.Value.Should().HaveCountGreaterOrEqualTo(1);
     }
@@ -373,7 +379,7 @@ public class LocalFileServiceTests : IDisposable
     {
         using var stream1 = new MemoryStream(Encoding.UTF8.GetBytes("p1"));
         await _sut.SaveFileAsync(stream1, "p1.txt", new FileUploadOptions("products"), TestContext.Current.CancellationToken);
-        
+
         using var stream2 = new MemoryStream(Encoding.UTF8.GetBytes("t1"));
         await _sut.SaveFileAsync(stream2, "t1.txt", new FileUploadOptions("temp"), TestContext.Current.CancellationToken);
 
@@ -514,7 +520,7 @@ public class LocalFileServiceTests : IDisposable
         result.IsError.Should().BeFalse();
         result.Value.FileId.Should().NotBe(sourceId);
         result.Value.Subdirectory.Should().Be("products");
-        
+
         File.Exists(Path.Combine(_testStoragePath, "temp", sourceId)).Should().BeTrue(); // Original remains
         File.Exists(Path.Combine(_testStoragePath, "products", result.Value.FileId)).Should().BeTrue(); // Copy exists
     }

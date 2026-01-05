@@ -2,13 +2,17 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using Respawn;
+
 using Testcontainers.PostgreSql;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.AI;
-using ReSys.Infrastructure.AI;
+using ReSys.Infrastructure.ML;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
 using ReSys.Infrastructure.Imaging;
@@ -47,8 +51,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         builder.ConfigureServices(services =>
         {
             // Remove ALL registrations for AppDbContext (including pooling-related ones)
-            var contextDescriptors = services.Where(d => 
-                d.ServiceType == typeof(AppDbContext) || 
+            var contextDescriptors = services.Where(d =>
+                d.ServiceType == typeof(AppDbContext) ||
                 d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
                 d.ServiceType == typeof(IApplicationDbContext) ||
                 (d.ServiceType.IsGenericType && d.ServiceType.GetGenericArguments().Contains(typeof(AppDbContext)))).ToList();

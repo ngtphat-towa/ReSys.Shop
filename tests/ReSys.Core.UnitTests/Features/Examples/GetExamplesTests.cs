@@ -1,5 +1,5 @@
 using ReSys.Core.UnitTests.TestInfrastructure;
-using ReSys.Core.Features.Examples.GetExamples;
+using ReSys.Core.Features.Testing.Examples.GetExamples;
 using ReSys.Core.Domain;
 using ReSys.Core.Common.Data;
 

@@ -1,6 +1,8 @@
 using ErrorOr;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using ReSys.Core.Common.Storage;
 
 namespace ReSys.Infrastructure.Storage;
@@ -90,7 +92,7 @@ public sealed class FileValidator : IFileValidator
             stream.Position = 0;
             var maxLen = signatures.Max(s => s.Length);
             var buffer = new byte[maxLen];
-            
+
             // Read exactly what we need
             int totalRead = 0;
             while (totalRead < maxLen)
@@ -111,8 +113,8 @@ public sealed class FileValidator : IFileValidator
                 }
             }
 
-            _logger.LogWarning("Signature mismatch for {Extension}. Expected one of {Expected}. Actual: {Actual}", 
-                extension, 
+            _logger.LogWarning("Signature mismatch for {Extension}. Expected one of {Expected}. Actual: {Actual}",
+                extension,
                 string.Join(" | ", signatures.Select(s => BitConverter.ToString(s))),
                 BitConverter.ToString(buffer, 0, totalRead));
 
@@ -121,7 +123,7 @@ public sealed class FileValidator : IFileValidator
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error validating file signature");
-            return true; 
+            return true;
         }
         finally
         {

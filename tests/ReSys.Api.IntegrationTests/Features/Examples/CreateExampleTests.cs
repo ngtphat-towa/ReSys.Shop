@@ -6,8 +6,8 @@ using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
-using ReSys.Core.Features.Examples.Common;
-using ReSys.Core.Features.Examples.CreateExample;
+using ReSys.Core.Features.Testing.Examples.Common;
+using ReSys.Core.Features.Testing.Examples.CreateExample;
 
 namespace ReSys.Api.IntegrationTests.Features.Examples;
 

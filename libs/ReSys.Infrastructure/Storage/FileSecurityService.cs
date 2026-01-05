@@ -13,16 +13,10 @@ using ReSys.Core.Common.Storage;
 
 namespace ReSys.Infrastructure.Storage;
 
-public sealed class FileSecurityService : IFileSecurityService
+public sealed class FileSecurityService(IOptions<StorageOptions> options, ILogger<FileSecurityService> logger) : IFileSecurityService
 {
-    private readonly StorageOptions _options;
-    private readonly ILogger<FileSecurityService> _logger;
-
-    public FileSecurityService(IOptions<StorageOptions> options, ILogger<FileSecurityService> logger)
-    {
-        _options = options.Value;
-        _logger = logger;
-    }
+    private readonly StorageOptions _options = options.Value;
+    private readonly ILogger<FileSecurityService> _logger = logger;
 
     public async Task<ErrorOr<string>> EncryptFileAsync(
         Stream inputStream,

@@ -1,15 +1,18 @@
 using Carter;
+
 using Microsoft.AspNetCore.Mvc;
+
 using MediatR;
-using ReSys.Core.Features.Examples.CreateExample;
-using ReSys.Core.Features.Examples.GetExamples;
-using ReSys.Core.Features.Examples.GetSimilarExamples;
-using ReSys.Core.Features.Examples.GetExampleById;
-using ReSys.Core.Features.Examples.UpdateExample;
-using ReSys.Core.Features.Examples.DeleteExample;
-using ReSys.Core.Features.Examples.UpdateExampleImage;
+
+using ReSys.Core.Features.Testing.Examples.GetExamples;
+using ReSys.Core.Features.Testing.Examples.GetSimilarExamples;
+using ReSys.Core.Features.Testing.Examples.GetExampleById;
+using ReSys.Core.Features.Testing.Examples.UpdateExample;
+using ReSys.Core.Features.Testing.Examples.DeleteExample;
+using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
 using ReSys.Core.Common.Models;
 using ReSys.Api.Infrastructure.Extensions;
+using ReSys.Core.Features.Testing.Examples.CreateExample;
 
 namespace ReSys.Api.Features.Examples;
 

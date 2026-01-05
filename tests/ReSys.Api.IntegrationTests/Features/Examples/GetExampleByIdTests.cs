@@ -1,5 +1,5 @@
 using Xunit;
-using ReSys.Core.Features.Examples.Common;
+using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Common.Models;
 using System.Net;
 using Newtonsoft.Json;

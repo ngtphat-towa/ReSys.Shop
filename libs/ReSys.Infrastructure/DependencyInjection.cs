@@ -6,7 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Telemetry;
-using ReSys.Infrastructure.AI;
+using ReSys.Infrastructure.ML;
+using ReSys.Infrastructure.Identity;
 using ReSys.Infrastructure.Imaging;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
@@ -20,6 +21,7 @@ public static class DependencyInjection
         services.RegisterModule("Infrastructure", "Core");
 
         services
+            //.AddIdentityInfrastructure() // Moved to manual setup in services
             .AddPersistence(configuration)
             .AddStorage(configuration)
             .AddAI(configuration)
@@ -39,6 +41,9 @@ public static class DependencyInjection
             context.Database.EnsureCreated();
             context.Database.Migrate();
         }
+
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         return app;
     }
