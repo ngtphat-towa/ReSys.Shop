@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/client';
-import type { ApiResult } from '@/shared/api/types';
+import apiClient from '@/shared/api/api.client';
+import type { ApiResult } from '@/shared/api/api.types';
 import type { 
     ExampleListItem,
     ExampleDetail,

@@ -54,4 +54,4 @@ export interface ApiResponse<T> {
  */
 export type ApiResult<T> = 
     | { data: T; meta?: PaginationMeta; success: true; error?: never }
-    | { data: null; success: false; error: Partial<ApiResponse<any>> };
+    | { data: null; success: false; error: Partial<ApiResponse<unknown>> };

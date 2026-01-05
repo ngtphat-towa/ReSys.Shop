@@ -1,5 +1,5 @@
-import apiClient from '@/shared/api/client';
-import type { ApiResponse, ApiResult } from '@/shared/api/types';
+import apiClient from '@/shared/api/api.client';
+import type { ApiResult } from '@/shared/api/api.types';
 import type {
     ExampleListItem,
     ExampleDetail,
@@ -68,13 +68,4 @@ export const updateExampleImage = async (id: string, file: File): Promise<ApiRes
  */
 export const deleteExample = async (id: string): Promise<ApiResult<void>> => {
     return await apiClient.delete(`/examples/${id}`);
-};
-
-/**
- * Retrieves a list of examples similar to the specified one (recommendations).
- * @param id The unique identifier of the base example.
- * @returns A promise resolving to an ApiResult containing an array of ExampleListItem.
- */
-export const getSimilarExamples = async (id: string): Promise<ApiResult<ExampleListItem[]>> => {       
-    return await apiClient.get(`/examples/${id}/similar`);     
 };

@@ -20,9 +20,11 @@ export interface FeatureLocales {
   /** DataTable headers and metadata strings. */
   table?: Record<string, string>
   /** Configuration for confirmation dialogs. */
-  confirm?: Record<string, string | ((...args: any[]) => string)>
+  confirm?: Record<string, string | ((...args: string[]) => string)>
   /** Feature-specific common strings. */
   common?: Record<string, string>
+  /** Allow indexing for flexible access. */
+  [key: string]: unknown
 }
 
 /**

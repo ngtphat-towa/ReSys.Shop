@@ -25,6 +25,12 @@ export const exampleLocales: FeatureLocales = {
     media: 'Example Media',
     summary: 'Publish Summary',
     status: 'Status',
+    status_active: 'Active',
+    status_draft: 'Draft',
+    status_archived: 'Archived',
+    brand_color: 'Brand Color (Hex)',
+    category_default: 'Default Category',
+    color: 'Color',
     live_price: 'Live Price',
     file_size: 'File Size',
     file_type: 'Format',
@@ -61,8 +67,8 @@ export const exampleLocales: FeatureLocales = {
   },
   confirm: {
     delete_header: 'Dangerous Action',
-    delete_message: (name: string) =>
-      `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+    delete_message: (...args: string[]) =>
+      `Are you sure you want to delete "${args[0]}"? This action cannot be undone.`,
     reject_label: 'Cancel',
     accept_label: 'Delete',
   },

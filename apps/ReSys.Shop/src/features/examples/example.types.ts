@@ -1,5 +1,5 @@
-import type { ApiResponse } from '@/shared/api/types';
-import type { ExampleInput } from './example.validator';
+import type { ApiResponse } from '@/shared/api/api.types';
+import type { ExampleInput } from './example.schema';
 
 /**
  * Shared types for the Example feature in Shop
@@ -18,6 +18,7 @@ export interface ExampleQuery {
     name?: string;
     min_price?: number;
     max_price?: number;
+    status?: number[];
     created_from?: string;
     created_to?: string;
     sort_by?: string;

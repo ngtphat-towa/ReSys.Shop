@@ -8,7 +8,7 @@ import type {
   UpdateExampleRequest,
   ExampleQuery,
 } from './example.types'
-import type { ApiResult } from '@/shared/api/types'
+import type { ApiResult } from '@/shared/api/api.types'
 
 /**
  * Pinia store managing the state, actions, and data synchronization for Example features.
@@ -66,6 +66,7 @@ export const useExampleStore = defineStore('example', () => {
    * Orchestrates the creation of a new example, including optional image upload.
    * @param request Basic information for the new example.
    * @param image Optional File object for the example's image.
+   * @returns A promise resolving to an ApiResult containing the created ExampleDetail.
    */
   async function createExample(
     request: CreateExampleRequest,
@@ -74,14 +75,11 @@ export const useExampleStore = defineStore('example', () => {
     loading.value = true
     const result = await exampleService.createExample(request)
 
-    // If creation is successful and an image is provided, upload it
     if (result.success && image) {
       const imageResult = await exampleService.updateExampleImage(result.data.id, image)
-      if (!imageResult.success) {
-        loading.value = false
-        return imageResult
+      if (imageResult.success) {
+        result.data = imageResult.data
       }
-      result.data = imageResult.data
     }
 
     loading.value = false
@@ -93,6 +91,7 @@ export const useExampleStore = defineStore('example', () => {
    * @param id The ID of the example to update.
    * @param request The updated data fields.
    * @param image Optional new image file.
+   * @returns A promise resolving to an ApiResult containing the updated ExampleDetail.
    */
   async function updateExample(
     id: string,
@@ -104,11 +103,9 @@ export const useExampleStore = defineStore('example', () => {
 
     if (result.success && image) {
       const imageResult = await exampleService.updateExampleImage(id, image)
-      if (!imageResult.success) {
-        loading.value = false
-        return imageResult
+      if (imageResult.success) {
+        result.data = imageResult.data
       }
-      result.data = imageResult.data
     }
 
     loading.value = false
@@ -116,8 +113,39 @@ export const useExampleStore = defineStore('example', () => {
   }
 
   /**
+   * Creates a copy of an existing example by fetching its details and re-creating it.
+   * @param id The ID of the example to duplicate.
+   * @returns A promise resolving to an ApiResult containing the new example.
+   */
+  async function duplicateExample(id: string) {
+    loading.value = true
+    const detail = await exampleService.getExampleById(id)
+    if (!detail.success) {
+      loading.value = false
+      return detail
+    }
+
+    const { name, description, price, image_url, hex_color } = detail.data
+    const result = await exampleService.createExample({
+      name: `${name} (Copy)`,
+      description,
+      price,
+      image_url: image_url || undefined,
+      status: 0, // Reset to Draft for the copy
+      hex_color,
+    })
+
+    if (result.success) {
+      await fetchExamples()
+    }
+    loading.value = false
+    return result
+  }
+
+  /**
    * Deletes an example and removes it from the local list if successful.
    * @param id The ID of the example to delete.
+   * @returns A promise resolving to an ApiResult.
    */
   async function deleteExample(id: string) {
     loading.value = true
@@ -130,6 +158,13 @@ export const useExampleStore = defineStore('example', () => {
     return result
   }
 
+  /**
+   * Resets the current example state.
+   */
+  function clearCurrent() {
+    currentExample.value = null
+  }
+
   return {
     examples,
     currentExample,
@@ -140,6 +175,8 @@ export const useExampleStore = defineStore('example', () => {
     fetchExampleById,
     createExample,
     updateExample,
+    duplicateExample,
     deleteExample,
+    clearCurrent,
   }
 })

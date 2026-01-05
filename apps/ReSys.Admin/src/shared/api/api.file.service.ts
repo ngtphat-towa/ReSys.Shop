@@ -1,6 +1,6 @@
-import apiClient from './client';
-import type { ApiResult } from './types';
-import type { FileMetadata, FileUploadResponse } from './file.types';
+import apiClient from './api.client';
+import type { ApiResult } from './api.types';
+import type { FileMetadata, FileUploadResponse } from './api.file.types';
 
 /**
  * Service for managing files and retrieving file metadata.

@@ -1,5 +1,11 @@
 import * as zod from 'zod';
 
+export enum ExampleStatus {
+    Draft = 0,
+    Active = 1,
+    Archived = 2,
+}
+
 /**
  * Zod Validation Schema
  * Mirrors the Admin setup for consistency
@@ -13,7 +19,9 @@ export const ExampleSchema = zod.object({
         .optional(),
     price: zod.number()
         .min(0.01, 'Price must be at least $0.01.'),
-    image_url: zod.string().nullable().optional()
+    image_url: zod.string().nullable().optional(),
+    status: zod.nativeEnum(ExampleStatus).default(ExampleStatus.Draft),
+    hex_color: zod.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Invalid hex color').optional().nullable(),
 });
 
 /**
