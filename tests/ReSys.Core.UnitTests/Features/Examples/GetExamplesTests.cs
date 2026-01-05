@@ -26,13 +26,13 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_2", Price = 20 },
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_3", Price = 30 }
         );
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new GetExamples.Request { Page = 1, PageSize = 2, Search = baseName };
         var query = new GetExamples.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(2);
@@ -50,13 +50,13 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = Guid.NewGuid(), Name = "Other", Description = $"Contains_{uniqueSearch}", Price = 20 },
             new Example { Id = Guid.NewGuid(), Name = "NoMatch", Price = 30 }
         );
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new GetExamples.Request { Search = uniqueSearch };
         var query = new GetExamples.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(2);
@@ -73,7 +73,7 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_High", Price = 100 },
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_Mid", Price = 50 }
         );
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new GetExamples.Request 
         {
@@ -84,7 +84,7 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
         var query = new GetExamples.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(3);
@@ -105,17 +105,39 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = id2, Name = "Included_2", Price = 20 },
             new Example { Id = id3, Name = "Excluded", Price = 30 }
         );
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new GetExamples.Request { ExampleId = [id1, id2] };
         var query = new GetExamples.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(2);
         result.Items.Select(x => x.Id).Should().Contain([id1, id2]);
         result.Items.Select(x => x.Id).Should().NotContain(id3);
+    }
+
+    [Fact(DisplayName = "Should correctly filter examples by Status")]
+    public async Task Handle_StatusFilter_ShouldReturnMatchingExamples()
+    {
+        // Arrange
+        var baseName = $"StatusFilter_{Guid.NewGuid()}";
+        _context.Set<Example>().AddRange(
+            new Example { Id = Guid.NewGuid(), Name = $"{baseName}_Active", Status = ExampleStatus.Active, Price = 10 },
+            new Example { Id = Guid.NewGuid(), Name = $"{baseName}_Draft", Status = ExampleStatus.Draft, Price = 20 }
+        );
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new GetExamples.Request { Search = baseName, Status = [ExampleStatus.Active] };
+        var query = new GetExamples.Query(request);
+
+        // Act
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.Items.Should().HaveCount(1);
+        result.Items[0].Status.Should().Be(ExampleStatus.Active);
     }
 }

@@ -36,10 +36,12 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
             Name = initialName, 
             Description = "Old Desc",
             Price = 10,
-            ImageUrl = "old.jpg"
+            ImageUrl = "old.jpg",
+            Status = ExampleStatus.Draft,
+            HexColor = "#000000"
         };
         _context.Set<Example>().Add(example);
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var newName = $"NewName_{Guid.NewGuid()}";
         var request = new UpdateExample.Request
@@ -47,20 +49,26 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
             Name = newName,
             Description = "New Desc",
             Price = 20,
-            ImageUrl = "new.jpg"
+            ImageUrl = "new.jpg",
+            Status = ExampleStatus.Active,
+            HexColor = "#FFFFFF"
         };
         var command = new UpdateExample.Command(exampleId, request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse("because the request is valid and name is changed to something unique");
         result.Value.Name.Should().Be(newName);
         result.Value.Price.Should().Be(20);
+        result.Value.Status.Should().Be(ExampleStatus.Active);
+        result.Value.HexColor.Should().Be("#FFFFFF");
 
-        var dbExample = await _context.Set<Example>().FindAsync(exampleId);
+        var dbExample = await _context.Set<Example>().FindAsync(new object?[] { exampleId, TestContext.Current.CancellationToken }, TestContext.Current.CancellationToken);
         dbExample!.Name.Should().Be(newName);
+        dbExample.Status.Should().Be(ExampleStatus.Active);
+        dbExample.HexColor.Should().Be("#FFFFFF");
     }
 
     [Fact(DisplayName = "Handle: Should return a conflict error when updating an example name to one that already exists")]
@@ -75,13 +83,13 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = example1Id, Name = existingName, Description = "D1", Price = 10 },
             new Example { Id = example2Id, Name = "UniqueName", Description = "D2", Price = 20 }
         );
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new UpdateExample.Request { Name = existingName, Description = "Changed", Price = 20 };
         var command = new UpdateExample.Command(example2Id, request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue("because the name already belongs to another example");
@@ -97,10 +105,11 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
         var command = new UpdateExample.Command(nonExistentId, request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue("because the example ID does not exist");
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.NotFound(nonExistentId));
     }
 }
+

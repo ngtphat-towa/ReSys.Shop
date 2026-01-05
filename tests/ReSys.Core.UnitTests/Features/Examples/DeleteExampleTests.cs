@@ -37,18 +37,18 @@ public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
             Price = 10 
         };
         _context.Set<Example>().Add(example);
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var command = new DeleteExample.Command(exampleId);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse("because the example exists and can be deleted");
         result.Value.Should().Be(ErrorOr.Result.Deleted);
 
-        var dbExample = await _context.Set<Example>().FindAsync(exampleId);
+        var dbExample = await _context.Set<Example>().FindAsync([exampleId], TestContext.Current.CancellationToken);
         dbExample.Should().BeNull("because the example was removed from the database");
     }
 
@@ -60,10 +60,12 @@ public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
         var command = new DeleteExample.Command(nonExistentId);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue("because the example ID does not exist in the database");
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.NotFound(nonExistentId));
     }
 }
+
+

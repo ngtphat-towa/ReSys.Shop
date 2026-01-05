@@ -27,20 +27,26 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
             Name = uniqueName,
             Description = "A valid example description",
             Price = 99.99m,
-            ImageUrl = "http://example.com/image.jpg"
+            ImageUrl = "http://example.com/image.jpg",
+            Status = ExampleStatus.Active,
+            HexColor = "#FF5733"
         };
         var command = new CreateExample.Command(request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse("because the request is valid and the name is unique");
         result.Value.Should().NotBeNull();
         result.Value.Name.Should().Be(uniqueName);
+        result.Value.Status.Should().Be(ExampleStatus.Active);
+        result.Value.HexColor.Should().Be("#FF5733");
 
-        var dbExample = await _context.Set<Example>().FindAsync(result.Value.Id);
+        var dbExample = await _context.Set<Example>().FindAsync([result.Value.Id], TestContext.Current.CancellationToken);
         dbExample.Should().NotBeNull("because the example should be persisted in the database");
+        dbExample!.Status.Should().Be(ExampleStatus.Active);
+        dbExample.HexColor.Should().Be("#FF5733");
     }
 
     [Fact(DisplayName = "Should return a conflict error when attempting to create an example with a name that already exists")]
@@ -49,16 +55,18 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
         // Arrange
         var duplicateName = $"Duplicate_{Guid.NewGuid()}";
         _context.Set<Example>().Add(new Example { Id = Guid.NewGuid(), Name = duplicateName, Description = "Existing", Price = 10 });
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new CreateExample.Request { Name = duplicateName, Description = "New", Price = 20 };
         var command = new CreateExample.Command(request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue("because an example with the same name already exists");
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.DuplicateName);
     }
 }
+
+

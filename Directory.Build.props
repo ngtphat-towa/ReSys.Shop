@@ -22,5 +22,6 @@
 
     <!-- Build Configuration -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <RunSettingsFilePath>$(MSBuildThisFileDirectory)test.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 </Project>

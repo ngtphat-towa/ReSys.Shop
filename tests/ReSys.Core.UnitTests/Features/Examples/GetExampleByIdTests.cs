@@ -28,23 +28,27 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
             Name = $"TestExample_{Guid.NewGuid()}",
             Description = "Full Description",
             Price = 49.99m,
+            Status = ExampleStatus.Active,
+            HexColor = "#123456",
             CreatedAt = DateTimeOffset.UtcNow
         };
         
         _context.Set<Example>().Add(example);
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var request = new GetExampleById.Request(exampleId);
         var query = new GetExampleById.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse("because the example exists");
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().Be(exampleId);
         result.Value.Name.Should().Be(example.Name);
+        result.Value.Status.Should().Be(ExampleStatus.Active);
+        result.Value.HexColor.Should().Be("#123456");
     }
 
     [Fact(DisplayName = "Should return a not found error when searching for an example ID that does not exist")]
@@ -56,11 +60,12 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
         var query = new GetExampleById.Query(request);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue("because no example exists with the given ID");
         result.FirstError.Should().BeEquivalentTo(ExampleErrors.NotFound(nonExistentId));
     }
 }
+
 

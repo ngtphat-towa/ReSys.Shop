@@ -21,14 +21,14 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
         Context = Scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
     }
 
-    public virtual async Task InitializeAsync()
+    public virtual async ValueTask InitializeAsync()
     {
         await Factory.ResetDatabaseAsync();
     }
 
-    public virtual Task DisposeAsync()
+    public virtual ValueTask DisposeAsync()
     {
         Scope.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

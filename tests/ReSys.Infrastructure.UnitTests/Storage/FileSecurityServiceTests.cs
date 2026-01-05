@@ -39,7 +39,7 @@ public class FileSecurityServiceTests
         using var encryptedStream = new MemoryStream();
 
         // Act - Encrypt
-        var encryptResult = await _sut.EncryptFileAsync(inputStream, encryptedStream);
+        var encryptResult = await _sut.EncryptFileAsync(inputStream, encryptedStream, TestContext.Current.CancellationToken);
         
         // Assert - Encrypt
         encryptResult.IsError.Should().BeFalse();
@@ -47,7 +47,7 @@ public class FileSecurityServiceTests
         // Decrypt
         encryptedStream.Position = 0;
         using var decryptedStream = new MemoryStream();
-        var decryptResult = await _sut.DecryptFileAsync(encryptedStream, decryptedStream, "ignored");
+        var decryptResult = await _sut.DecryptFileAsync(encryptedStream, decryptedStream, "ignored", TestContext.Current.CancellationToken);
 
         decryptResult.IsError.Should().BeFalse();
         Encoding.UTF8.GetString(decryptedStream.ToArray()).Should().Be(originalText);
@@ -64,7 +64,7 @@ public class FileSecurityServiceTests
         using var output = new MemoryStream();
 
         // Act
-        var result = await sut.EncryptFileAsync(input, output);
+        var result = await sut.EncryptFileAsync(input, output, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -78,7 +78,7 @@ public class FileSecurityServiceTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("Just some safe content"));
 
         // Act
-        var result = await _sut.ScanForMalwareAsync(stream);
+        var result = await _sut.ScanForMalwareAsync(stream, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -93,7 +93,7 @@ public class FileSecurityServiceTests
         using var stream = new MemoryStream(Encoding.ASCII.GetBytes(eicar));
 
         // Act
-        var result = await _sut.ScanForMalwareAsync(stream);
+        var result = await _sut.ScanForMalwareAsync(stream, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();

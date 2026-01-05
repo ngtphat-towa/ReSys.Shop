@@ -31,7 +31,7 @@ public class ValidationBehaviorTests
         _next.Invoke().Returns(Task.FromResult<ErrorOr<string>>("Success"));
 
         // Act
-        var result = await behavior.Handle(request, _next, CancellationToken.None);
+        var result = await behavior.Handle(request, _next, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -49,7 +49,7 @@ public class ValidationBehaviorTests
         _next.Invoke().Returns(Task.FromResult<ErrorOr<string>>("Success"));
 
         // Act
-        var result = await _sut.Handle(request, _next, CancellationToken.None);
+        var result = await _sut.Handle(request, _next, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -66,7 +66,7 @@ public class ValidationBehaviorTests
             .Returns(Task.FromResult(new FluentValidation.Results.ValidationResult([failure])));
 
         // Act
-        var result = await _sut.Handle(request, _next, CancellationToken.None);
+        var result = await _sut.Handle(request, _next, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -80,3 +80,4 @@ public class ValidationBehaviorTests
         public string Name { get; init; } = string.Empty;
     }
 }
+

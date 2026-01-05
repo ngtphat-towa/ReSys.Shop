@@ -49,11 +49,8 @@ public class ImageServiceTests
         using var originalStream = CreateTestImageStream(originalWidth, originalHeight);
 
         // Act
-        var result = await _sut.ProcessAsync(
-            originalStream, 
-            "test.png", 
-            maxWidth: targetWidth
-        );
+        var result = await _sut.ProcessAsync(originalStream, "test.png", maxWidth: targetWidth
+, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -65,7 +62,7 @@ public class ImageServiceTests
         
         // Verify the stream is actually a valid image
         processed.Main.Stream.Position = 0;
-        var info = await Image.IdentifyAsync(processed.Main.Stream);
+        var info = await Image.IdentifyAsync(processed.Main.Stream, TestContext.Current.CancellationToken);
         info.Width.Should().Be(targetWidth);
         info.Metadata.DecodedImageFormat?.Name.ToLower().Should().Be("webp");
     }
@@ -77,11 +74,8 @@ public class ImageServiceTests
         using var originalStream = CreateTestImageStream(1000, 1000);
 
         // Act
-        var result = await _sut.ProcessAsync(
-            originalStream, 
-            "test.png", 
-            generateThumbnail: true
-        );
+        var result = await _sut.ProcessAsync(originalStream, "test.png", generateThumbnail: true
+, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -97,11 +91,8 @@ public class ImageServiceTests
         using var originalStream = CreateTestImageStream(2000, 2000);
 
         // Act
-        var result = await _sut.ProcessAsync(
-            originalStream, 
-            "test.png", 
-            generateResponsive: true
-        );
+        var result = await _sut.ProcessAsync(originalStream, "test.png", generateResponsive: true
+, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -121,7 +112,7 @@ public class ImageServiceTests
         using var stream = CreateTestImageStream(width, height);
 
         // Act
-        var result = await _sut.GetMetadataAsync(stream);
+        var result = await _sut.GetMetadataAsync(stream, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -139,7 +130,7 @@ public class ImageServiceTests
         int newHeight = 50;
 
         // Act
-        var result = await _sut.ResizeImageAsync(stream, "test.png", newWidth, newHeight, crop: true);
+        var result = await _sut.ResizeImageAsync(stream, "test.png", newWidth, newHeight, crop: true, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -155,7 +146,7 @@ public class ImageServiceTests
         using var stream = CreateTestImageStream(3000, 3000); // Default max is 2048
 
         // Act
-        var result = await _sut.ProcessAsync(stream, "big.png");
+        var result = await _sut.ProcessAsync(stream, "big.png", ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -170,7 +161,7 @@ public class ImageServiceTests
         int maxWidth = 500;
 
         // Act
-        var result = await _sut.ProcessAsync(stream, "wide.png", maxWidth: maxWidth);
+        var result = await _sut.ProcessAsync(stream, "wide.png", maxWidth: maxWidth, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -186,7 +177,7 @@ public class ImageServiceTests
         using var stream = new MemoryStream(bytes);
 
         // Act
-        var result = await _sut.ConvertFormatAsync(stream, "fake.png", "webp");
+        var result = await _sut.ConvertFormatAsync(stream, "fake.png", "webp", ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -200,7 +191,7 @@ public class ImageServiceTests
         using var stream = CreateTestImageStream(100, 100);
 
         // Act
-        var result = await _sut.ResizeImageAsync(stream, "same.png", 100, 100);
+        var result = await _sut.ResizeImageAsync(stream, "same.png", 100, 100, ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -214,14 +205,14 @@ public class ImageServiceTests
         using var stream = CreateTestImageStream(100, 100);
 
         // Act
-        var result = await _sut.ConvertFormatAsync(stream, "test.png", "jpg");
+        var result = await _sut.ConvertFormatAsync(stream, "test.png", "jpg", ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.FileName.Should().EndWith(".jpg");
         
         result.Value.Stream.Position = 0;
-        var info = await Image.IdentifyAsync(result.Value.Stream);
+        var info = await Image.IdentifyAsync(result.Value.Stream, TestContext.Current.CancellationToken);
         info.Metadata.DecodedImageFormat?.Name.ToLower().Should().Be("jpeg"); // ImageSharp identifies jpg as jpeg
     }
     
@@ -232,7 +223,7 @@ public class ImageServiceTests
         using var stream = CreateTestImageStream(100, 100);
 
         // Act
-        var result = await _sut.ConvertFormatAsync(stream, "test.png", "tiff");
+        var result = await _sut.ConvertFormatAsync(stream, "test.png", "tiff", ct: TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();

@@ -27,15 +27,15 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegra
             assetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAssets", "sample.png");
         }
 
-        var imageBytes = await File.ReadAllBytesAsync(assetPath);
+        var imageBytes = await File.ReadAllBytesAsync(assetPath, TestContext.Current.CancellationToken);
         var fileContent = new ByteArrayContent(imageBytes);
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
         
         content.Add(fileContent, "file", "test-image.png");
 
         // Act
-        var response = await Client.PostAsync("/api/files/image", content);
-        var responseString = await response.Content.ReadAsStringAsync();
+        var response = await Client.PostAsync("/api/files/image", content, TestContext.Current.CancellationToken);
+        var responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -59,17 +59,17 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegra
         var assetPath = Path.Combine(projectRoot, "tests", "TestAssets", "sample.png");
         if (!File.Exists(assetPath)) assetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAssets", "sample.png");
 
-        var imageBytes = await File.ReadAllBytesAsync(assetPath);
+        var imageBytes = await File.ReadAllBytesAsync(assetPath, TestContext.Current.CancellationToken);
         content.Add(new ByteArrayContent(imageBytes), "file", "metadata-test.png");
 
-        var uploadResponse = await Client.PostAsync("/api/files/image", content);
-        var uploadResult = JsonConvert.DeserializeObject<ApiResponse<FileUploadResponse>>(await uploadResponse.Content.ReadAsStringAsync(), JsonSettings);
+        var uploadResponse = await Client.PostAsync("/api/files/image", content, TestContext.Current.CancellationToken);
+        var uploadResult = JsonConvert.DeserializeObject<ApiResponse<FileUploadResponse>>(await uploadResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken), JsonSettings);
         var fileUrl = uploadResult!.Data!.Url; // e.g. /api/files/products/guid_main.webp
         var relativePath = fileUrl.Replace("/api/files/", "");
 
         // Act
-        var response = await Client.GetAsync($"/api/files/meta/{relativePath}");
-        var responseString = await response.Content.ReadAsStringAsync();
+        var response = await Client.GetAsync($"/api/files/meta/{relativePath}", TestContext.Current.CancellationToken);
+        var responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -103,7 +103,7 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegra
         var assetPath = Path.Combine(projectRoot, "tests", "TestAssets", "sample.png");
         if (!File.Exists(assetPath)) assetPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestAssets", "sample.png");
 
-        var imageBytes = await File.ReadAllBytesAsync(assetPath);
+        var imageBytes = await File.ReadAllBytesAsync(assetPath, TestContext.Current.CancellationToken);
         var fileContent = new ByteArrayContent(imageBytes);
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
         
@@ -111,8 +111,8 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegra
         content.Add(fileContent, "file", "../../../hacker.png");
 
         // Act
-        var response = await Client.PostAsync("/api/files/image", content);
-        var responseString = await response.Content.ReadAsStringAsync();
+        var response = await Client.PostAsync("/api/files/image", content, TestContext.Current.CancellationToken);
+        var responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -131,7 +131,7 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegra
         content.Add(fileContent, "file", "fake.png");
 
         // Act
-        var response = await Client.PostAsync("/api/files/image", content);
+        var response = await Client.PostAsync("/api/files/image", content, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

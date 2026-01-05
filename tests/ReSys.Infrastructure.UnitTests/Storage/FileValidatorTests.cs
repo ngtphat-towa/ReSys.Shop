@@ -41,7 +41,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions();
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "test.txt", options);
+        var result = await _sut.ValidateAsync(stream, "test.txt", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -55,7 +55,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions();
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "", options);
+        var result = await _sut.ValidateAsync(stream, "", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -70,7 +70,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions();
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "test.txt", options);
+        var result = await _sut.ValidateAsync(stream, "test.txt", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -86,7 +86,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions(AllowedExtensions: new[] { ".jpg" });
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "test.txt", options);
+        var result = await _sut.ValidateAsync(stream, "test.txt", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -102,7 +102,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions(MaxFileSize: 100); // 100 Bytes
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "test.txt", options);
+        var result = await _sut.ValidateAsync(stream, "test.txt", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -120,7 +120,7 @@ public class FileValidatorTests
         foreach (var name in dangerousNames)
         {
             // Act
-            var result = await _sut.ValidateAsync(stream, name, options);
+            var result = await _sut.ValidateAsync(stream, name, options, TestContext.Current.CancellationToken);
 
             // Assert
             result.IsError.Should().BeTrue($"Name {name} should be invalid");
@@ -136,7 +136,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions();
         
         // Act
-        var result = await _sut.ValidateAsync(stream, "malware.exe", options);
+        var result = await _sut.ValidateAsync(stream, "malware.exe", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -153,7 +153,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions(ValidateContent: true);
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "fake.png", options);
+        var result = await _sut.ValidateAsync(stream, "fake.png", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -170,7 +170,7 @@ public class FileValidatorTests
         var options = new FileUploadOptions(ValidateContent: true);
 
         // Act
-        var result = await _sut.ValidateAsync(stream, "real.png", options);
+        var result = await _sut.ValidateAsync(stream, "real.png", options, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();

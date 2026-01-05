@@ -29,10 +29,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: null,
-            pageSize: null);
+            pageSize: null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(1);
@@ -53,10 +52,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: null,
-            pageSize: 5);
+            pageSize: 5, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(1); // Default page
@@ -75,10 +73,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 2,
-            pageSize: null);
+            pageSize: null, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(2);
@@ -98,10 +95,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 0,
-            pageSize: 3);
+            pageSize: 3, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(1); // Fallback to default
@@ -119,10 +115,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: -5,
-            pageSize: 3);
+            pageSize: 3, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(1);
@@ -139,10 +134,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 1,
-            pageSize: 0);
+            pageSize: 0, TestContext.Current.CancellationToken);
 
         // Assert
         result.PageSize.Should().Be(10); // Fallback to default
@@ -160,10 +154,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 1,
-            pageSize: -10);
+            pageSize: -10, TestContext.Current.CancellationToken);
 
         // Assert
         result.PageSize.Should().Be(10);
@@ -181,10 +174,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .OrderBy(p => p.Name);
 
         // Act - Get second page with 3 items per page
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 2,
-            pageSize: 3);
+            pageSize: 3, TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(2);
@@ -206,10 +198,9 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { p.Id, p.Name },
+        var result = await query.ToPagedListAsync(p => new { p.Id, p.Name },
             page: 100,
-            pageSize: 10);
+            pageSize: 10, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().BeEmpty();
@@ -230,16 +221,15 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
                 Price = 99.99m,
                 Description = "Test description"
             });
-        await _fixture.Context.SaveChangesAsync(CancellationToken.None);
+        await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedListAsync(
-            p => new { FullName = p.Name, Cost = p.Price },
+        var result = await query.ToPagedListAsync(p => new { FullName = p.Name, Cost = p.Price },
             page: 1,
-            pageSize: 10);
+            pageSize: 10, TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(1);
@@ -262,10 +252,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: null,
-            pageSize: null);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: null, pageSize: null, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(25); // ALL items returned
@@ -286,10 +273,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: 1,
-            pageSize: null);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: 1, pageSize: null, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(10); // Default page size applied
@@ -308,10 +292,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: null,
-            pageSize: 5);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: null, pageSize: 5, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(1); // Default page
@@ -332,10 +313,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: 2,
-            pageSize: 5);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: 2, pageSize: 5, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Page.Should().Be(2);
@@ -355,10 +333,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(nonExistentName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: null,
-            pageSize: null);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: null, pageSize: null, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().BeEmpty();
@@ -377,17 +352,14 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_2", Price = 20m },
             new Example { Id = Guid.NewGuid(), Name = $"{baseName}_3", Price = 30m }
         );
-        await _fixture.Context.SaveChangesAsync(CancellationToken.None);
+        await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var query = _fixture.Context.Set<Example>()
             .Where(p => p.Name.StartsWith(baseName))
             .OrderBy(p => p.Price);
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { ExampleName = p.Name, ExamplePrice = p.Price },
-            page: null,
-            pageSize: null);
+        var result = await query.ToPagedOrAllAsync(p => new { ExampleName = p.Name, ExamplePrice = p.Price }, page: null, pageSize: null, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(3);
@@ -407,10 +379,7 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .Where(p => p.Name.StartsWith(baseName));
 
         // Act
-        var result = await query.ToPagedOrAllAsync(
-            p => new { p.Id, p.Name },
-            page: null,
-            pageSize: null);
+        var result = await query.ToPagedOrAllAsync(p => new { p.Id, p.Name }, page: null, pageSize: null, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.Items.Should().HaveCount(100);
@@ -435,8 +404,10 @@ public class QueryableExtensionsTests : IClassFixture<TestDatabaseFixture>
             .ToList();
 
         _fixture.Context.Set<Example>().AddRange(Examples);
-        await _fixture.Context.SaveChangesAsync(CancellationToken.None);
+        await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     #endregion
 }
+
+

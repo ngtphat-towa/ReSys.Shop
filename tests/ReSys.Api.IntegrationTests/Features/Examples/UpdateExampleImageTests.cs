@@ -29,9 +29,11 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
             Description = "Desc", 
             Price = 10,
             CreatedAt = DateTimeOffset.UtcNow,
-            ImageUrl = ""
+            ImageUrl = "",
+            Status = ExampleStatus.Draft,
+            HexColor = "#000000"
         });
-        await Context.SaveChangesAsync(CancellationToken.None);
+        await Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using var content = new MultipartFormDataContent();
         
@@ -50,15 +52,15 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
              throw new FileNotFoundException($"Test asset not found at {assetPath}. Current directory: {Directory.GetCurrentDirectory()}");
         }
 
-        var imageBytes = await File.ReadAllBytesAsync(assetPath);
+        var imageBytes = await File.ReadAllBytesAsync(assetPath, TestContext.Current.CancellationToken);
         var fileContent = new ByteArrayContent(imageBytes);
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
         
         content.Add(fileContent, "image", "test-image.png");
 
         // Act
-        var response = await Client.PostAsync($"/api/examples/{ExampleId}/image", content);
-        var responseString = await response.Content.ReadAsStringAsync();
+        var response = await Client.PostAsync($"/api/examples/{ExampleId}/image", content, TestContext.Current.CancellationToken);
+        var responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -74,7 +76,7 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
 
         // Verify DB update
         ((DbContext)Context).ChangeTracker.Clear();
-        var dbExample = await Context.Set<Example>().FindAsync(ExampleId);
+        var dbExample = await Context.Set<Example>().FindAsync(new object?[] { ExampleId, TestContext.Current.CancellationToken }, TestContext.Current.CancellationToken);
 
         dbExample.Should().NotBeNull();
 
@@ -87,17 +89,19 @@ public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : Bas
         
         using var scope = Factory.Services.CreateScope();
         var fileService = scope.ServiceProvider.GetRequiredService<IFileService>();
-        var existsResult = await fileService.FileExistsAsync(fullPathId);
+        var existsResult = await fileService.FileExistsAsync(fullPathId, TestContext.Current.CancellationToken);
         
         existsResult.IsError.Should().BeFalse();
         existsResult.Value.Should().BeTrue("because the file was successfully saved");
 
         // Verify file can be loaded via API
-        var getFileResponse = await Client.GetAsync(dbExample.ImageUrl);
+        var getFileResponse = await Client.GetAsync(dbExample.ImageUrl, TestContext.Current.CancellationToken);
         getFileResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         getFileResponse.Content.Headers.ContentType?.MediaType.Should().Be("image/webp");
         
-        var downloadedBytes = await getFileResponse.Content.ReadAsByteArrayAsync();
+        var downloadedBytes = await getFileResponse.Content.ReadAsByteArrayAsync(TestContext.Current.CancellationToken);
         downloadedBytes.Length.Should().BeGreaterThan(0);
     }
 }
+
+

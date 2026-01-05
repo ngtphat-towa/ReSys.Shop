@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text;
+
 using Newtonsoft.Json;
+
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
@@ -15,18 +17,26 @@ public class CreateExampleTests(IntegrationTestWebAppFactory factory) : BaseInte
     [Fact(DisplayName = "POST /api/examples: Should create a new example")]
     public async Task Post_WithValidRequest_CreatesExample()
     {
-        var request = new CreateExample.Request { Name = "NewExample", Description = "Desc", Price = 10 };
+        var request = new CreateExample.Request
+        {
+            Name = "NewExample",
+            Description = "Desc",
+            Price = 10,
+            Status = ExampleStatus.Active,
+            HexColor = "#FF5733"
+        };
 
-        var response = await Client.PostAsync("/api/examples", 
-            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
+        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(content, JsonSettings);
         var example = apiResponse!.Data;
-        
+
         example!.Name.Should().Be("NewExample");
         example.Id.Should().NotBeEmpty();
+        example.Status.Should().Be(ExampleStatus.Active);
+        example.HexColor.Should().Be("#FF5733");
     }
 
     [Fact(DisplayName = "POST /api/examples: Should return Created with correct Location header")]
@@ -34,13 +44,12 @@ public class CreateExampleTests(IntegrationTestWebAppFactory factory) : BaseInte
     {
         var request = new CreateExample.Request { Name = "LocationTest", Description = "D", Price = 1 };
 
-        var response = await Client.PostAsync("/api/examples", 
-            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
+        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(content, JsonSettings);
         var example = apiResponse!.Data;
-        
+
         response.Headers.Location!.ToString().Should().Be($"/api/examples/{example!.Id}");
     }
 
@@ -49,10 +58,10 @@ public class CreateExampleTests(IntegrationTestWebAppFactory factory) : BaseInte
     {
         var name = "DuplicateTest";
         var r1 = new CreateExample.Request { Name = name, Description = "D", Price = 1 };
-        await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"));
+        await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         var r2 = new CreateExample.Request { Name = name, Description = "D", Price = 2 };
-        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"));
+        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -62,8 +71,7 @@ public class CreateExampleTests(IntegrationTestWebAppFactory factory) : BaseInte
     {
         var request = new CreateExample.Request { Name = "", Description = "D", Price = -1 };
 
-        var response = await Client.PostAsync("/api/examples", 
-            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"));
+        var response = await Client.PostAsync("/api/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

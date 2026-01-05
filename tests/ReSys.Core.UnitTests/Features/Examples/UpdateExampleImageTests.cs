@@ -38,7 +38,7 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
         var exampleId = Guid.NewGuid();
         var example = new Example { Id = exampleId, Name = "Test", ImageUrl = "/api/files/old.jpg" };
         _context.Set<Example>().Add(example);
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var stream = new MemoryStream();
         var fileName = "new.jpg";
@@ -67,13 +67,13 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
         var command = new UpdateExampleImage.Command(request);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse("because the example exists and services are operational");
         result.Value.ImageUrl.Should().Be($"/api/files/examples/{resultFileName}");
 
-        var dbExample = await _context.Set<Example>().Include(p => p.Embedding).FirstOrDefaultAsync(p => p.Id == exampleId);
+        var dbExample = await _context.Set<Example>().Include(p => p.Embedding).FirstOrDefaultAsync(p => p.Id == exampleId, cancellationToken: TestContext.Current.CancellationToken);
         dbExample!.ImageUrl.Should().Be($"/api/files/examples/{resultFileName}");
         dbExample.Embedding.Should().NotBeNull("because the ML service returned a valid embedding");
         
@@ -81,3 +81,4 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
         await _fileService.Received(1).DeleteFileAsync("old.jpg", Arg.Any<CancellationToken>());
     }
 }
+

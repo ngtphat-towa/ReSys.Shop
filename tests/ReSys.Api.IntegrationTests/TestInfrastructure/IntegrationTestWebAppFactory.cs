@@ -46,11 +46,17 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     {
         builder.ConfigureServices(services =>
         {
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
+            // Remove ALL registrations for AppDbContext (including pooling-related ones)
+            var contextDescriptors = services.Where(d => 
+                d.ServiceType == typeof(AppDbContext) || 
+                d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                d.ServiceType == typeof(IApplicationDbContext) ||
+                (d.ServiceType.IsGenericType && d.ServiceType.GetGenericArguments().Contains(typeof(AppDbContext)))).ToList();
 
-            if (descriptor != null)
+            foreach (var descriptor in contextDescriptors)
+            {
                 services.Remove(descriptor);
+            }
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -59,6 +65,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                     npgsqlOptions.UseVector();
                 });
             });
+
+            services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
             // Configure StorageOptions
             services.Configure<StorageOptions>(options =>
@@ -88,7 +96,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         });
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (_dbContainer != null)
         {
@@ -125,11 +133,12 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         await _respawner.ResetAsync(connection);
     }
 
-    public new async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if (_dbContainer != null)
         {
             await _dbContainer.StopAsync();
         }
+        await base.DisposeAsync();
     }
 }
