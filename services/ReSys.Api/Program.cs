@@ -33,10 +33,13 @@ try
         extraSources: [TelemetryConstants.ActivitySource.Name],
         extraMeters: [TelemetryConstants.Meter.Name]);
 
-    builder.AddPostgresHealthCheck("shopdb");
+    if (builder.Configuration.GetConnectionString("shopdb") != null)
+    {
+        builder.AddPostgresHealthCheck("shopdb");
+    }
 
     var mlOptions = builder.Configuration.GetSection(MlOptions.SectionName).Get<MlOptions>();
-    if (mlOptions != null)
+    if (mlOptions != null && !string.IsNullOrEmpty(mlOptions.ServiceUrl))
     {
         builder.AddHttpHealthCheck("ml-service", mlOptions.ServiceUrl + "/health");
     }

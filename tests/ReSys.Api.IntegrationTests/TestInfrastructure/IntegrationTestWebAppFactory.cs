@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
 using Testcontainers.PostgreSql;
@@ -10,8 +11,6 @@ using ReSys.Core.Common.Data;
 using ReSys.Core.Common.AI;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Persistence;
-using ReSys.Infrastructure.Storage;
-using ReSys.Infrastructure.Imaging;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
@@ -44,6 +43,23 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:shopdb"] = _connectionString,
+                ["Storage:LocalPath"] = "test-storage",
+                ["Storage:Security:EncryptionKey"] = "TestSecretKey123!",
+                ["Image:MaxWidth"] = "8192",
+                ["Image:MaxHeight"] = "8192",
+                ["ML:ServiceUrl"] = "http://fake-ml-service",
+                ["Notifications:SmtpOptions:EnableEmailNotifications"] = "false",
+                ["Notifications:SmtpOptions:Provider"] = "logger",
+                ["Notifications:SmsOptions:EnableSmsNotifications"] = "false",
+                ["Notifications:SmsOptions:Provider"] = "logger"
+            });
+        });
+
         builder.ConfigureServices(services =>
         {
             // Remove ALL registrations for AppDbContext (including pooling-related ones)
@@ -67,27 +83,6 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             });
 
             services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
-
-            // Configure StorageOptions
-            services.Configure<StorageOptions>(options =>
-            {
-                options.LocalPath = "test-storage";
-                options.Security.EncryptionKey = "TestSecretKey123!";
-            });
-
-            // Configure ImageOptions
-            services.Configure<ImageOptions>(options =>
-            {
-                // Increase limits for tests to accommodate sample assets
-                options.MaxWidth = 8192;
-                options.MaxHeight = 8192;
-            });
-
-            // Configure MlOptions to pass validation
-            services.Configure<MlOptions>(options =>
-            {
-                options.ServiceUrl = "http://fake-ml-service";
-            });
 
             // Replace IMlService with Fake
             var mlServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMlService));

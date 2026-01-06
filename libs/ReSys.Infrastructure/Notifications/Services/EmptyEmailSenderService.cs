@@ -6,9 +6,12 @@ namespace ReSys.Infrastructure.Notifications.Services;
 
 public sealed class EmptyEmailSenderService : IEmailSenderService
 {
-    public Task<ErrorOr<Success>> AddEmailNotificationAsync(
-        EmailNotificationData notificationData,
-        CancellationToken cancellationToken = default)
+    public Task<ErrorOr<Success>> SendAsync(
+        NotificationRecipient to, 
+        NotificationContent content, 
+        NotificationMetadata metadata, 
+        IEnumerable<NotificationAttachment>? attachments = null, 
+        CancellationToken ct = default)
     {
         return Task.FromResult<ErrorOr<Success>>(
             Error.Unexpected(

@@ -3,57 +3,51 @@ using FluentValidation;
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
+using ReSys.Core.Common.Notifications.Errors;
 
 namespace ReSys.Infrastructure.Notifications.Services;
 
 public sealed class NotificationService(
     IEmailSenderService emailSenderService,
     ISmsSenderService smsSenderService,
-    IValidator<NotificationData> validator)
+    IValidator<NotificationMessage> validator)
     : INotificationService
 {
-    public async Task<ErrorOr<Success>> AddNotificationAsync(
-        NotificationData notificationData,
-        CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<Success>> SendAsync(NotificationMessage message, CancellationToken ct = default)
     {
-        // Validation
-        var validationResult = await validator.ValidateAsync(notificationData, cancellationToken);
+        var validationResult = await validator.ValidateAsync(message, options => options.IncludeRuleSets("Full"), ct);
         if (!validationResult.IsValid)
         {
             var errors = validationResult.Errors
-                .ConvertAll(validationFailure => Error.Validation(
-                    code: validationFailure.ErrorCode,
-                    description: validationFailure.ErrorMessage));
+                .Select(e => Error.Validation(e.ErrorCode, e.ErrorMessage))
+                .ToList();
             return errors;
         }
 
-        return await DispatchNotificationAsync(notificationData, cancellationToken);
-    }
-
-    private async Task<ErrorOr<Success>> DispatchNotificationAsync(
-        NotificationData notificationData,
-        CancellationToken cancellationToken)
-    {
-        return notificationData.SendMethodType switch
+        if (!NotificationConstants.Templates.TryGetValue(message.UseCase, out var template))
         {
-            NotificationConstants.SendMethod.Email => await emailSenderService.AddEmailNotificationAsync(
-                notificationData.ToEmailNotificationData(),
-                cancellationToken
-            ),
+            return NotificationErrors.General.TemplateNotFound(message.UseCase.ToString());
+        }
 
-            NotificationConstants.SendMethod.SMS => await smsSenderService.AddSmsNotificationAsync(
-                notificationData.ToSmsNotificationData(),
-                cancellationToken
-            ),
+        var contentResult = message.MapContent();
+        if (contentResult.IsError) return contentResult.Errors;
 
-            _ => Errors.NotSupportedSendMethod
+        return template.SendMethodType switch
+        {
+            NotificationConstants.SendMethod.Email => await emailSenderService.SendAsync(
+                message.Recipient, 
+                contentResult.Value, 
+                message.Metadata, 
+                message.Attachments, 
+                ct),
+
+            NotificationConstants.SendMethod.SMS => await smsSenderService.SendAsync(
+                message.Recipient, 
+                contentResult.Value, 
+                message.Metadata, 
+                ct),
+
+            _ => NotificationErrors.General.UnsupportedMethod
         };
-    }
-
-    public static class Errors
-    {
-        public static Error NotSupportedSendMethod => Error.Validation(
-            code: "NotificationService.NotSupportedSendMethod",
-            description: "The specified send method type is not supported.");
     }
 }

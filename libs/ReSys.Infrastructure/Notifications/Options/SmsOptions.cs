@@ -5,11 +5,11 @@ namespace ReSys.Infrastructure.Notifications.Options;
 public sealed class SmsOptions : IValidateOptions<SmsOptions>
 {
     public const string Section = "Notifications:SmsOptions";
-    public bool EnableSmsNotifications { get; init; }
-    public string DefaultSenderNumber { get; init; } = null!;
-    public string Provider { get; init; } = "logger"; // logger | sinch
+    public bool EnableSmsNotifications { get; set; }
+    public string DefaultSenderNumber { get; set; } = null!;
+    public string Provider { get; set; } = "logger"; // logger | sinch
 
-    public SinchConfig? SinchConfig { get; init; }
+    public SinchConfig? SinchConfig { get; set; }
 
     public ValidateOptionsResult Validate(string? name, SmsOptions options)
     {
@@ -64,9 +64,9 @@ public sealed class SmsOptions : IValidateOptions<SmsOptions>
 }
 public sealed class SinchConfig
 {
-    public string ProjectId { get; init; } = null!;
-    public string KeyId { get; init; } = null!;
-    public string KeySecret { get; init; } = null!;
-    public string SenderPhoneNumber { get; init; } = null!;
-    public string SmsRegion { get; init; } = null!; // e.g. "Us", "Eu"
+    public string ProjectId { get; set; } = null!;
+    public string KeyId { get; set; } = null!;
+    public string KeySecret { get; set; } = null!;
+    public string SenderPhoneNumber { get; set; } = null!;
+    public string SmsRegion { get; set; } = null!; // e.g. "Us", "Eu"
 }

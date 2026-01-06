@@ -24,6 +24,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
         foreach (var assembly in assemblies)
         {
             services.AddValidatorsFromAssembly(assembly);

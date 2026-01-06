@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
-using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Core.Common.Telemetry;
+using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
 using Serilog;
@@ -22,6 +22,10 @@ public static class NotificationsModule
     {
         services.RegisterModule("Infrastructure", "Notifications");
 
+        // Validators - Register manually to avoid NotificationRecipientValidator DI issues
+        services.AddScoped<IValidator<NotificationMessage>, NotificationMessageValidator>();
+        services.AddScoped<IValidator<NotificationAttachment>, NotificationAttachmentValidator>();
+
         // Options
         services.AddOptions<SmtpOptions>()
             .Bind(configuration.GetSection(SmtpOptions.Section))
@@ -30,11 +34,6 @@ public static class NotificationsModule
         services.AddOptions<SmsOptions>()
             .Bind(configuration.GetSection(SmsOptions.Section))
             .ValidateOnStart();
-
-        // Validators
-        services.AddScoped<IValidator<NotificationData>, NotificationDataValidator>();
-        services.AddScoped<IValidator<EmailNotificationData>, EmailNotificationDataValidator>();
-        services.AddScoped<IValidator<SmsNotificationData>, SmsNotificationDataValidator>();
 
         // Services Facade
         services.AddScoped<INotificationService, NotificationService>();
@@ -79,7 +78,12 @@ public static class NotificationsModule
 
     private static void ConfigureSmtp(IServiceCollection services, SmtpOptions options)
     {
-        ArgumentNullException.ThrowIfNull(options.SmtpConfig);
+        if (options.SmtpConfig == null)
+        {
+            Log.Warning("SMTP configuration is missing. Falling back to EmptyEmailSenderService.");
+            services.AddSingleton<IEmailSenderService, EmptyEmailSenderService>();
+            return;
+        }
         var cfg = options.SmtpConfig;
 
         var smtpClient = new SmtpClient(cfg.Host, cfg.Port)
@@ -101,7 +105,12 @@ public static class NotificationsModule
 
     private static void ConfigureSendGrid(IServiceCollection services, SmtpOptions options)
     {
-        ArgumentNullException.ThrowIfNull(options.SendGridConfig);
+        if (options.SendGridConfig == null || string.IsNullOrEmpty(options.SendGridConfig.ApiKey))
+        {
+            Log.Warning("SendGrid configuration is missing. Falling back to EmptyEmailSenderService.");
+            services.AddSingleton<IEmailSenderService, EmptyEmailSenderService>();
+            return;
+        }
 
         services.AddFluentEmail(options.FromEmail, options.FromName)
                 .AddSendGridSender(options.SendGridConfig.ApiKey);
@@ -133,7 +142,12 @@ public static class NotificationsModule
 
     private static void ConfigureSinch(IServiceCollection services, SmsOptions options)
     {
-        ArgumentNullException.ThrowIfNull(options.SinchConfig);
+        if (options.SinchConfig == null)
+        {
+            Log.Warning("Sinch configuration is missing. Falling back to EmptySmsSenderService.");
+            services.AddSingleton<ISmsSenderService, EmptySmsSenderService>();
+            return;
+        }
         var cfg = options.SinchConfig;
 
         services.AddSingleton<ISinchClient>(sp =>

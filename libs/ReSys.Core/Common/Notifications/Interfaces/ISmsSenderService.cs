@@ -5,7 +5,9 @@ namespace ReSys.Core.Common.Notifications.Interfaces;
 
 public interface ISmsSenderService
 {
-    public Task<ErrorOr<Success>> AddSmsNotificationAsync(
-        SmsNotificationData notificationData, 
-        CancellationToken cancellationToken = default);
+    Task<ErrorOr<Success>> SendAsync(
+        NotificationRecipient to,
+        NotificationContent content,
+        NotificationMetadata metadata,
+        CancellationToken ct = default);
 }

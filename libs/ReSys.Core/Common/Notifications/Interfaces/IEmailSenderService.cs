@@ -5,7 +5,10 @@ namespace ReSys.Core.Common.Notifications.Interfaces;
 
 public interface IEmailSenderService
 {
-    Task<ErrorOr<Success>> AddEmailNotificationAsync(
-        EmailNotificationData notificationData,
-        CancellationToken cancellationToken = default);
+    Task<ErrorOr<Success>> SendAsync(
+        NotificationRecipient to, 
+        NotificationContent content, 
+        NotificationMetadata metadata, 
+        IEnumerable<NotificationAttachment>? attachments = null, 
+        CancellationToken ct = default);
 }

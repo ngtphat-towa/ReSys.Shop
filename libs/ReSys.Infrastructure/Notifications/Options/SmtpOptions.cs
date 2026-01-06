@@ -6,14 +6,14 @@ public sealed class SmtpOptions : IValidateOptions<SmtpOptions>
 {
     public const string Section = "Notifications:SmtpOptions";
 
-    public bool EnableEmailNotifications { get; init; }
-    public string Provider { get; init; } = "logger"; // logger | smtp | sendgrid
+    public bool EnableEmailNotifications { get; set; }
+    public string Provider { get; set; } = "logger"; // logger | smtp | sendgrid
     public string FromEmail { get; set; } = string.Empty;
     public string FromName { get; set; } = string.Empty;
     public int? MaxAttachmentSize { get; set; } = 25;
 
-    public SmtpConfig? SmtpConfig { get; init; }
-    public SendGridConfig? SendGridConfig { get; init; }
+    public SmtpConfig? SmtpConfig { get; set; }
+    public SendGridConfig? SendGridConfig { get; set; }
 
     public ValidateOptionsResult Validate(string? name, SmtpOptions options)
     {
@@ -78,15 +78,15 @@ public sealed class SmtpOptions : IValidateOptions<SmtpOptions>
 
 public sealed class SmtpConfig
 {
-    public string Host { get; init; } = "localhost";
-    public int Port { get; init; } = 25;
-    public bool EnableSsl { get; init; }
-    public bool UseDefaultCredentials { get; init; } = true;
-    public string? Username { get; init; }
-    public string? Password { get; init; }
+    public string Host { get; set; } = "localhost";
+    public int Port { get; set; } = 25;
+    public bool EnableSsl { get; set; }
+    public bool UseDefaultCredentials { get; set; } = true;
+    public string? Username { get; set; }
+    public string? Password { get; set; }
 }
 
 public sealed class SendGridConfig
 {
-    public string ApiKey { get; init; } = null!;
+    public string ApiKey { get; set; } = null!;
 }
