@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+
 using ReSys.Core.Common.Models;
 
 namespace ReSys.Core.UnitTests.Common.Models;

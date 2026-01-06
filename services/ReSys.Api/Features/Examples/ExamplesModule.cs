@@ -1,13 +1,13 @@
 using Carter;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using ReSys.Core.Features.Examples.CreateExample;
-using ReSys.Core.Features.Examples.GetExamples;
-using ReSys.Core.Features.Examples.GetSimilarExamples;
-using ReSys.Core.Features.Examples.GetExampleById;
-using ReSys.Core.Features.Examples.UpdateExample;
-using ReSys.Core.Features.Examples.DeleteExample;
-using ReSys.Core.Features.Examples.UpdateExampleImage;
+using ReSys.Core.Features.Testing.Examples.CreateExample;
+using ReSys.Core.Features.Testing.Examples.GetExamples;
+using ReSys.Core.Features.Testing.Examples.GetSimilarExamples;
+using ReSys.Core.Features.Testing.Examples.GetExampleById;
+using ReSys.Core.Features.Testing.Examples.UpdateExample;
+using ReSys.Core.Features.Testing.Examples.DeleteExample;
+using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
 using ReSys.Core.Common.Models;
 using ReSys.Api.Infrastructure.Extensions;
 
@@ -17,7 +17,7 @@ public class ExamplesModule : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/examples")
+        var group = app.MapGroup("/api/testing/examples")
             .WithTags("Examples");
 
         // [AsParameters] binds automatically after our normalization middleware runs.
@@ -41,7 +41,7 @@ public class ExamplesModule : ICarterModule
             CancellationToken ct) =>
         {
             var result = await sender.Send(new CreateExample.Command(request), ct);
-            return result.ToApiCreatedResponse(example => $"/api/examples/{example.Id}");
+            return result.ToApiCreatedResponse(example => $"/api/testing/examples/{example.Id}");
         })
         .WithName("CreateExample");
 

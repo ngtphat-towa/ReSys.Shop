@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
-using FluentAssertions;
+
 using Newtonsoft.Json;
+
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Common.Storage;
 using ReSys.Api.Features.Files;
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Files;
 

@@ -13,7 +13,7 @@ import type {
  * @param query Optional filtering, sorting, and pagination parameters.
  * @returns A promise resolving to an ApiResult containing an array of ExampleListItem.
  */
-export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {    
+export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {
     return await apiClient.get('/examples', { params: query });
 };
 
@@ -23,7 +23,7 @@ export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<Examp
  * @returns A promise resolving to an ApiResult containing ExampleDetail.
  */
 export const getExampleById = async (id: string): Promise<ApiResult<ExampleDetail>> => {
-    return await apiClient.get(`/examples/${id}`);
+    return await apiClient.get(`/testing/examples/${id}`);
 };
 
 /**
@@ -42,7 +42,7 @@ export const createExample = async (request: CreateExampleRequest): Promise<ApiR
  * @returns A promise resolving to an ApiResult containing the updated ExampleDetail.
  */
 export const updateExample = async (id: string, request: UpdateExampleRequest): Promise<ApiResult<ExampleDetail>> => {
-    return await apiClient.put(`/examples/${id}`, request);        
+    return await apiClient.put(`/testing/examples/${id}`, request);
 };
 
 /**
@@ -54,7 +54,7 @@ export const updateExample = async (id: string, request: UpdateExampleRequest): 
 export const updateExampleImage = async (id: string, file: File): Promise<ApiResult<ExampleDetail>> => {
     const formData = new FormData();
     formData.append('image', file);
-    return await apiClient.post(`/examples/${id}/image`, formData, {
+    return await apiClient.post(`/testing/examples/${id}/image`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
@@ -67,5 +67,5 @@ export const updateExampleImage = async (id: string, file: File): Promise<ApiRes
  * @returns A promise resolving to an ApiResult with no data.
  */
 export const deleteExample = async (id: string): Promise<ApiResult<void>> => {
-    return await apiClient.delete(`/examples/${id}`);
+    return await apiClient.delete(`/testing/examples/${id}`);
 };

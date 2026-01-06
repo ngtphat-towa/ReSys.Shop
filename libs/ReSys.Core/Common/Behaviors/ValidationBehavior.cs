@@ -1,8 +1,10 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using ReSys.Core.Common.Helpers;
-using System.Linq;
 
 namespace ReSys.Core.Common.Behaviors;
 

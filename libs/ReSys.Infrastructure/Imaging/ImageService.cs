@@ -1,14 +1,16 @@
 namespace ReSys.Infrastructure.Imaging;
 
 using ErrorOr;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using ReSys.Core.Common.Imaging;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
 public sealed class ImageService : IImageService

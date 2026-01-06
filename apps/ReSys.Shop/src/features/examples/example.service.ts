@@ -1,6 +1,6 @@
 import apiClient from '@/shared/api/api.client';
 import type { ApiResult } from '@/shared/api/api.types';
-import type { 
+import type {
     ExampleListItem,
     ExampleDetail,
     ExampleQuery
@@ -11,7 +11,7 @@ import type {
  * @param query Filtering and pagination parameters.
  * @returns A promise resolving to an ApiResult with an array of ExampleListItem.
  */
-export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {    
+export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {
     return await apiClient.get('/examples', { params: query });
 };
 
@@ -21,7 +21,7 @@ export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<Examp
  * @returns A promise resolving to an ApiResult containing ExampleDetail.
  */
 export const getExampleById = async (id: string): Promise<ApiResult<ExampleDetail>> => {
-    return await apiClient.get(`/examples/${id}`);
+    return await apiClient.get(`/testing/examples/${id}`);
 };
 
 /**
@@ -29,6 +29,6 @@ export const getExampleById = async (id: string): Promise<ApiResult<ExampleDetai
  * @param id The base example ID.
  * @returns A promise resolving to an ApiResult with similar items.
  */
-export const getSimilarExamples = async (id: string): Promise<ApiResult<ExampleListItem[]>> => {       
-    return await apiClient.get(`/examples/${id}/similar`);     
+export const getSimilarExamples = async (id: string): Promise<ApiResult<ExampleListItem[]>> => {
+    return await apiClient.get(`/testing/examples/${id}/similar`);
 };

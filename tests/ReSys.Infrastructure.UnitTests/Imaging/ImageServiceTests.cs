@@ -1,10 +1,10 @@
-using ErrorOr;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using NSubstitute;
-using ReSys.Core.Common.Imaging;
+
 using ReSys.Infrastructure.Imaging;
+
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
