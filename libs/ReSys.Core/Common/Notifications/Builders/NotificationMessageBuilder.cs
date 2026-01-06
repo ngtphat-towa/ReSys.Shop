@@ -93,11 +93,23 @@ public static class NotificationMessageBuilder
     public static ErrorOr<NotificationMessage> WithUserFirstName(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.UserFirstName, value);
 
+    public static ErrorOr<NotificationMessage> WithUserEmail(this ErrorOr<NotificationMessage> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.UserEmail, value);
+
     public static ErrorOr<NotificationMessage> WithOrderId(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OrderId, value);
 
+    public static ErrorOr<NotificationMessage> WithSystemName(this ErrorOr<NotificationMessage> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.SystemName, value);
+
     public static ErrorOr<NotificationMessage> WithOtpCode(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OtpCode, value);
+
+    public static ErrorOr<NotificationMessage> WithPromoCode(this ErrorOr<NotificationMessage> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.PromoCode, value);
+
+    public static ErrorOr<NotificationMessage> WithOrderTotal(this ErrorOr<NotificationMessage> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.OrderTotal, value);
     #endregion
 
     #region Semantic Helpers (Context)
@@ -115,6 +127,12 @@ public static class NotificationMessageBuilder
 
     public static ErrorOr<NotificationContext> ContextWithOtpCode(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OtpCode, value);
+
+    public static ErrorOr<NotificationContext> ContextWithPromoCode(this ErrorOr<NotificationContext> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.PromoCode, value);
+
+    public static ErrorOr<NotificationContext> ContextWithOrderTotal(this ErrorOr<NotificationContext> result, string value)
+        => result.AddParam(NotificationConstants.Parameter.OrderTotal, value);
     #endregion
 
     /// <summary>
