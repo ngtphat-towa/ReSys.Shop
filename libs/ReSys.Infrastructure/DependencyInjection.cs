@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Telemetry;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Imaging;
+using ReSys.Infrastructure.Notifications;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
 
@@ -23,7 +24,8 @@ public static class DependencyInjection
             .AddPersistence(configuration)
             .AddStorage(configuration)
             .AddAI(configuration)
-            .AddImaging(configuration);
+            .AddImaging(configuration)
+            .AddNotifications(configuration);
 
         return services;
     }

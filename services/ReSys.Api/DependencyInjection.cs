@@ -1,9 +1,11 @@
 using Carter;
+
 using ReSys.Api.Infrastructure;
 using ReSys.Api.Infrastructure.Documentation;
 using ReSys.Api.Infrastructure.Middleware;
 using ReSys.Api.Infrastructure.Serialization;
 using ReSys.Core.Common.Telemetry;
+
 using Serilog;
 
 namespace ReSys.Api;
@@ -25,9 +27,9 @@ public static class DependencyInjection
                           .AllowAnyHeader();
                 });
             });
-            
+
         services.AddCarter();
-        
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 
@@ -51,7 +53,7 @@ public static class DependencyInjection
         // 4. Normalization & Security
         app.UseMiddleware<SnakeCaseQueryMiddleware>();
         app.UseDocumentation();
-        
+
         app.UseHttpsRedirection();
         app.UseCors();
         app.UseAuthorization();

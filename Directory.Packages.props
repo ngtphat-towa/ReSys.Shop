@@ -87,6 +87,17 @@
     <PackageVersion Include="FluentStorage.GCP" Version="6.0.0" />
     <PackageVersion Include="Google.Cloud.Storage.V1" Version="4.13.0" />
   </ItemGroup>
+    <!-- Email -->
+  <ItemGroup>
+    <PackageVersion Include="FluentEmail.Core" Version="3.0.2" />
+    <PackageVersion Include="FluentEmail.Mailgun" Version="3.0.2" />
+    <PackageVersion Include="FluentEmail.SendGrid" Version="3.0.2" />
+    <PackageVersion Include="FluentEmail.Smtp" Version="3.0.2" />
+  </ItemGroup>
+  <!-- SMS -->
+  <ItemGroup>
+    <PackageVersion Include="Sinch" Version="1.4.0" />
+  </ItemGroup>
   <!-- JSON -->
   <ItemGroup>
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
