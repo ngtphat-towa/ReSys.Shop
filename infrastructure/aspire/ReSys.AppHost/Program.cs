@@ -15,12 +15,22 @@ var postgres = builder.AddPostgres("postgres", password: dbPassword)
 
 var db = postgres.AddDatabase("shopdb");
 
+// Mail (Papercut)
+var papercut = builder.AddContainer("papercut", "changemakerstudiosus/papercut-smtp")
+    .WithHttpEndpoint(port: 37408, targetPort: 8080, name: "web")
+    .WithEndpoint(port: 2525, targetPort: 2525, name: "smtp")
+    .WithContainerName("resys_shop_mail");
+
 // Backend API
 var api = builder.AddProject<Projects.ReSys_Api>("api")
     .WithReference(db)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WaitFor(db);
+
+api.WithReference(papercut.GetEndpoint("smtp"))
+   .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Host", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Host)}"))
+   .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Port", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"));
 
 // ML Service (Python)
 var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")

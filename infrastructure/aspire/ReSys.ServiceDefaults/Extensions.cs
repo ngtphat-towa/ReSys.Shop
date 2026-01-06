@@ -87,15 +87,20 @@ public static class Extensions
 
     public static IHostApplicationBuilder AddPostgresHealthCheck(this IHostApplicationBuilder builder, string connectionName)
     {
-        builder.Services.AddHealthChecks()
-            .AddNpgSql(builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."), name: connectionName);
+        var connectionString = builder.Configuration.GetConnectionString(connectionName);
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            builder.Services.AddHealthChecks().AddNpgSql(connectionString, name: connectionName);
+        }
         return builder;
     }
 
     public static IHostApplicationBuilder AddHttpHealthCheck(this IHostApplicationBuilder builder, string name, string url)
     {
-        builder.Services.AddHealthChecks()
-            .AddUrlGroup(new Uri(url), name);
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            builder.Services.AddHealthChecks().AddUrlGroup(uri, name);
+        }
         return builder;
     }
 
@@ -129,19 +134,26 @@ public static class Extensions
 
     public static IHostApplicationBuilder AddPostgresHealthCheck(this IHostApplicationBuilder builder, string connectionName, string? healthName = null)
     {
-        builder.Services.AddHealthChecks()
-            .AddNpgSql(
-                connectionString: builder.Configuration.GetConnectionString(connectionName) ?? throw new InvalidOperationException($"Connection string '{connectionName}' not found."),
-                name: healthName ?? $"{connectionName}-db",
-                tags: ["ready", "db", "postgres"]);
+        var connectionString = builder.Configuration.GetConnectionString(connectionName);
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            builder.Services.AddHealthChecks()
+                .AddNpgSql(
+                    connectionString: connectionString,
+                    name: healthName ?? $"{connectionName}-db",
+                    tags: ["ready", "db", "postgres"]);
+        }
 
         return builder;
     }
 
     public static IHostApplicationBuilder AddHttpHealthCheck(this IHostApplicationBuilder builder, string serviceName, string url, string[]? tags = null)
     {
-        builder.Services.AddHealthChecks()
-            .AddUrlGroup(new Uri(url), name: $"{serviceName}-check", tags: tags ?? ["ready", "http"]);
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            builder.Services.AddHealthChecks()
+                .AddUrlGroup(uri, name: $"{serviceName}-check", tags: tags ?? ["ready", "http"]);
+        }
 
         return builder;
     }

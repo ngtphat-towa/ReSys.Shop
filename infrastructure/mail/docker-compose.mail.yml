@@ -1,0 +1,7 @@
+services:
+  papercut:
+    image: changemakerstudiosus/papercut-smtp
+    container_name: resys_shop_mail
+    ports:
+      - "2525:2525"
+      - "37408:8080"
