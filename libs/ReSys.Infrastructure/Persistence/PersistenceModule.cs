@@ -19,11 +19,11 @@ public static class PersistenceModule
         services.AddScoped<AuditableEntityInterceptor>();
         services.AddScoped<DispatchDomainEventsInterceptor>();
 
-        services.AddDbContextPool<AppDbContext>((sp, options) =>
+        services.AddDbContext<AppDbContext>((sp, options) =>
         {
             var auditInterceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
             var eventInterceptor = sp.GetRequiredService<DispatchDomainEventsInterceptor>();
-            
+
             options.UseNpgsql(connectionString, npgsqlOptions =>
             {
                 npgsqlOptions.UseVector();

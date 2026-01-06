@@ -36,7 +36,10 @@ public class AuditableEntityInterceptor(ICurrentUser currentUser) : SaveChangesI
             {
                 if (entry.State == EntityState.Added)
                 {
-                    auditable.CreatedAt = now;
+                    if (auditable.CreatedAt == default)
+                    {
+                        auditable.CreatedAt = now;
+                    }
                     auditable.CreatedBy = userId;
                 }
                 else if (entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
