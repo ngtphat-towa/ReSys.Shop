@@ -1,4 +1,5 @@
 using ErrorOr;
+
 using ReSys.Core.Common.Notifications.Models;
 
 namespace ReSys.Core.Common.Notifications.Interfaces;

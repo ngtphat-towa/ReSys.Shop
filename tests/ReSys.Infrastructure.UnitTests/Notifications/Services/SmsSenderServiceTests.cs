@@ -26,7 +26,7 @@ public class SmsSenderServiceTests
     {
         _sinchClient = Substitute.For<ISinchClient>();
         _logger = Substitute.For<ILogger<SmsSenderService>>();
-        
+
         var options = Options.Create(new SmsOptions
         {
             DefaultSenderNumber = "12345",
@@ -45,10 +45,10 @@ public class SmsSenderServiceTests
         var to = NotificationRecipient.Create("+1234567890");
         var content = NotificationContent.Create("", "Test Body");
         var metadata = NotificationMetadata.Default;
-        
+
         var smsApi = Substitute.For<ISinchSms>();
         _sinchClient.Sms.Returns(smsApi);
-        
+
         smsApi.Batches.Send(Arg.Any<SendTextBatchRequest>(), Arg.Any<CancellationToken>())
             .Returns(Substitute.For<IBatch>());
 
@@ -66,7 +66,7 @@ public class SmsSenderServiceTests
         var to = NotificationRecipient.Create("+1234567890");
         var content = NotificationContent.Create("", "Test Body");
         var metadata = NotificationMetadata.Default;
-        
+
         _sinchClient.Sms.Returns(x => throw new Exception("Sinch Error"));
 
         // Act

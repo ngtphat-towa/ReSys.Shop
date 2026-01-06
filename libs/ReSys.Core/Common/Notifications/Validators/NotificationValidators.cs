@@ -1,4 +1,5 @@
 using FluentValidation;
+
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Errors;
 using ReSys.Core.Common.Notifications.Models;
@@ -22,11 +23,11 @@ public sealed class NotificationRecipientValidator : AbstractValidator<Notificat
     {
         RuleFor(x => x.Identifier)
             .NotEmpty()
-                .WithErrorCode(sendMethod == NotificationConstants.SendMethod.Email 
-                    ? NotificationErrors.Email.ToRequired.Code 
+                .WithErrorCode(sendMethod == NotificationConstants.SendMethod.Email
+                    ? NotificationErrors.Email.ToRequired.Code
                     : NotificationErrors.Sms.ToRequired.Code)
-                .WithMessage(sendMethod == NotificationConstants.SendMethod.Email 
-                    ? NotificationErrors.Email.ToRequired.Description 
+                .WithMessage(sendMethod == NotificationConstants.SendMethod.Email
+                    ? NotificationErrors.Email.ToRequired.Description
                     : NotificationErrors.Sms.ToRequired.Description);
 
         if (sendMethod == NotificationConstants.SendMethod.Email)
@@ -77,8 +78,10 @@ public sealed class NotificationMessageValidator : AbstractValidator<Notificatio
                 .WithErrorCode(NotificationErrors.General.RecipientRequired.Code)
                 .WithMessage(NotificationErrors.General.RecipientRequired.Description);
 
-        RuleSet("Full", () => {
-            RuleFor(x => x).Custom((message, context) => {
+        RuleSet("Full", () =>
+        {
+            RuleFor(x => x).Custom((message, context) =>
+            {
                 if (!NotificationConstants.Templates.TryGetValue(message.UseCase, out var template))
                 {
                     return;

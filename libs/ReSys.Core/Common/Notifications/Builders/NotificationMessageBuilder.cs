@@ -1,4 +1,5 @@
 using ErrorOr;
+
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Models;
 
@@ -19,7 +20,7 @@ public static class NotificationMessageBuilder
     /// Legacy/Direct initializer.
     /// </summary>
     public static ErrorOr<NotificationMessage> Create(
-        NotificationConstants.UseCase useCase, 
+        NotificationConstants.UseCase useCase,
         NotificationRecipient recipient)
     {
         return new NotificationMessage(useCase, recipient, NotificationContext.Empty);
@@ -28,7 +29,7 @@ public static class NotificationMessageBuilder
 
     #region Message Chaining
     public static ErrorOr<NotificationMessage> WithMetadata(
-        this ErrorOr<NotificationMessage> result, 
+        this ErrorOr<NotificationMessage> result,
         NotificationMetadata metadata)
     {
         if (result.IsError) return result.Errors;
@@ -36,20 +37,20 @@ public static class NotificationMessageBuilder
     }
 
     public static ErrorOr<NotificationMessage> AddAttachment(
-        this ErrorOr<NotificationMessage> result, 
+        this ErrorOr<NotificationMessage> result,
         NotificationAttachment attachment)
     {
         if (result.IsError) return result.Errors;
-        var attachments = result.Value.Attachments != null 
-            ? new List<NotificationAttachment>(result.Value.Attachments) 
+        var attachments = result.Value.Attachments != null
+            ? new List<NotificationAttachment>(result.Value.Attachments)
             : new List<NotificationAttachment>();
-        
+
         attachments.Add(attachment);
         return result.Value with { Attachments = attachments };
     }
 
     public static ErrorOr<NotificationMessage> WithContext(
-        this ErrorOr<NotificationMessage> result, 
+        this ErrorOr<NotificationMessage> result,
         NotificationContext context)
     {
         if (result.IsError) return result.Errors;
@@ -57,8 +58,8 @@ public static class NotificationMessageBuilder
     }
 
     public static ErrorOr<NotificationMessage> AddParam(
-        this ErrorOr<NotificationMessage> result, 
-        NotificationConstants.Parameter parameter, 
+        this ErrorOr<NotificationMessage> result,
+        NotificationConstants.Parameter parameter,
         string? value)
     {
         if (result.IsError) return result.Errors;
@@ -89,30 +90,30 @@ public static class NotificationMessageBuilder
     #endregion
 
     #region Semantic Helpers (Message)
-    public static ErrorOr<NotificationMessage> WithUserFirstName(this ErrorOr<NotificationMessage> result, string value) 
+    public static ErrorOr<NotificationMessage> WithUserFirstName(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.UserFirstName, value);
 
-    public static ErrorOr<NotificationMessage> WithOrderId(this ErrorOr<NotificationMessage> result, string value) 
+    public static ErrorOr<NotificationMessage> WithOrderId(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OrderId, value);
 
-    public static ErrorOr<NotificationMessage> WithOtpCode(this ErrorOr<NotificationMessage> result, string value) 
+    public static ErrorOr<NotificationMessage> WithOtpCode(this ErrorOr<NotificationMessage> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OtpCode, value);
     #endregion
 
     #region Semantic Helpers (Context)
-    public static ErrorOr<NotificationContext> ContextWithUserFirstName(this ErrorOr<NotificationContext> result, string value) 
+    public static ErrorOr<NotificationContext> ContextWithUserFirstName(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.UserFirstName, value);
 
-    public static ErrorOr<NotificationContext> ContextWithUserEmail(this ErrorOr<NotificationContext> result, string value) 
+    public static ErrorOr<NotificationContext> ContextWithUserEmail(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.UserEmail, value);
 
-    public static ErrorOr<NotificationContext> ContextWithOrderId(this ErrorOr<NotificationContext> result, string value) 
+    public static ErrorOr<NotificationContext> ContextWithOrderId(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OrderId, value);
 
-    public static ErrorOr<NotificationContext> ContextWithSystemName(this ErrorOr<NotificationContext> result, string value) 
+    public static ErrorOr<NotificationContext> ContextWithSystemName(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.SystemName, value);
 
-    public static ErrorOr<NotificationContext> ContextWithOtpCode(this ErrorOr<NotificationContext> result, string value) 
+    public static ErrorOr<NotificationContext> ContextWithOtpCode(this ErrorOr<NotificationContext> result, string value)
         => result.AddParam(NotificationConstants.Parameter.OtpCode, value);
     #endregion
 

@@ -14,7 +14,7 @@ import type {
  * @returns A promise resolving to an ApiResult containing an array of ExampleListItem.
  */
 export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {
-    return await apiClient.get('/examples', { params: query });
+    return await apiClient.get('/testing/examples', { params: query });
 };
 
 /**
@@ -32,7 +32,7 @@ export const getExampleById = async (id: string): Promise<ApiResult<ExampleDetai
  * @returns A promise resolving to an ApiResult containing the created ExampleDetail.
  */
 export const createExample = async (request: CreateExampleRequest): Promise<ApiResult<ExampleDetail>> => {
-    return await apiClient.post('/examples', request);
+    return await apiClient.post('/testing/examples', request);
 };
 
 /**

@@ -34,18 +34,18 @@ public sealed record NotificationContext
             .GroupBy(i => i.Key)
             .Select(g => NotificationParameter.Create(g.Key, g.Last().Value))
             .ToList();
-            
+
         return new NotificationContext(list);
     }
 
     public static NotificationContext ApplyParameter(NotificationContext context, NotificationConstants.Parameter key, string? value)
     {
         var newList = new List<NotificationParameter>(context.Parameters);
-        
+
         // Remove existing to maintain a flat, unique-key list
         newList.RemoveAll(p => p.Key == key);
         newList.Add(NotificationParameter.Create(key, value));
-        
+
         return new NotificationContext(newList);
     }
 }

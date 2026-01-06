@@ -12,7 +12,7 @@ import type {
  * @returns A promise resolving to an ApiResult with an array of ExampleListItem.
  */
 export const getExamples = async (query?: ExampleQuery): Promise<ApiResult<ExampleListItem[]>> => {
-    return await apiClient.get('/examples', { params: query });
+    return await apiClient.get('/testing/examples', { params: query });
 };
 
 /**

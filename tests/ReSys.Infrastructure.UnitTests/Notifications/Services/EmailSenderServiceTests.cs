@@ -1,15 +1,21 @@
 using ErrorOr;
+
 using FluentAssertions;
+
 using FluentEmail.Core;
 using FluentEmail.Core.Models;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using NSubstitute;
+
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
 using ReSys.Core.Common.Notifications.Errors;
+
 using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
@@ -24,7 +30,7 @@ public class EmailSenderServiceTests
     {
         _fluentEmail = Substitute.For<IFluentEmail>();
         _logger = Substitute.For<ILogger<EmailSenderService>>();
-        
+
         var options = Options.Create(new SmtpOptions
         {
             FromEmail = "test@example.com",
@@ -44,7 +50,7 @@ public class EmailSenderServiceTests
         var to = NotificationRecipient.Create("test@example.com");
         var content = NotificationContent.Create("Subject", "Body");
         var metadata = NotificationMetadata.Default;
-        
+
         _fluentEmail.SetFrom(Arg.Any<string>(), Arg.Any<string>()).Returns(_fluentEmail);
         _fluentEmail.To(Arg.Any<string>(), Arg.Any<string>()).Returns(_fluentEmail);
         _fluentEmail.Subject(Arg.Any<string>()).Returns(_fluentEmail);
@@ -66,7 +72,7 @@ public class EmailSenderServiceTests
         var to = NotificationRecipient.Create("test@example.com");
         var content = NotificationContent.Create("Subject", "Body");
         var metadata = NotificationMetadata.Default;
-        
+
         _fluentEmail.SetFrom(Arg.Any<string>(), Arg.Any<string>()).Returns(_fluentEmail);
         _fluentEmail.To(Arg.Any<string>(), Arg.Any<string>()).Returns(_fluentEmail);
         _fluentEmail.Subject(Arg.Any<string>()).Returns(_fluentEmail);

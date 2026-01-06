@@ -34,7 +34,7 @@ public sealed record NotificationContent
         HtmlBody = htmlBody;
     }
 
-    public static NotificationContent Create(string subject, string body, string? htmlBody = null) 
+    public static NotificationContent Create(string subject, string body, string? htmlBody = null)
         => new(subject, body, htmlBody);
 }
 
@@ -51,7 +51,7 @@ public sealed record NotificationAttachment
         ContentType = contentType;
     }
 
-    public static NotificationAttachment Create(string fileName, byte[] data, string contentType) 
+    public static NotificationAttachment Create(string fileName, byte[] data, string contentType)
         => new(fileName, data, contentType);
 }
 
@@ -74,7 +74,7 @@ public sealed record NotificationMetadata
     public static NotificationMetadata Create(
         NotificationConstants.PriorityLevel priority = NotificationConstants.PriorityLevel.Normal,
         string language = "en-US",
-        string createdBy = "System") 
+        string createdBy = "System")
         => new(priority, language, createdBy);
 
     public static NotificationMetadata Default => new();

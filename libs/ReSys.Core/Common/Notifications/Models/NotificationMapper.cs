@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
+
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Errors;
+
 using ErrorOr;
 
 namespace ReSys.Core.Common.Notifications.Models;

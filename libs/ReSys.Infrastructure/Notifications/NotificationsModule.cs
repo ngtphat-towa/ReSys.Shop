@@ -1,6 +1,8 @@
 using FluentValidation;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using ReSys.Core.Common.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
@@ -8,9 +10,12 @@ using ReSys.Core.Common.Telemetry;
 using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
+
 using Serilog;
+
 using Sinch;
 using Sinch.SMS;
+
 using System.Net;
 using System.Net.Mail;
 

@@ -1,6 +1,9 @@
 using ErrorOr;
+
 using FluentAssertions;
+
 using NSubstitute;
+
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
@@ -8,7 +11,9 @@ using ReSys.Infrastructure.Notifications.Services;
 using ReSys.Core.Common.Notifications.Errors;
 using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Core.Common.Notifications.Builders;
+
 using FluentValidation;
+
 using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
@@ -89,7 +94,7 @@ public class NotificationServiceTests
             NotificationRecipient.Create("user@example.com"))
             .WithUserFirstName("John")
             .Value;
-        
+
         _emailSenderService.SendAsync(Arg.Any<NotificationRecipient>(), Arg.Any<NotificationContent>(), Arg.Any<NotificationMetadata>(), Arg.Any<IEnumerable<NotificationAttachment>>(), Arg.Any<CancellationToken>())
             .Returns(Result.Success);
 
@@ -99,10 +104,10 @@ public class NotificationServiceTests
         // Assert
         result.IsError.Should().BeFalse();
         await _emailSenderService.Received(1).SendAsync(
-            Arg.Any<NotificationRecipient>(), 
-            Arg.Is<NotificationContent>(c => c.Subject.Contains("Order Confirmation")), 
-            Arg.Any<NotificationMetadata>(), 
-            Arg.Any<IEnumerable<NotificationAttachment>>(), 
+            Arg.Any<NotificationRecipient>(),
+            Arg.Is<NotificationContent>(c => c.Subject.Contains("Order Confirmation")),
+            Arg.Any<NotificationMetadata>(),
+            Arg.Any<IEnumerable<NotificationAttachment>>(),
             Arg.Any<CancellationToken>());
     }
 }
