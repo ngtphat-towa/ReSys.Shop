@@ -2,17 +2,15 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-
 using ErrorOr;
-
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-
 using ReSys.Core.Common.Storage;
+using ReSys.Infrastructure.Storage.Options;
 
-namespace ReSys.Infrastructure.Storage;
+namespace ReSys.Infrastructure.Storage.Services;
 
 public sealed class LocalFileService : IFileService
 {
@@ -67,7 +65,7 @@ public sealed class LocalFileService : IFileService
 
         var subdirectory = options.GetPath() ?? "temp";
         var targetDir = Path.Combine(_storagePath, subdirectory);
-        
+
         if (!Directory.Exists(targetDir))
             Directory.CreateDirectory(targetDir);
 
@@ -90,28 +88,28 @@ public sealed class LocalFileService : IFileService
                 tempStream.Position = 0;
 
                 await using var outputStream = new FileStream(
-                    filePath, FileMode.Create, FileAccess.Write, 
+                    filePath, FileMode.Create, FileAccess.Write,
                     FileShare.None, _options.BufferSize, useAsync: true);
 
                 var encryptResult = await _securityService.EncryptFileAsync(
                     tempStream, outputStream, cancellationToken);
-                
+
                 if (encryptResult.IsError)
                     return encryptResult.Errors;
-                
+
                 encryptionKey = encryptResult.Value;
             }
             else
             {
                 await using var outputStream = new FileStream(
-                    filePath, FileMode.Create, FileAccess.Write, 
+                    filePath, FileMode.Create, FileAccess.Write,
                     FileShare.None, _options.BufferSize, useAsync: true);
 
                 await fileStream.CopyToAsync(outputStream, _options.BufferSize, cancellationToken);
             }
 
-            var hash = options.GenerateHash 
-                ? await CalculateFileHashAsync(filePath, cancellationToken) 
+            var hash = options.GenerateHash
+                ? await CalculateFileHashAsync(filePath, cancellationToken)
                 : string.Empty;
 
             var fileInfo = new FileInfo(filePath);
@@ -136,10 +134,10 @@ public sealed class LocalFileService : IFileService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save file: {FileName}", fileName);
-            
+
             if (File.Exists(filePath))
                 try { File.Delete(filePath); } catch { }
-            
+
             return FileErrors.SaveFailed(ex.Message);
         }
     }
@@ -163,12 +161,12 @@ public sealed class LocalFileService : IFileService
             var decryptedStream = new MemoryStream();
             var decryptResult = await _securityService.DecryptFileAsync(
                 fileStream, decryptedStream, metadataResult.Value.Hash, cancellationToken);
-            
+
             await fileStream.DisposeAsync();
-            
+
             if (decryptResult.IsError)
                 return decryptResult.Errors;
-            
+
             decryptedStream.Position = 0;
             return decryptedStream;
         }
@@ -188,7 +186,7 @@ public sealed class LocalFileService : IFileService
         {
             await DeleteMetadataAsync(fileId, cancellationToken);
             await Task.Run(() => File.Delete(filePath), cancellationToken);
-            
+
             _logger.LogInformation("File deleted: {FileId}", fileId);
             return Result.Deleted;
         }
@@ -237,7 +235,7 @@ public sealed class LocalFileService : IFileService
 
         var json = await File.ReadAllTextAsync(metadataPath, cancellationToken);
         var metadata = JsonSerializer.Deserialize<FileMetadata>(json);
-        
+
         if (metadata is null)
             return FileErrors.NotFound(fileId);
 
@@ -305,14 +303,14 @@ public sealed class LocalFileService : IFileService
         try
         {
             await Task.Run(() => File.Move(sourcePath, destPath, overwrite: false), cancellationToken);
-            
+
             var metadataResult = await GetFileMetadataAsync(fileId, cancellationToken);
             if (!metadataResult.IsError)
             {
-                var updated = metadataResult.Value with 
-                { 
+                var updated = metadataResult.Value with
+                {
                     Subdirectory = destinationSubdirectory,
-                    ModifiedAt = DateTimeOffset.UtcNow 
+                    ModifiedAt = DateTimeOffset.UtcNow
                 };
                 await SaveMetadataAsync(fileId, updated, cancellationToken);
             }
@@ -341,7 +339,7 @@ public sealed class LocalFileService : IFileService
             return metadataResult.Errors;
 
         await using var sourceStream = File.OpenRead(sourcePath);
-        
+
         var options = new FileUploadOptions(destinationSubdirectory ?? metadataResult.Value.Subdirectory)
         {
             GenerateHash = true,

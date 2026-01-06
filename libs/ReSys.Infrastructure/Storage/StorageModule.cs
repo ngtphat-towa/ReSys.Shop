@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Storage;
 
 using ReSys.Core.Common.Telemetry;
+using ReSys.Infrastructure.Storage.Options;
+using ReSys.Infrastructure.Storage.Services;
+using ReSys.Infrastructure.Storage.Validators;
 
 namespace ReSys.Infrastructure.Storage;
 

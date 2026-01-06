@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ReSys.Infrastructure.Storage;
+
+namespace ReSys.Infrastructure.Storage.Options;
 
 public sealed class StorageOptions
 {
@@ -11,7 +12,7 @@ public sealed class StorageOptions
     public long MaxFileSize { get; set; } = 10 * 1024 * 1024;
     public string[] AllowedExtensions { get; set; } = Array.Empty<string>();
     public int BufferSize { get; set; } = 81920;
-    
+
     [Required]
     public SecurityOptions Security { get; set; } = new();
 }
@@ -22,7 +23,7 @@ public sealed class SecurityOptions
     public string EncryptionKey { get; set; } = string.Empty;
     public string[] DangerousExtensions { get; set; } = new[]
     {
-        ".exe", ".dll", ".bat", ".cmd", ".com", ".scr", 
+        ".exe", ".dll", ".bat", ".cmd", ".com", ".scr",
         ".vbs", ".js", ".jar", ".msi", ".sh", ".ps1"
     };
     public bool ValidateFileSignatures { get; set; } = true;

@@ -1,9 +1,12 @@
 using ErrorOr;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReSys.Core.Common.Storage;
 
-namespace ReSys.Infrastructure.Storage;
+using ReSys.Core.Common.Storage;
+using ReSys.Infrastructure.Storage.Options;
+
+namespace ReSys.Infrastructure.Storage.Validators;
 
 public sealed class FileValidator : IFileValidator
 {

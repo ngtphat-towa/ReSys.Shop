@@ -1,17 +1,15 @@
 using System.Security.Cryptography;
 using System.Text;
 
-
 using ErrorOr;
-
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-
 using ReSys.Core.Common.Storage;
+using ReSys.Infrastructure.Storage.Options;
 
-namespace ReSys.Infrastructure.Storage;
+namespace ReSys.Infrastructure.Storage.Services;
 
 public sealed class FileSecurityService : IFileSecurityService
 {
@@ -41,11 +39,11 @@ public sealed class FileSecurityService : IFileSecurityService
             await outputStream.WriteAsync(aes.IV, cancellationToken);
 
             await using var cryptoStream = new CryptoStream(
-                outputStream, 
-                aes.CreateEncryptor(), 
-                CryptoStreamMode.Write, 
+                outputStream,
+                aes.CreateEncryptor(),
+                CryptoStreamMode.Write,
                 leaveOpen: true);
-            
+
             await inputStream.CopyToAsync(cryptoStream, _options.BufferSize, cancellationToken);
             await cryptoStream.FlushFinalBlockAsync(cancellationToken);
 
@@ -77,13 +75,13 @@ public sealed class FileSecurityService : IFileSecurityService
             aes.IV = iv;
 
             await using var cryptoStream = new CryptoStream(
-                inputStream, 
-                aes.CreateDecryptor(), 
-                CryptoStreamMode.Read, 
+                inputStream,
+                aes.CreateDecryptor(),
+                CryptoStreamMode.Read,
                 leaveOpen: true);
-            
+
             await cryptoStream.CopyToAsync(outputStream, _options.BufferSize, cancellationToken);
-            
+
             return Result.Success;
         }
         catch (Exception ex)

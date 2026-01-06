@@ -5,7 +5,8 @@ using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
-using ReSys.Infrastructure.Storage;
+using ReSys.Infrastructure.Storage.Options;
+using ReSys.Infrastructure.Storage.Services;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
 
