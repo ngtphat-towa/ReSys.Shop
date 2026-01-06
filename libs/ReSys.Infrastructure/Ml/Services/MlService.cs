@@ -1,12 +1,11 @@
 using System.Net.Http.Json;
 
-
 using Microsoft.Extensions.Options;
 
+using ReSys.Core.Common.Ml;
+using ReSys.Infrastructure.Ml.Options;
 
-using ReSys.Core.Common.AI;
-
-namespace ReSys.Infrastructure.AI;
+namespace ReSys.Infrastructure.Ml.Services;
 
 public class MlService : IMlService
 {

@@ -6,11 +6,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Telemetry;
-using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Imaging;
 using ReSys.Infrastructure.Notifications;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
+using ReSys.Infrastructure.Ml;
 
 namespace ReSys.Infrastructure;
 
@@ -23,7 +23,7 @@ public static class DependencyInjection
         services
             .AddPersistence(configuration)
             .AddStorage(configuration)
-            .AddAI(configuration)
+            .AddMlServices(configuration)
             .AddImaging(configuration)
             .AddNotifications(configuration);
 

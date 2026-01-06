@@ -3,14 +3,18 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
 using Respawn;
+
 using Testcontainers.PostgreSql;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+
 using ReSys.Core.Common.Data;
-using ReSys.Core.Common.AI;
 using ReSys.Infrastructure.AI;
 using ReSys.Infrastructure.Persistence;
+using ReSys.Core.Common.Ml;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 

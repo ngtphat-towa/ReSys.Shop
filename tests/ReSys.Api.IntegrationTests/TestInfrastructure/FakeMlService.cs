@@ -1,4 +1,4 @@
-using ReSys.Core.Common.AI;
+using ReSys.Core.Common.Ml;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 

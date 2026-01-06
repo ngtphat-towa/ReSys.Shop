@@ -2,7 +2,7 @@ using ReSys.Api;
 using ReSys.Core;
 using ReSys.Core.Common.Telemetry;
 using ReSys.Infrastructure;
-using ReSys.Infrastructure.AI;
+using ReSys.Infrastructure.Ml.Options;
 
 using Serilog;
 using Serilog.Events;

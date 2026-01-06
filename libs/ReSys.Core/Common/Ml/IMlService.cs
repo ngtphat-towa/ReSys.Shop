@@ -1,4 +1,4 @@
-namespace ReSys.Core.Common.AI;
+namespace ReSys.Core.Common.Ml;
 
 public interface IMlService
 {

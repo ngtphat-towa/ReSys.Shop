@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using ReSys.Core.Common.AI;
-
+using ReSys.Core.Common.Ml;
 using ReSys.Core.Common.Telemetry;
+using ReSys.Infrastructure.Ml.Options;
+using ReSys.Infrastructure.Ml.Services;
 
-namespace ReSys.Infrastructure.AI;
+namespace ReSys.Infrastructure.Ml;
 
-public static class AiModule
+public static class MlModule
 {
-    public static IServiceCollection AddAI(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMlServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.RegisterModule("Infrastructure", "AI");
 

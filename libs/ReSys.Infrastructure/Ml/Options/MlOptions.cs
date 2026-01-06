@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ReSys.Infrastructure.AI;
+namespace ReSys.Infrastructure.Ml.Options;
 
 public class MlOptions
 {
