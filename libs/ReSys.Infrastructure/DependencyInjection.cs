@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Telemetry;
 using ReSys.Infrastructure.ML;
-using ReSys.Infrastructure.Identity;
 using ReSys.Infrastructure.Imaging;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;

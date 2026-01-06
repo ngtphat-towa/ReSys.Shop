@@ -16,14 +16,49 @@ using ReSys.Infrastructure.ML;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
 using ReSys.Infrastructure.Imaging;
+using ReSys.Core.Common.Mailing;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.Extensions.Options;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
+
+public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+{
+    public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger, UrlEncoder encoder)
+        : base(options, logger, encoder)
+    {
+    }
+
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var claims = new[] { 
+            new Claim(ClaimTypes.Name, "TestUser"),
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim("permission", "Permissions.Users.Manage"), // Mock permission
+            new Claim("permission", "Permissions.Roles.Manage")
+        };
+        var identity = new ClaimsIdentity(claims, "Test");
+        var principal = new ClaimsPrincipal(identity);
+        var ticket = new AuthenticationTicket(principal, "Test");
+
+        var result = AuthenticateResult.Success(ticket);
+
+        return Task.FromResult(result);
+    }
+}
 
 public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer? _dbContainer;
     private string _connectionString = null!;
     private Respawner _respawner = null!;
+    
+    public TestMailService EmailSender { get; } = new();
 
     public JsonSerializerSettings JsonSettings { get; } = new()
     {
@@ -31,7 +66,15 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         {
             NamingStrategy = new SnakeCaseNamingStrategy()
         },
-        NullValueHandling = NullValueHandling.Ignore
+        NullValueHandling = NullValueHandling.Ignore,
+        Converters = { new Newtonsoft.Json.Converters.StringEnumConverter() }
+    };
+
+    public System.Text.Json.JsonSerializerOptions DefaultJsonOptions { get; } = new()
+    {
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() }
     };
 
     public IntegrationTestWebAppFactory()
@@ -49,6 +92,10 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("services:identity:http", "http://fake-identity-auth");
+        // Aspire HealthChecks expect this
+        builder.UseSetting("ConnectionStrings:shopdb", "Host=localhost;Database=dummy;Username=postgres;Password=password");
+        // Prevent OTEL exporter errors if not configured
+        builder.UseSetting("OTEL_EXPORTER_OTLP_ENDPOINT", "");
 
         builder.ConfigureServices(services =>
         {
@@ -99,6 +146,19 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             var mlServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMlService));
             if (mlServiceDescriptor != null) services.Remove(mlServiceDescriptor);
             services.AddSingleton<IMlService, FakeMlService>();
+
+            // Replace IMailService with TestMailService
+            var mailServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMailService));
+            if (mailServiceDescriptor != null) services.Remove(mailServiceDescriptor);
+            services.AddSingleton<IMailService>(EmailSender);
+
+            // Authentication bypass
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
         });
     }
 

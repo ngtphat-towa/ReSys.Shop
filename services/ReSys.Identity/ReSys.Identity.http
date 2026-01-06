@@ -1,6 +1,0 @@
-@ReSys.Identity_HostAddress = http://localhost:5242
-
-GET {{ReSys.Identity_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

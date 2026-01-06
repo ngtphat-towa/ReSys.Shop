@@ -48,12 +48,11 @@ try
         .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
         .AddInfrastructure(builder.Configuration);
     
-    // API needs to Validate tokens.
-    // The URL is retrieved from Configuration via Options Pattern (IdentityValidationOptions).
-    // It looks for 'services:identity:http' (Aspire) or 'Identity:Url'.
-    // Validation happens on startup (ValidateOnStart).
+    // API now acts as Identity Server + API
     builder.Services.AddIdentityStorage(); 
-    builder.Services.AddIdentityValidation(builder.Configuration); 
+    builder.Services.AddIdentityServer();
+    
+    builder.Services.AddTransient<ReSys.Core.Common.Mailing.IMailService, ReSys.Core.Common.Mailing.FakeMailService>();
 
     builder.Services.AddAuthorization();
 

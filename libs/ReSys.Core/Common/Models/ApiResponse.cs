@@ -15,7 +15,7 @@ public class ApiResponse<T> : ProblemDetails
     /// <summary>
     /// The actual data payload for success responses.
     /// </summary>
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public T? Data { get; set; }
 
     /// <summary>

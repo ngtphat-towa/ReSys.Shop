@@ -4,11 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OpenIddict.Server;
-using OpenIddict.Server.AspNetCore;
+
 using ReSys.Core.Common.Security;
 using ReSys.Core.Domain.Identity;
 using ReSys.Infrastructure.Persistence;
+
+
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace ReSys.Infrastructure.Identity;
@@ -32,7 +33,7 @@ public static class IdentityModule
             options.Password.RequireUppercase = false;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequiredLength = 6;
-            
+
             options.User.RequireUniqueEmail = true;
             options.ClaimsIdentity.UserNameClaimType = Claims.Name;
             options.ClaimsIdentity.UserIdClaimType = Claims.Subject;
@@ -65,10 +66,10 @@ public static class IdentityModule
             .AddServer(options =>
             {
                 // Enable the authorization, logout, token and userinfo endpoints.
-                options.SetAuthorizationEndpointUris("connect/authorize")
-                       .SetEndSessionEndpointUris("connect/logout")
-                       .SetTokenEndpointUris("connect/token")
-                       .SetUserInfoEndpointUris("connect/userinfo");
+                options.SetAuthorizationEndpointUris("/api/connect/authorize")
+                       .SetEndSessionEndpointUris("/api/connect/logout")
+                       .SetTokenEndpointUris("/api/connect/token")
+                       .SetUserInfoEndpointUris("/api/connect/userinfo");
 
                 // Enable the client credentials flow.
                 options.AllowClientCredentialsFlow();
@@ -108,52 +109,15 @@ public static class IdentityModule
                 options.UseAspNetCore();
             });
 
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+        });
+        
+        services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+
         return services;
-    }
-
-    /// <summary>
-    /// Registers the OpenIddict VALIDATION components (JWT Bearer).
-    /// Used by APIs that need to validate tokens but not issue them.
-    /// </summary>
-    public static IServiceCollection AddIdentityValidation(this IServiceCollection services, IConfiguration configuration)
-    {
-         // 1. Bind and Validate Options
-         services.AddOptions<IdentityValidationOptions>()
-             .Configure(options => 
-             {
-                 // Aspire/Service Discovery convention: services:{name}:http
-                 options.Authority = configuration["services:identity:http"] 
-                                     ?? configuration["Identity:Url"] // Fallback
-                                     ?? string.Empty;
-             })
-             .ValidateDataAnnotations()
-             .ValidateOnStart();
-
-         // 2. Register OpenIddict Validation
-         services.AddOpenIddict()
-            .AddValidation(options =>
-            {
-                // Configuration is handled by ConfigureIdentityValidationOptions
-                options.UseSystemNetHttp();
-                options.UseAspNetCore();
-            });
-         
-         services.AddSingleton<IConfigureOptions<OpenIddict.Validation.OpenIddictValidationOptions>, ConfigureIdentityValidationOptions>();
-         
-         services.AddAuthentication(OpenIddict.Validation.AspNetCore.OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-         services.AddAuthorization(options =>
-         {
-             // TODO: We could dynamically register policies for all known permissions here
-             // or use a custom IPolicyProvider. For simplicity, we register the handler.
-         });
-         
-         services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
-         // Register a custom Policy Provider to auto-create policies for permissions?
-         // For now, let's keep it simple and assume we register them manually or use a helper.
-         // Actually, a dynamic policy provider is best for "Permissions.X.Y".
-         
-         services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-
-         return services;
     }
 }

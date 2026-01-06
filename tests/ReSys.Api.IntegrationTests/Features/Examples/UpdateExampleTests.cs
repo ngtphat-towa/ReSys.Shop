@@ -1,4 +1,3 @@
-using Xunit;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Features.Testing.Examples.UpdateExample;

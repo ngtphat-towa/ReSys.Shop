@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace ReSys.Core.Domain.Identity;
 
 public static class Permissions

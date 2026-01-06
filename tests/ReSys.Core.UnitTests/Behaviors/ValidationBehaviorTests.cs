@@ -1,11 +1,12 @@
 using ErrorOr;
-using FluentAssertions;
+
 using FluentValidation;
-using FluentValidation.Results;
+
 using MediatR;
+
 using NSubstitute;
+
 using ReSys.Core.Common.Behaviors;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 

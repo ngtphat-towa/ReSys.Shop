@@ -16,14 +16,9 @@ public static class GetExampleById
 
     public record Query(Request Request) : IRequest<ErrorOr<ExampleDetail>>;
 
-    public class Handler : IRequestHandler<Query, ErrorOr<ExampleDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Query, ErrorOr<ExampleDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
+        private readonly IApplicationDbContext _context = context;
 
         public async Task<ErrorOr<ExampleDetail>> Handle(Query query, CancellationToken cancellationToken)
         {

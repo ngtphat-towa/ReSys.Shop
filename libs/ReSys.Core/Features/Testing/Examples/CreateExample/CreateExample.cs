@@ -32,14 +32,9 @@ public static class CreateExample
         private class RequestValidator : ExampleValidator<Request> { }
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<ExampleDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<ExampleDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
+        private readonly IApplicationDbContext _context = context;
 
         public async Task<ErrorOr<ExampleDetail>> Handle(Command command, CancellationToken cancellationToken)
         {

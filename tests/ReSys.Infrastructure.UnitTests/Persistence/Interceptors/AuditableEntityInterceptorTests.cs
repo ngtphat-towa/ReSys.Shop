@@ -1,11 +1,12 @@
-using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+
+
 using NSubstitute;
+
+
 using ReSys.Core.Common.Security;
-using ReSys.Core.Domain;
 using ReSys.Core.Domain.Abstractions.Concerns;
 using ReSys.Infrastructure.Persistence.Interceptors;
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Persistence.Interceptors;
 

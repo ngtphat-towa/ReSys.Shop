@@ -1,11 +1,15 @@
-using FluentAssertions;
 using MediatR;
+
+
 using Microsoft.EntityFrameworkCore;
+
+
 using NSubstitute;
+
+
 using ReSys.Core.Domain;
 using ReSys.Core.Domain.Abstractions.Events;
 using ReSys.Infrastructure.Persistence.Interceptors;
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Persistence.Interceptors;
 

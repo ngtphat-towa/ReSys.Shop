@@ -1,14 +1,11 @@
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Models;
-using FluentAssertions;
-using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Storage;
 

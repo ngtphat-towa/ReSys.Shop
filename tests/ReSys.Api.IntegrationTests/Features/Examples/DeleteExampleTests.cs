@@ -1,4 +1,3 @@
-using Xunit;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
 

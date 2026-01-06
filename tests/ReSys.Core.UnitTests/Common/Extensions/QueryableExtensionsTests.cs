@@ -1,9 +1,6 @@
-using FluentAssertions;
-using MockQueryable.NSubstitute;
 using ReSys.Core.Common.Extensions;
 using ReSys.Core.Domain;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Extensions;
 

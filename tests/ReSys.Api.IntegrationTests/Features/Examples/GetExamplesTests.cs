@@ -1,8 +1,6 @@
-using Xunit;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;
-using ReSys.Core.Features.Testing.Examples.CreateExample;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 

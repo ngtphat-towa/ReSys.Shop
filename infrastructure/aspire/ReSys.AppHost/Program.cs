@@ -15,21 +15,6 @@ var postgres = builder.AddPostgres("postgres", password: dbPassword)
 
 var db = postgres.AddDatabase("shopdb");
 
-// Identity Service
-var identity = builder.AddProject<Projects.ReSys_Identity>("identity")
-    .WithReference(db)
-    .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WaitFor(db);
-
-// Backend API
-var api = builder.AddProject<Projects.ReSys_Api>("api")
-    .WithReference(db)
-    .WithReference(identity)
-    .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WaitFor(db);
-
 // ML Service (Python)
 var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithHttpEndpoint(env: "PORT", port: 8000)
@@ -38,8 +23,15 @@ var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithOtlpExporter()
     .WithHttpHealthCheck("/health");
 
+// Backend API (handles Identity as well)
+var api = builder.AddProject<Projects.ReSys_Api>("api")
+    .WithReference(db)
+    .WithExternalHttpEndpoints()
+    .WithHttpHealthCheck("/health")
+    .WaitFor(db);
+
 api.WithReference(ml)
-   .WithEnvironment("MlSettings__ServiceUrl", ml.GetEndpoint("http"));
+   .WithEnvironment("ML__ServiceUrl", ml.GetEndpoint("http"));
 
 // Frontend - Shop (Vue)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
