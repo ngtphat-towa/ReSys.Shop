@@ -3,7 +3,8 @@ using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
-using ReSys.Infrastructure.Imaging;
+using ReSys.Infrastructure.Imaging.Options;
+using ReSys.Infrastructure.Imaging.Services;
 
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 using NSubstitute;
 
-using ReSys.Core.Common.AI;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Storage;
 using ReSys.Core.Domain;
@@ -10,6 +9,7 @@ using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 using ReSys.Core.Common.Imaging;
+using ReSys.Core.Common.Ml;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 

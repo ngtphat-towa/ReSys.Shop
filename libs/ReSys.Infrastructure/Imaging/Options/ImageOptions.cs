@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ReSys.Infrastructure.Imaging;
+namespace ReSys.Infrastructure.Imaging.Options;
 
 public sealed class ImageOptions
 {

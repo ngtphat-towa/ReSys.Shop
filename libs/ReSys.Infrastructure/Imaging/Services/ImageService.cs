@@ -1,4 +1,3 @@
-namespace ReSys.Infrastructure.Imaging;
 
 using ErrorOr;
 
@@ -12,6 +11,9 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
+using ReSys.Infrastructure.Imaging.Options;
+
+namespace ReSys.Infrastructure.Imaging.Services;
 
 public sealed class ImageService : IImageService
 {
@@ -176,14 +178,14 @@ public sealed class ImageService : IImageService
             if (stream.CanSeek) stream.Position = 0;
 
             var formatLower = format.ToLowerInvariant().TrimStart('.');
-            
+
             if (!new[] { "webp", "jpg", "jpeg", "png" }.Contains(formatLower))
                 return ImageErrors.UnsupportedFormat(format);
 
             using var image = await Image.LoadAsync(stream, ct);
 
             var outputStream = new MemoryStream();
-            
+
             switch (formatLower)
             {
                 case "webp":
@@ -194,9 +196,9 @@ public sealed class ImageService : IImageService
                     await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = quality }, ct);
                     break;
                 case "png":
-                    await image.SaveAsPngAsync(outputStream, new PngEncoder 
-                    { 
-                        CompressionLevel = PngCompressionLevel.BestCompression 
+                    await image.SaveAsPngAsync(outputStream, new PngEncoder
+                    {
+                        CompressionLevel = PngCompressionLevel.BestCompression
                     }, ct);
                     break;
             }
