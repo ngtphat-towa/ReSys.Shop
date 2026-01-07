@@ -3,12 +3,34 @@ using ReSys.Core.Common.Extensions.Query;
 
 namespace ReSys.Core.Common.Extensions;
 
+/// <summary>
+/// Provides extension methods for global searching across multiple fields.
+/// Supports nested properties and automatic string conversion for non-string fields.
+/// </summary>
 public static class SearchExtensions
 {
+    /// <summary>
+    /// Applies a text search across multiple fields using OR logic.
+    /// Non-string fields are automatically converted to string via .ToString().
+    /// Includes null-safe navigation for nested property paths.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// // Search across Name, Category Name, and even the Price (converted to string)
+    /// query.ApplySearch("apple", "Name", "Category.Name", "Price");
+    /// </code>
+    /// </example>
     public static IQueryable<T> ApplySearch<T>(this IQueryable<T> query, string? searchText, params string[]? SearchField)
     {
         if (string.IsNullOrWhiteSpace(searchText) || SearchField == null || SearchField.Length == 0)
             return query;
+
+        // Code Flow:
+        // 1. Create parameter 'x'.
+        // 2. Prepare common methods (ToLower, Contains, ToString).
+        // 3. Loop through each field to build a search condition.
+        // 4. Combine all field conditions with OR.
+        // 5. Apply the final expression to the Where clause.
 
         var param = Expression.Parameter(typeof(T), "x");
         Expression? orBody = null;
@@ -23,6 +45,7 @@ public static class SearchExtensions
             Expression propExpr = param;
             bool validField = true;
 
+            // Build property access path (e.g., x.Category.Name)
             foreach (var member in field.Split('.'))
             {
                 var property = QueryHelper.GetPropertyCaseInsensitive(type, member);
@@ -33,13 +56,12 @@ public static class SearchExtensions
                 }
 
                 propExpr = Expression.Property(propExpr, property);
-                
                 type = property.PropertyType;
             }
 
             if (!validField) continue;
 
-            // Ensure we are working with a string for comparison
+            // 1. Handle non-string types by calling .ToString()
             Expression stringExpr = propExpr;
             if (type != typeof(string))
             {
@@ -47,6 +69,7 @@ public static class SearchExtensions
                 stringExpr = Expression.Call(propExpr, toStringMethod!);
             }
 
+            // 2. Build null-safe path checks
             Expression? pathNullChecks = null;
             Expression checkExpr = param;
             var pathType = typeof(T);
@@ -58,6 +81,7 @@ public static class SearchExtensions
                  checkExpr = Expression.Property(checkExpr, property);
                  pathType = property.PropertyType;
                  
+                 // If any segment is a reference type or nullable, ensure it's not null before accessing its child
                  if (!pathType.IsValueType || Nullable.GetUnderlyingType(pathType) != null)
                  {
                      var notNull = Expression.NotEqual(checkExpr, Expression.Constant(null, pathType));
@@ -65,18 +89,20 @@ public static class SearchExtensions
                  }
             }
             
-            // Final property null check if it's a reference type or nullable
+            // 3. Check the final property itself for null
             if (!type.IsValueType || Nullable.GetUnderlyingType(type) != null)
             {
                 var finalNotNull = Expression.NotEqual(propExpr, Expression.Constant(null, type));
                 pathNullChecks = pathNullChecks == null ? finalNotNull : Expression.AndAlso(pathNullChecks, finalNotNull);
             }
 
+            // 4. Build case-insensitive "Contains" condition
             var lower = Expression.Call(stringExpr, toLower!);
             var contains = Expression.Call(lower, method!, termConstant);
             
             var condition = pathNullChecks == null ? (Expression)contains : Expression.AndAlso(pathNullChecks, contains);
 
+            // 5. Combine with other fields using OR
             orBody = orBody == null ? condition : Expression.OrElse(orBody, condition);
         }
 

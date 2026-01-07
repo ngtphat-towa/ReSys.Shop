@@ -1,16 +1,40 @@
 using System.Linq.Expressions;
 using ReSys.Core.Common.Extensions.Query;
 
-namespace ReSys.Core.Common.Extensions; // Keep generic namespace for easy usage
+namespace ReSys.Core.Common.Extensions;
 
+/// <summary>
+/// Provides extension methods for dynamic filtering of IQueryable collections using a string-based DSL.
+/// </summary>
 public static class FilterExtensions
 {
+    /// <summary>
+    /// Applies a dynamic filter string to the query.
+    /// Supports AND (,), OR (|), Grouping (()), and various operators (=, !=, >, <, >=, <=, *, ^, $).
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// // Simple filter
+    /// query.ApplyDynamicFilter("Status=Active");
+    /// 
+    /// // Complex logic with grouping and nested properties
+    /// query.ApplyDynamicFilter("Price>100,(Category.Name=Electronics|Category.Name=Books)");
+    /// 
+    /// // Wildcards (Contains, StartsWith, EndsWith)
+    /// query.ApplyDynamicFilter("Name*apple*,Description^Start,Code$End");
+    /// </code>
+    /// </example>
     public static IQueryable<T> ApplyDynamicFilter<T>(this IQueryable<T> query, string? filterString)
     {
         if (string.IsNullOrWhiteSpace(filterString)) return query;
 
         try 
         {
+            // Code Flow:
+            // 1. Create a parameter 'x' representing the entity type T.
+            // 2. Initialize the recursive descent parser with the filter string.
+            // 3. Parse the string into a LINQ Expression tree.
+            // 4. Wrap the expression in a Lambda and apply it to the Queryable.Where method.
             var param = Expression.Parameter(typeof(T), "x");
             var parser = new FilterParser<T>(filterString, param);
             var body = parser.Parse();
@@ -22,10 +46,19 @@ public static class FilterExtensions
         }
         catch (Exception)
         {
+            // Silently fail and return original query if parsing fails to maintain system stability
             return query; 
         }
     }
 
+    /// <summary>
+    /// Internal recursive descent parser for the filter DSL.
+    /// Grammar:
+    /// OR      -> AND { '|' AND }
+    /// AND     -> Factor { ',' Factor }
+    /// Factor  -> '(' OR ')' | Condition
+    /// Condition -> Field Operator Value
+    /// </summary>
     private class FilterParser<T>(string input, ParameterExpression param)
     {
         private readonly string _input = input;
@@ -83,6 +116,7 @@ public static class FilterExtensions
             SkipWhitespace();
             var start = _pos;
             
+            // Extract field name (supports nested paths like Category.Name)
             while (_pos < _input.Length && (char.IsLetterOrDigit(_input[_pos]) || _input[_pos] == '_' || _input[_pos] == '.')) _pos++;
             var field = _input.Substring(start, _pos - start);
             
@@ -90,6 +124,7 @@ public static class FilterExtensions
 
             SkipWhitespace();
             
+            // Operator matching
             string? op = null;
             if (Match("!=")) op = "!=";
             else if (Match(">=")) op = ">=";
@@ -106,10 +141,12 @@ public static class FilterExtensions
 
             SkipWhitespace();
 
+            // Extract value until separator or end of group
             var valStart = _pos;
             while (_pos < _input.Length && _input[_pos] != ',' && _input[_pos] != '|' && _input[_pos] != ')') _pos++;
             var value = _input.Substring(valStart, _pos - valStart);
 
+            // Shorthand support for wildcards in '=' operator
             if (op == "=")
             {
                 if (value.StartsWith("*") && value.EndsWith("*"))
@@ -144,12 +181,16 @@ public static class FilterExtensions
 
         private void SkipWhitespace() { while (_pos < _input.Length && char.IsWhiteSpace(_input[_pos])) _pos++; }
 
+        /// <summary>
+        /// Builds a LINQ Expression for a single condition, including null-safe navigation for nested properties.
+        /// </summary>
         private Expression? BuildExpression(string fieldName, string op, string value)
         {
             Expression expr = _param;
             Type type = typeof(T);
             Expression? nullCheck = null;
 
+            // Handle nested properties (e.g., "Category.Name")
             var members = fieldName.Split('.');
             for (int i = 0; i < members.Length; i++)
             {
@@ -160,6 +201,7 @@ public static class FilterExtensions
                 expr = Expression.Property(expr, property);
                 type = property.PropertyType;
 
+                // Add null checks for navigation properties to prevent NullReferenceException in the generated query
                 if (i < members.Length - 1)
                 {
                     if (!type.IsValueType || Nullable.GetUnderlyingType(type) != null)
@@ -173,7 +215,7 @@ public static class FilterExtensions
             var constExpr = ParseConstant(value, type);
             if (constExpr == null) return null;
 
-            // Special handling for NULL values
+            // Special handling for NULL value comparison
             if (constExpr.Value == null)
             {
                 switch (op)
@@ -186,8 +228,10 @@ public static class FilterExtensions
 
             Expression comparison;
 
+            // Type-specific comparison logic
             if (type == typeof(string))
             {
+                // Case-insensitive string comparisons
                 var toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
                 var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
                 var startsMethod = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
@@ -214,6 +258,7 @@ public static class FilterExtensions
             }
             else
             {
+                // Standard numeric/date/enum comparisons
                 switch (op)
                 {
                     case "=": comparison = Expression.Equal(expr, constExpr); break;
@@ -226,6 +271,7 @@ public static class FilterExtensions
                 }
             }
 
+            // Combine the comparison with any necessary null checks from the navigation path
             if (nullCheck != null)
             {
                 return Expression.AndAlso(nullCheck, comparison);
@@ -234,6 +280,10 @@ public static class FilterExtensions
             return comparison;
         }
 
+        /// <summary>
+        /// Parses a string value into a constant expression of the target type.
+        /// Supports Enums, DateTimeOffset, Guid, and primitive types.
+        /// </summary>
         private ConstantExpression? ParseConstant(string value, Type targetType)
         {
              if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase))

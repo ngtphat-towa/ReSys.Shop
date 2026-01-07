@@ -6,6 +6,26 @@ using ReSys.Core.Common.Models;
 
 namespace ReSys.Core.Common.Data;
 
+/// <summary>
+/// A fluent builder for constructing complex QueryOptions in a type-safe manner.
+/// Supports property mappings, logical grouping, dynamic filtering, sorting, and global search.
+/// </summary>
+/// <example>
+/// <code>
+/// var options = new QueryBuilder&lt;Product&gt;()
+///     .AddMap("cat", x => x.Category!.Name)
+///     .StartGroup()
+///         .Where(x => x.Price, ">", 100)
+///         .Or()
+///         .Where("cat", "=", "Premium")
+///     .EndGroup()
+///     .OrderByDescending(x => x.CreatedAt)
+///     .Search("phone", x => x.Name, x => x.Description!)
+///     .Page(1, 10)
+///     .Build();
+/// </code>
+/// </example>
+/// <typeparam name="T">The entity type to build the query for.</typeparam>
 public class QueryBuilder<T>
 {
     private readonly StringBuilder _filterSb = new();
@@ -18,24 +38,34 @@ public class QueryBuilder<T>
 
     /// <summary>
     /// Adds a custom mapping for a field name.
-    /// e.g. AddMap("qa", "Quantity") allows filtering by "qa=5".
+    /// Allows using shorthand or alternate names in the builder that translate to actual entity properties.
     /// </summary>
+    /// <example>AddMap("cat", "Category.Name") allows .Where("cat", "=", "Books")</example>
     public QueryBuilder<T> AddMap(string from, string to)
     {
         _mappings[from] = to;
         return this;
     }
 
+    /// <summary>
+    /// Adds a custom mapping using an expression for the target property.
+    /// </summary>
     public QueryBuilder<T> AddMap(string from, Expression<Func<T, object>> propertySelector)
     {
         return AddMap(from, GetPropertyName(propertySelector));
     }
 
+    /// <summary>
+    /// Adds a filter condition.
+    /// </summary>
+    /// <param name="property">The property name (or mapped shorthand).</param>
+    /// <param name="op">The operator (e.g., "=", ">", "*").</param>
+    /// <param name="value">The value to compare against.</param>
     public QueryBuilder<T> Where(string property, string op, object? value)
     {
         AppendSeparator();
 
-        // Apply Mapping
+        // Apply Mapping if exists
         if (_mappings.TryGetValue(property, out var mapped))
         {
             property = mapped;
@@ -45,6 +75,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Adds a filter condition using a type-safe property selector.
+    /// </summary>
     public QueryBuilder<T> Where(Expression<Func<T, object>> propertySelector, string op, object? value)
     {
         var propertyName = GetPropertyName(propertySelector);
@@ -52,8 +85,8 @@ public class QueryBuilder<T>
     }
 
     /// <summary>
-    /// Adds a logical OR operator. 
-    /// Note: OR has lower precedence than AND (comma).
+    /// Adds a logical OR operator between the previous and next conditions.
+    /// Note: OR has lower precedence than the default AND (comma) operator.
     /// </summary>
     public QueryBuilder<T> Or()
     {
@@ -64,6 +97,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Starts a logical grouping (parenthesis) for filters.
+    /// </summary>
     public QueryBuilder<T> StartGroup()
     {
         AppendSeparator();
@@ -71,12 +107,18 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Ends a logical grouping (parenthesis).
+    /// </summary>
     public QueryBuilder<T> EndGroup()
     {
         _filterSb.Append(")");
         return this;
     }
 
+    /// <summary>
+    /// Appends a raw filter string directly to the output.
+    /// </summary>
     public QueryBuilder<T> AddRawFilter(string filter)
     {
         if (!string.IsNullOrWhiteSpace(filter))
@@ -87,6 +129,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Adds an ascending sort by the specified property.
+    /// </summary>
     public QueryBuilder<T> OrderBy(string property)
     {
         if (_mappings.TryGetValue(property, out var mapped)) property = mapped;
@@ -94,6 +139,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Adds a descending sort by the specified property.
+    /// </summary>
     public QueryBuilder<T> OrderByDescending(string property)
     {
         if (_mappings.TryGetValue(property, out var mapped)) property = mapped;
@@ -101,16 +149,27 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Adds an ascending sort using a type-safe property selector.
+    /// </summary>
     public QueryBuilder<T> OrderBy(Expression<Func<T, object>> propertySelector)
     {
         return OrderBy(GetPropertyName(propertySelector));
     }
 
+    /// <summary>
+    /// Adds a descending sort using a type-safe property selector.
+    /// </summary>
     public QueryBuilder<T> OrderByDescending(Expression<Func<T, object>> propertySelector)
     {
         return OrderByDescending(GetPropertyName(propertySelector));
     }
 
+    /// <summary>
+    /// Configures global search for the query.
+    /// </summary>
+    /// <param name="searchText">The text to search for.</param>
+    /// <param name="fields">The properties to include in the search.</param>
     public QueryBuilder<T> Search(string searchText, params string[] fields)
     {
         _searchText = searchText;
@@ -126,6 +185,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Configures global search using type-safe property selectors.
+    /// </summary>
     public QueryBuilder<T> Search(string searchText, params Expression<Func<T, object>>[] fieldSelectors)
     {
         _searchText = searchText;
@@ -139,6 +201,9 @@ public class QueryBuilder<T>
         return this;
     }
 
+    /// <summary>
+    /// Configures pagination parameters.
+    /// </summary>
     public QueryBuilder<T> Page(int page, int pageSize)
     {
         _page = page;
@@ -147,13 +212,15 @@ public class QueryBuilder<T>
     }
 
     /// <summary>
-    /// Checks if all mapped/used properties exist on type T.
-    /// Does not validate values or operators.
+    /// Performs a structural validation of the built query.
+    /// Checks if all referenced properties (including nested paths) exist on the entity type T.
     /// </summary>
+    /// <param name="errors">Output list containing descriptions of any invalid properties found.</param>
+    /// <returns>True if all properties are valid; otherwise false.</returns>
     public bool IsValid(out List<string> errors)
     {
         errors = new List<string>();
-        // Validation logic:
+        
         // 1. Check Sort fields
         foreach (var sort in _sorts)
         {
@@ -176,6 +243,9 @@ public class QueryBuilder<T>
         return errors.Count == 0;
     }
 
+    /// <summary>
+    /// Internal recursive helper to validate a dot-separated property path against a type.
+    /// </summary>
     private bool CheckPropertyPath(Type type, string path)
     {
         var currentType = type;
@@ -188,6 +258,9 @@ public class QueryBuilder<T>
         return true;
     }
 
+    /// <summary>
+    /// Builds the final unified QueryOptions object.
+    /// </summary>
     public QueryOptions Build()
     {
         return new QueryOptions
@@ -201,11 +274,15 @@ public class QueryBuilder<T>
         };
     }
 
+    // Granular build methods for targeted consumption
     public FilterOptions BuildFilterOptions() => new() { Filter = _filterSb.ToString() };
     public SortOptions BuildSortOptions() => new() { Sort = _sorts.Count > 0 ? string.Join(",", _sorts) : null };
     public SearchOptions BuildSearchOptions() => new() { Search = _searchText, SearchField = _SearchField.Count > 0 ? _SearchField.ToArray() : null };
     public PageOptions BuildPageOptions() => new() { Page = _page, PageSize = _pageSize };
 
+    /// <summary>
+    /// Ensures proper comma separation between conditions while respecting groups and OR logic.
+    /// </summary>
     private void AppendSeparator()
     {
         if (_filterSb.Length > 0)
@@ -218,6 +295,9 @@ public class QueryBuilder<T>
         }
     }
 
+    /// <summary>
+    /// Resolves a full property path (e.g., "Category.Name") from a LINQ expression.
+    /// </summary>
     private string GetPropertyName(Expression<Func<T, object>> propertySelector)
     {
         MemberExpression? member = null;
@@ -236,6 +316,9 @@ public class QueryBuilder<T>
         return GetFullPropertyName(member);
     }
 
+    /// <summary>
+    /// Recursively traverses a MemberExpression to build the full dot-separated path.
+    /// </summary>
     private string GetFullPropertyName(MemberExpression memberExpr)
     {
         if (memberExpr.Expression is MemberExpression parent)
@@ -245,12 +328,17 @@ public class QueryBuilder<T>
         return memberExpr.Member.Name;
     }
 
-        private string FormatValue(object? value)
-        {
-            if (value == null) return "null";
-            if (value is bool b) return b.ToString().ToLower();
-            if (value is DateTime dt) return dt.ToString("o");
-            if (value is DateTimeOffset dto) return dto.ToString("o");
-            if (value is string s) return s; 
-            return value.ToString()!;
-        }}
+    /// <summary>
+    /// Formats values into their DSL string representation.
+    /// Booleans become lowercase, Dates/Offsets use ISO 8601, and nulls become "null".
+    /// </summary>
+    private string FormatValue(object? value)
+    {
+        if (value == null) return "null";
+        if (value is bool b) return b.ToString().ToLower();
+        if (value is DateTime dt) return dt.ToString("o");
+        if (value is DateTimeOffset dto) return dto.ToString("o");
+        if (value is string s) return s; 
+        return value.ToString()!;
+    }
+}
