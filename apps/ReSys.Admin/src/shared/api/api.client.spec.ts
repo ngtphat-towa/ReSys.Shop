@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
 import apiClient from './api.client';
 import { parseApiError } from './api.utils';
+import type { AxiosResponse } from 'axios';
 
 // Mock parseApiError
 vi.mock('./api.utils', () => ({
@@ -13,15 +13,16 @@ vi.mock('./api.utils', () => ({
 }));
 
 describe('apiClient', () => {
-  let successInterceptor: any;
-  let errorInterceptor: any;
+  let successInterceptor: (response: AxiosResponse) => unknown;
+  let errorInterceptor: (error: unknown) => Promise<unknown>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
     // Find the interceptors from the apiClient instance
-    // apiClient.interceptors.response.use is called during module initialization
-    const responseInterceptor = (apiClient.interceptors.response as any).handlers[0];
+    const responseInterceptor = (apiClient.interceptors.response as unknown as { 
+      handlers: Array<{ fulfilled: (res: AxiosResponse) => unknown, rejected: (err: unknown) => Promise<unknown> }> 
+    }).handlers[0];
     successInterceptor = responseInterceptor.fulfilled;
     errorInterceptor = responseInterceptor.rejected;
   });
@@ -52,7 +53,7 @@ describe('apiClient', () => {
         status: 400,
         data: { title: 'Bad Request' }
       }
-    } as any;
+    };
 
     const result = await errorInterceptor(mockError);
 
@@ -72,9 +73,9 @@ describe('apiClient', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     
     // Force parseApiError to return 401
-    (parseApiError as any).mockReturnValueOnce({ status: 401 });
+    vi.mocked(parseApiError).mockReturnValueOnce({ status: 401 });
 
-    const mockError = { response: { status: 401 } } as any;
+    const mockError = { response: { status: 401 } };
     await errorInterceptor(mockError);
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Session expired'));

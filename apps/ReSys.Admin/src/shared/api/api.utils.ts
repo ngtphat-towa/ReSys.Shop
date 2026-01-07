@@ -17,18 +17,24 @@ export function parseApiError(error: unknown): Partial<ApiResponse<unknown>> {
   }
 
   // 2. Handle Axios Error (Highest Priority)
-  const axiosError = error as any;
+  const axiosError = error as {
+    isAxiosError?: boolean;
+    response?: { data?: Record<string, unknown>; status?: number };
+    request?: unknown;
+    message?: string;
+  };
   if (axiosError.isAxiosError || axiosError.response || axiosError.request) {
     const apiData = axiosError.response?.data;
     console.log('[API Trace] Axios error detected. Body data:', apiData);
 
     if (apiData && typeof apiData === 'object') {
+      const data = apiData as Record<string, unknown>;
       // Handle both snake_case and PascalCase from various backend setups
-      const status = apiData.status ?? apiData.Status ?? axiosError.response?.status;
-      const title = apiData.title ?? apiData.Title;
-      const detail = apiData.detail ?? apiData.Detail;
-      const errors = apiData.errors ?? apiData.Errors;
-      const errorCode = apiData.error_code ?? apiData.ErrorCode ?? apiData.errorCode;
+      const status = (data.status ?? data.Status ?? axiosError.response?.status) as number | undefined;
+      const title = (data.title ?? data.Title) as string | undefined;
+      const detail = (data.detail ?? data.Detail) as string | undefined;
+      const errors = (data.errors ?? data.Errors) as Record<string, string[]> | undefined;
+      const errorCode = (data.error_code ?? data.ErrorCode ?? data.errorCode) as string | undefined;
 
       const result = {
         status: status ?? 500,
@@ -51,15 +57,15 @@ export function parseApiError(error: unknown): Partial<ApiResponse<unknown>> {
   }
 
   // 3. Handle already parsed/standardized objects (Idempotency)
-  const e = error as any;
+  const e = error as Record<string, unknown>;
   if (e.status !== undefined && (e.title !== undefined || e.detail !== undefined || e.errors !== undefined)) {
     console.log('[API Trace] Error is already parsed:', e);
     return {
-      status: e.status,
-      title: e.title,
-      detail: e.detail,
-      errors: e.errors,
-      error_code: e.error_code,
+      status: e.status as number,
+      title: e.title as string,
+      detail: e.detail as string,
+      errors: e.errors as Record<string, string[]>,
+      error_code: e.error_code as string,
     };
   }
 

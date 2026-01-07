@@ -200,7 +200,7 @@ export class QueryBuilder<T extends object = Record<string, unknown>> {
     page?: number
     page_size?: number
   } {
-    const params: any = {};
+    const params: Record<string, unknown> = {};
 
     if (this._filterParts.length > 0) {
       params.filter = this._filterParts.join('');

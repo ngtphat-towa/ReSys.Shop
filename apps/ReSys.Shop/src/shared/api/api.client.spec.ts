@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import apiClient from './api.client';
 import { parseApiError } from './api.utils';
+import type { AxiosResponse } from 'axios';
 
 // Mock parseApiError
 vi.mock('./api.utils', () => ({
@@ -12,14 +13,16 @@ vi.mock('./api.utils', () => ({
 }));
 
 describe('apiClient', () => {
-  let successInterceptor: any;
-  let errorInterceptor: any;
+  let successInterceptor: (response: AxiosResponse) => unknown;
+  let errorInterceptor: (error: unknown) => Promise<unknown>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     
     // Find the interceptors from the apiClient instance
-    const responseInterceptor = (apiClient.interceptors.response as any).handlers[0];
+    const responseInterceptor = (apiClient.interceptors.response as unknown as { 
+      handlers: Array<{ fulfilled: (res: AxiosResponse) => unknown, rejected: (err: unknown) => Promise<unknown> }> 
+    }).handlers[0];
     successInterceptor = responseInterceptor.fulfilled;
     errorInterceptor = responseInterceptor.rejected;
   });
@@ -31,7 +34,7 @@ describe('apiClient', () => {
         status: 200,
         title: 'Success'
       }
-    };
+    } as AxiosResponse;
 
     const result = successInterceptor(mockResponse);
 
@@ -49,7 +52,7 @@ describe('apiClient', () => {
         status: 404,
         data: { title: 'Not Found' }
       }
-    } as any;
+    };
 
     const result = await errorInterceptor(mockError);
 

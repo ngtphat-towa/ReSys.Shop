@@ -64,7 +64,7 @@ describe('useApiErrorHandler', () => {
     const result: ApiResult<unknown> = {
       success: false,
       data: null,
-      error: {} as any
+      error: {} as Record<string, unknown>
     };
 
     handleApiResult(result, { 

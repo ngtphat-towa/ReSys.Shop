@@ -1,4 +1,4 @@
-import type { ApiResult, ApiResponse } from '@/shared/api/api.types'
+import type { ApiResult } from '@/shared/api/api.types'
 import { parseApiError } from '@/shared/api/api.utils'
 import { useToast } from './toast.use'
 
