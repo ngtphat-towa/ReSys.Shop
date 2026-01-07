@@ -65,7 +65,7 @@ export function useApiErrorHandler() {
       // 2. Handle Global Errors (409, 500, etc.)
       const severity = apiError.status && apiError.status < 500 ? 'warn' : 'error'
       const baseTitle = apiError.title || locales?.errorTitle || 'Error'
-      const toastTitle = apiError.error_code ? `${baseTitle} : ${apiError.error_code}` : baseTitle
+      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle
       const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.'
 
       console.log(

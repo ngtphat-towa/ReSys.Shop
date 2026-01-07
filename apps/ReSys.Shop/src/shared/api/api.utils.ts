@@ -67,7 +67,5 @@ export function parseApiError(error: unknown): Partial<ApiResponse<unknown>> {
   // 4. Final generic fallback
   return {
     status: 500,
-    title: 'Error',
-    detail: (error as Error).message || 'An unexpected error occurred.',
   }
 }
