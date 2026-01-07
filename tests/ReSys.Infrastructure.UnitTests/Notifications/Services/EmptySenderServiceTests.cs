@@ -1,9 +1,5 @@
-using FluentAssertions;
-
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Infrastructure.Notifications.Services;
-
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
 

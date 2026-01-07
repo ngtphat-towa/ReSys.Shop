@@ -47,6 +47,29 @@ const router = createRouter({
                   meta: { breadcrumb: 'actions.edit' }
                 }
               ]
+            },
+            {
+              path: 'example-categories',
+              meta: { breadcrumb: 'titles.breadcrumb_parent' },
+              children: [
+                {
+                  path: '',
+                  name: 'testing.example-categories.list',
+                  component: () => import('../features/testing/example-categories/views/example-category-list.view.vue'),
+                },
+                {
+                  path: 'create',
+                  name: 'testing.example-categories.create',
+                  component: () => import('../features/testing/example-categories/views/example-category-form.view.vue'),
+                  meta: { breadcrumb: 'actions.create' }
+                },
+                {
+                  path: 'edit/:id',
+                  name: 'testing.example-categories.edit',
+                  component: () => import('../features/testing/example-categories/views/example-category-form.view.vue'),
+                  meta: { breadcrumb: 'actions.edit' }
+                }
+              ]
             }
           ]
         }

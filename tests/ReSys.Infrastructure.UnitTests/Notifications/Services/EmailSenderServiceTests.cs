@@ -1,7 +1,3 @@
-using ErrorOr;
-
-using FluentAssertions;
-
 using FluentEmail.Core;
 using FluentEmail.Core.Models;
 
@@ -10,13 +6,10 @@ using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
-using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
 using ReSys.Core.Common.Notifications.Errors;
-
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
 

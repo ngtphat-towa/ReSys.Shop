@@ -1,4 +1,6 @@
 using ErrorOr;
+
+using ReSys.Core.Common.Extensions;
 using ReSys.Core.Common.Models;
 
 namespace ReSys.Api.Infrastructure.Extensions;
@@ -63,7 +65,7 @@ public static class ErrorOrExtensions
             ErrorType.NotFound => "Not Found",
             ErrorType.Unauthorized => "Unauthorized",
             ErrorType.Forbidden => "Forbidden",
-            _ => "Server Error"
+            _ => "ServerError"
         };
         
         return Results.Json(
@@ -71,7 +73,7 @@ public static class ErrorOrExtensions
                 title: title, 
                 status: status, 
                 detail: firstError.Description,
-                errorCode: firstError.Code),
+                errorCode: firstError.Code.ToSnakeCase()),
             statusCode: status
         );
     }

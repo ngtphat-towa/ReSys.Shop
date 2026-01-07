@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Common.Extensions;
+using ReSys.Core.Common.Extensions.Query;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;

@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Storage;
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 

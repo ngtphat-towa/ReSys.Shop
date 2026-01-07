@@ -1,6 +1,5 @@
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
-using Xunit;
 
 using System.Net;
 

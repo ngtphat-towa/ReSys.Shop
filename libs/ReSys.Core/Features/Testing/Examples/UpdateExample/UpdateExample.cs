@@ -58,7 +58,8 @@ public static class UpdateExample
             example.Price = request.Price;
             example.Status = request.Status;
             example.HexColor = request.HexColor;
-            
+            example.CategoryId = request.CategoryId;
+
             if (!string.IsNullOrEmpty(request.ImageUrl) && example.ImageUrl != request.ImageUrl)
             {
                 // Delete old image if it's different
@@ -75,17 +76,10 @@ public static class UpdateExample
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return new ExampleDetail
-            {
-                Id = example.Id,
-                Name = example.Name,
-                Description = example.Description,
-                Price = example.Price,
-                ImageUrl = example.ImageUrl,
-                Status = example.Status,
-                HexColor = example.HexColor,
-                CreatedAt = example.CreatedAt
-            };
+            return await _context.Set<Example>()
+                .AsNoTracking()
+                .Select(ExampleDetail.Projection)
+                .FirstAsync(x => x.Id == example.Id, cancellationToken);
         }
     }
 }

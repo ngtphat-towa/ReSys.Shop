@@ -1,9 +1,7 @@
-using FluentAssertions;
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Core.Common.Notifications.Errors;
 using ReSys.Core.Common.Notifications.Builders;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Notifications.Models;
 

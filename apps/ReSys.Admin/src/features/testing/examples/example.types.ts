@@ -59,6 +59,8 @@ export interface ExampleListItem {
   image_url?: string
   status: ExampleStatus
   hex_color?: string
+  category_id?: string
+  category_name?: string
 }
 
 export interface ExampleDetail extends ExampleListItem {
@@ -73,6 +75,12 @@ export type UpdateExampleRequest = ExampleFormData
 
 export interface ExampleQuery {
   search?: string
+  search_field?: string[]
+  filter?: string
+  sort?: string
+  page?: number
+  page_size?: number
+  // Legacy fields (optional if middleware handles them)
   name?: string
   min_price?: number
   max_price?: number
@@ -81,8 +89,6 @@ export interface ExampleQuery {
   created_to?: string
   sort_by?: string
   is_descending?: boolean
-  page?: number
-  page_size?: number
 }
 
 export type { ApiResult }

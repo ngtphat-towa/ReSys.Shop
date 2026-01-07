@@ -50,6 +50,17 @@ export const exampleLocales: FeatureLocales = {
     clear_filter: 'Clear Filters',
     draft: 'Draft',
   },
+  filters: {
+    contains: 'Contains',
+    equals: 'Equals',
+    not_equals: 'Not Equals',
+    starts_with: 'Starts With',
+    ends_with: 'Ends With',
+    greater_than: 'Greater Than',
+    greater_than_equal: '>= Min',
+    less_than: 'Less Than',
+    less_than_equal: '<= Max',
+  },
   placeholders: {
     search: 'Search by name...',
     name: 'e.g. Premium Wireless Headphones',

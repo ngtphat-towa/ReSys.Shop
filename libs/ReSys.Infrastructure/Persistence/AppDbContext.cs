@@ -4,14 +4,12 @@ using ReSys.Infrastructure.Persistence.Converters;
 
 namespace ReSys.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext, IApplicationDbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IApplicationDbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasPostgresExtension("vector");
-        modelBuilder.HasPostgresEnum<ReSys.Core.Domain.ExampleStatus>();
+        modelBuilder.HasPostgresEnum<Core.Domain.ExampleStatus>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 

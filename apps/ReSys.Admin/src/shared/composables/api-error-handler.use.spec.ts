@@ -3,7 +3,7 @@ import { useApiErrorHandler } from './api-error-handler.use';
 import type { ApiResult } from '@/shared/api/api.types';
 
 const mockShowToast = vi.fn();
-vi.mock('./use-toast', () => ({
+vi.mock('./toast.use', () => ({
   useToast: () => ({
     showToast: mockShowToast
   })
@@ -19,6 +19,47 @@ describe('useApiErrorHandler - Edge Cases', () => {
     const setErrors = vi.fn();
     handleFormErrors(undefined, setErrors, []);
     expect(setErrors).not.toHaveBeenCalled();
+  });
+
+  it('should include error_code in the toast title', () => {
+    const { handleFormErrors } = useApiErrorHandler();
+    const apiError = {
+      status: 409,
+      title: 'Conflict',
+      detail: 'Already exists',
+      error_code: 'DuplicateName'
+    };
+
+    handleFormErrors(apiError, undefined, []);
+    expect(mockShowToast).toHaveBeenCalledWith(
+      'warn', 
+      'Conflict (DuplicateName)', 
+      'Already exists'
+    );
+  });
+
+  it('should prioritize apiError.detail over genericError locale', () => {
+    const { handleFormErrors } = useApiErrorHandler();
+    const apiError = {
+      status: 500,
+      title: 'Error',
+      detail: 'Specific server error message'
+    };
+
+    handleFormErrors(apiError, undefined, [], { genericError: 'Generic Locale Error' });
+    expect(mockShowToast).toHaveBeenCalledWith('error', 'Error', 'Specific server error message');
+  });
+
+  it('should prioritize apiError.title over errorTitle locale', () => {
+    const { handleFormErrors } = useApiErrorHandler();
+    const apiError = {
+      status: 409,
+      title: 'Conflict',
+      detail: 'Detail'
+    };
+
+    handleFormErrors(apiError, undefined, [], { errorTitle: 'Generic Error' });
+    expect(mockShowToast).toHaveBeenCalledWith('warn', 'Conflict', 'Detail');
   });
 
   it('should toast for unmapped validation errors', () => {
@@ -39,7 +80,7 @@ describe('useApiErrorHandler - Edge Cases', () => {
     expect(mockShowToast).toHaveBeenCalledWith('warn', 'Validation Error', 'Internal error');
   });
 
-  it('should use custom locales for toasts', () => {
+  it('should prioritize apiError over custom locales', () => {
     const { handleApiResult } = useApiErrorHandler();
     const result: ApiResult<unknown> = {
       success: false,
@@ -52,8 +93,24 @@ describe('useApiErrorHandler - Edge Cases', () => {
       genericError: 'Custom Detail' 
     });
 
-    // The composable uses the locales if provided
-    expect(mockShowToast).toHaveBeenCalledWith('error', 'Custom Title', 'Custom Detail');
+    // apiError.title ('Server Error') and apiError.detail ('Actual error') should win
+    expect(mockShowToast).toHaveBeenCalledWith('error', 'Server Error', 'Actual error');
+  });
+
+  it('should use custom locales as fallback when apiError fields are missing', () => {
+    const { handleApiResult } = useApiErrorHandler();
+    const result: ApiResult<unknown> = {
+      success: false,
+      data: null,
+      error: {} as Record<string, unknown>
+    };
+
+    handleApiResult(result, { 
+      errorTitle: 'Fallback Title', 
+      genericError: 'Fallback Detail' 
+    });
+
+    expect(mockShowToast).toHaveBeenCalledWith('error', 'Fallback Title', 'Fallback Detail');
   });
 
   it('should handle multiple messages for the same field by taking the first one', () => {

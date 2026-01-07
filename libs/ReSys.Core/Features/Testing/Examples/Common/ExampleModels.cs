@@ -13,6 +13,7 @@ public record ExampleBase
     public string? ImageUrl { get; set; }
     public ExampleStatus Status { get; set; }
     public string? HexColor { get; set; }
+    public Guid? CategoryId { get; set; }
 }
 
 // Input for Create/Update
@@ -24,6 +25,7 @@ public record ExampleInput : ExampleBase
 public record ExampleListItem : ExampleBase
 {
     public Guid Id { get; set; }
+    public string? CategoryName { get; set; }
 
     public static Expression<Func<Example, ExampleListItem>> Projection => x => new ExampleListItem
     {
@@ -33,7 +35,9 @@ public record ExampleListItem : ExampleBase
         Price = x.Price,
         ImageUrl = x.ImageUrl,
         Status = x.Status,
-        HexColor = x.HexColor
+        HexColor = x.HexColor,
+        CategoryId = x.CategoryId,
+        CategoryName = x.Category != null ? x.Category.Name : null
     };
 }
 
@@ -42,6 +46,7 @@ public record ExampleDetail : ExampleBase
 {
     public Guid Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+    public string? CategoryName { get; set; }
 
     public static Expression<Func<Example, ExampleDetail>> Projection => x => new ExampleDetail
     {
@@ -52,6 +57,8 @@ public record ExampleDetail : ExampleBase
         ImageUrl = x.ImageUrl,
         Status = x.Status,
         HexColor = x.HexColor,
-        CreatedAt = x.CreatedAt
+        CreatedAt = x.CreatedAt,
+        CategoryId = x.CategoryId,
+        CategoryName = x.Category != null ? x.Category.Name : null
     };
 }

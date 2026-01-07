@@ -6,46 +6,78 @@
  */
 import { onMounted, ref } from 'vue'
 import { useExampleStore } from '../example.store'
+import { useExampleCategoryStore } from '../../example-categories/example-category.store'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { storeToRefs } from 'pinia'
 import { ExampleStatus, STATUS_COLORS, type ExampleListItem } from '../example.types'
 import { exampleLocales } from '../example.locales'
-import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
-import type { 
-  DataTablePageEvent, 
-  DataTableSortEvent, 
-  DataTableFilterMeta 
+import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api'
+import type {
+  DataTablePageEvent,
+  DataTableSortEvent,
+  DataTableFilterMeta,
 } from 'primevue/datatable'
 import { useToast } from '@/shared/composables/toast.use'
 import { useFormatter } from '@/shared/composables/formatter.use'
+import { QueryBuilder, type FilterOperator } from '@/shared/utils/query-builder.utils'
 import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 
 // --- STORE & ROUTING ---
 const exampleStore = useExampleStore()
+const categoryStore = useExampleCategoryStore()
 const { examples, loading, totalRecords, query } = storeToRefs(exampleStore)
+const { categories } = storeToRefs(categoryStore)
 const router = useRouter()
 const confirm = useConfirm()
 const { formatCurrency } = useFormatter()
 const { showToast } = useToast()
 
 /**
+ * Custom filter operator sets to keep the UI clean.
+ */
+const stringFilterOptions = ref([
+  { label: exampleLocales.filters?.contains || 'Contains', value: FilterMatchMode.CONTAINS },
+  { label: exampleLocales.filters?.equals || 'Equals', value: FilterMatchMode.EQUALS },
+  { label: exampleLocales.filters?.starts_with || 'Starts With', value: FilterMatchMode.STARTS_WITH },
+])
+
+const numericFilterOptions = ref([
+  { label: exampleLocales.filters?.equals || 'Equals', value: FilterMatchMode.EQUALS },
+  { label: exampleLocales.filters?.not_equals || 'Not Equals', value: FilterMatchMode.NOT_EQUALS },
+  { label: exampleLocales.filters?.greater_than || 'Greater Than', value: FilterMatchMode.GREATER_THAN },
+  {
+    label: exampleLocales.filters?.greater_than_equal || '>= Min',
+    value: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO,
+  },
+  { label: exampleLocales.filters?.less_than || 'Less Than', value: FilterMatchMode.LESS_THAN },
+  { label: exampleLocales.filters?.less_than_equal || '<= Max', value: FilterMatchMode.LESS_THAN_OR_EQUAL_TO },
+])
+
+/**
  * PrimeVue Filter Configuration
  * Maps internal UI filters to the API query parameters.
  */
 const filters = ref<DataTableFilterMeta>({
-  global: { value: query.value.search, matchMode: FilterMatchMode.CONTAINS },
+  global: { value: query.value.search || null, matchMode: FilterMatchMode.CONTAINS },
   name: {
-    operator: FilterOperator.AND,
+    operator: PrimeFilterOperator.AND,
     constraints: [{ value: query.value.name || null, matchMode: FilterMatchMode.CONTAINS }],
   },
   price: {
-    operator: FilterOperator.AND,
+    operator: PrimeFilterOperator.AND,
     constraints: [
       { value: query.value.min_price || null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO },
     ],
   },
-  status: { value: query.value.status || null, matchMode: FilterMatchMode.IN },
+  status: {
+    operator: PrimeFilterOperator.AND,
+    constraints: [{ value: query.value.status || null, matchMode: FilterMatchMode.IN }],
+  },
+  category_name: {
+    operator: PrimeFilterOperator.AND,
+    constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+  },
 })
 
 const statuses = ref([
@@ -61,7 +93,10 @@ const statuses = ref([
  * This is called when the component is mounted to populate the initial list.
  */
 const loadExamples = async () => {
-  await exampleStore.fetchExamples()
+  await Promise.all([
+    exampleStore.fetchExamples(),
+    categoryStore.fetchCategories({ page_size: 100 }),
+  ])
 }
 
 /**
@@ -80,7 +115,13 @@ const onPage = (event: DataTablePageEvent) => {
  * Synchronizes sortField and sortOrder with the backend query state.
  */
 const onSort = (event: DataTableSortEvent) => {
+  const builder = new QueryBuilder()
+  if (event.sortField) {
+    builder.orderBy(event.sortField as string, event.sortOrder === -1 ? 'desc' : 'asc')
+  }
+
   exampleStore.fetchExamples({
+    sort: builder.build().sort,
     sort_by: event.sortField as string,
     is_descending: event.sortOrder === -1,
     page: 1,
@@ -92,16 +133,58 @@ const onSort = (event: DataTableSortEvent) => {
  * Collects values from the PrimeVue 'filters' reactive object and resets to page 1.
  */
 const onFilter = () => {
-  const globalFilter = filters.value.global as { value: string | null };
-  const nameFilter = filters.value.name as { constraints: { value: string | null }[] };
-  const priceFilter = filters.value.price as { constraints: { value: number | null }[] };
-  const statusFilter = filters.value.status as { value: ExampleStatus[] | null };
+  const globalFilter = filters.value.global as { value: string | null }
+  const nameFilter = filters.value.name as { constraints: { value: string | null }[] }
+  const priceFilter = filters.value.price as {
+    constraints: { value: number | null; matchMode: string }[]
+  }
+  const statusFilter = filters.value.status as { constraints: { value: ExampleStatus[] | null }[] }
+  const categoryFilter = filters.value.category_name as {
+    constraints: { value: string | null }[]
+  }
+
+  const builder = new QueryBuilder()
+
+  // Handle Name Constraints
+  nameFilter.constraints.forEach((c) => {
+    if (c.value) builder.where('Name', '*', c.value)
+  })
+
+  // Handle Price Range (supports multiple rules like >= and <=)
+  priceFilter.constraints.forEach((c) => {
+    if (c.value !== null) {
+      let op: FilterOperator = '='
+      if (c.matchMode === FilterMatchMode.GREATER_THAN_OR_EQUAL_TO) op = '>='
+      else if (c.matchMode === FilterMatchMode.LESS_THAN_OR_EQUAL_TO) op = '<='
+      else if (c.matchMode === FilterMatchMode.GREATER_THAN) op = '>'
+      else if (c.matchMode === FilterMatchMode.LESS_THAN) op = '<'
+      else if (c.matchMode === FilterMatchMode.NOT_EQUALS) op = '!='
+
+      builder.where('Price', op, c.value)
+    }
+  })
+
+  const selectedStatuses = statusFilter.constraints[0]?.value
+  if (selectedStatuses && selectedStatuses.length > 0) {
+    builder.startGroup()
+    selectedStatuses.forEach((s, index) => {
+      if (index > 0) builder.or()
+      builder.where('Status', '=', s)
+    })
+    builder.endGroup()
+  }
+
+  const selectedCategoryId = categoryFilter.constraints[0]?.value
+  if (selectedCategoryId) {
+    builder.where('CategoryId', '=', selectedCategoryId)
+  }
+
+  const built = builder.build()
 
   exampleStore.fetchExamples({
     search: globalFilter.value || undefined,
-    name: nameFilter.constraints[0]?.value || undefined,
-    min_price: priceFilter.constraints[0]?.value || undefined,
-    status: statusFilter.value || undefined,
+    search_field: globalFilter.value ? ['Name', 'Description'] : undefined,
+    filter: built.filter,
     page: 1,
   })
 }
@@ -113,14 +196,21 @@ const clearFilters = () => {
   filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: {
-      operator: FilterOperator.AND,
+      operator: PrimeFilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }],
     },
     price: {
-      operator: FilterOperator.AND,
+      operator: PrimeFilterOperator.AND,
       constraints: [{ value: null, matchMode: FilterMatchMode.GREATER_THAN_OR_EQUAL_TO }],
     },
-    status: { value: null, matchMode: FilterMatchMode.IN },
+    status: {
+      operator: PrimeFilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.IN }],
+    },
+    category_name: {
+      operator: PrimeFilterOperator.AND,
+      constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }],
+    },
   }
   onFilter()
 }
@@ -228,6 +318,8 @@ onMounted(() => {
         :sortOrder="query.is_descending ? -1 : 1"
         filterDisplay="menu"
         removableSort
+        scrollable
+        rowHover
         class="overflow-hidden border rounded-lg shadow-sm border-surface-100 dark:border-surface-800"
       >
         <template #header>
@@ -285,7 +377,14 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="name" :header="exampleLocales.table?.name" sortable>
+        <Column
+          field="name"
+          :header="exampleLocales.table?.name"
+          sortable
+          :filterMatchModeOptions="stringFilterOptions"
+          :showFilterOperator="false"
+          :showAddButton="false"
+        >
           <template #body="slotProps">
             <div class="flex flex-col">
               <span class="font-bold text-surface-900 dark:text-surface-0">{{
@@ -319,21 +418,64 @@ onMounted(() => {
           </template>
         </Column>
 
+        <Column
+          field="category_name"
+          :header="exampleLocales.labels?.category"
+          class="w-32"
+          :showFilterMatchModes="false"
+          :showFilterOperator="false"
+          :showAddButton="false"
+        >
+          <template #body="slotProps">
+            <span class="text-sm font-medium text-surface-600 dark:text-surface-300">
+              {{ slotProps.data.category_name || '-' }}
+            </span>
+          </template>
+          <template #filter="{ filterModel, filterCallback }">
+            <Select
+              v-model="filterModel.value"
+              :options="categories"
+              optionLabel="name"
+              optionValue="id"
+              :placeholder="exampleLocales.placeholders?.category || 'Select Category'"
+              @change="filterCallback()"
+              class="p-column-filter"
+              style="min-width: 12rem"
+              :showClear="true"
+            />
+          </template>
+        </Column>
+
         <Column field="hex_color" :header="exampleLocales.labels?.color" class="w-24">
           <template #body="slotProps">
             <div v-if="slotProps.data.hex_color" class="flex items-center gap-2">
               <div
-                class="w-4 h-4 rounded-full border border-surface-200 shadow-sm"
-                :style="{ backgroundColor: slotProps.data.hex_color.startsWith('#') ? slotProps.data.hex_color : '#' + slotProps.data.hex_color }"
+                class="w-4 h-4 border rounded-full shadow-sm border-surface-200"
+                :style="{
+                  backgroundColor: slotProps.data.hex_color.startsWith('#')
+                    ? slotProps.data.hex_color
+                    : '#' + slotProps.data.hex_color,
+                }"
               ></div>
               <span class="text-[10px] font-mono text-surface-500">{{
-                slotProps.data.hex_color.startsWith('#') ? slotProps.data.hex_color : '#' + slotProps.data.hex_color
+                slotProps.data.hex_color.startsWith('#')
+                  ? slotProps.data.hex_color
+                  : '#' + slotProps.data.hex_color
               }}</span>
             </div>
           </template>
         </Column>
 
-        <Column field="price" :header="exampleLocales.table?.price" sortable dataType="numeric">
+        <Column
+          field="price"
+          :header="exampleLocales.table?.price"
+          sortable
+          dataType="numeric"
+          :filterMatchModeOptions="numericFilterOptions"
+          :showFilterOperator="true"
+          :showAddButton="true"
+          :maxConstraints="2"
+        >
           <template #body="slotProps">
             <div class="flex flex-col">
               <span class="font-black text-surface-900 dark:text-surface-0">
@@ -356,10 +498,23 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column field="status" :header="exampleLocales.table?.status" class="w-32">
+        <Column
+          field="status"
+          :header="exampleLocales.table?.status"
+          class="w-32"
+          :showFilterMatchModes="false"
+          :showFilterOperator="false"
+          :showAddButton="false"
+        >
           <template #body="slotProps">
             <Badge
-              :value="(exampleLocales.labels && exampleLocales.labels[`status_${ExampleStatus[slotProps.data.status as ExampleStatus].toLowerCase()}`]) || ExampleStatus[slotProps.data.status as ExampleStatus]"
+              :value="
+                (exampleLocales.labels &&
+                  exampleLocales.labels[
+                    `status_${ExampleStatus[slotProps.data.status as ExampleStatus].toLowerCase()}`
+                  ]) ||
+                ExampleStatus[slotProps.data.status as ExampleStatus]
+              "
               :severity="STATUS_COLORS[slotProps.data.status as ExampleStatus].severity"
               class="px-3 py-1 font-bold rounded-full"
             />
@@ -386,7 +541,12 @@ onMounted(() => {
           </template>
         </Column>
 
-        <Column :header="exampleLocales.table?.actions" class="w-40 text-right">
+        <Column
+          :header="exampleLocales.table?.actions"
+          class="w-40 text-right"
+          frozen
+          alignFrozen="right"
+        >
           <template #body="slotProps">
             <div class="flex justify-end gap-1">
               <Button
@@ -422,6 +582,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/**
+ * VUE COMPONENT STYLING GUIDE (Scoped & Deep)
+ *
+ * 1. THE 'scoped' ATTRIBUTE:
+ *    - PURPOSE: Enforces CSS encapsulation. Any styles defined here are strictly local to this component.
+ *    - MECHANISM: The Vue compiler generates a unique data attribute (e.g., [data-v-f3f3eg]) and attaches
+ *      it to every HTML element in this template. It then rewrites your CSS selectors to include
+ *      this attribute, preventing "CSS Leakage" to other parts of the application.
+ *    - USAGE: Used by default in all feature views to ensure UI stability and prevent accidental regressions.
+ *
+ * 2. THE ':deep()' PSEUDO-CLASS (Deep Combinator):
+ *    - PURPOSE: Allows targeting elements inside child components or third-party libraries (like PrimeVue).
+ *    - WHY IT'S NEEDED: Because of 'scoped' encapsulation, your styles cannot "see" inside components
+ *      like <DataTable>. The tags inside the table (like <thead> or <td>) are managed by the library
+ *      and do not receive this component's unique data attribute.
+ *    - MECHANISM: Tells the CSS post-processor to match the child element regardless of the scope attribute.
+ *    - USAGE: Crucial for customizing the "look and feel" of third-party UI frameworks without
+ *      polluting the global CSS namespace.
+ */
+
 :deep(.p-datatable-header) {
   background: transparent;
   padding: 1rem;
@@ -441,20 +621,11 @@ onMounted(() => {
   border-bottom: 1px solid var(--p-content-border-color);
 }
 
-/* Light Mode Hover */
-:deep(.p-datatable-tbody > tr:hover) {
-  background: var(--p-surface-100) !important;
-}
-
-/* Dark Mode Hover - Using :global to target the root class */
-:global(.app-dark) :deep(.p-datatable-tbody > tr:hover) {
-  background: var(--p-surface-800) !important;
-}
-
 /* Force PrimeVue Image to fill the table cell */
-:deep(.p-image), :deep(.p-image > img) {
-    width: 100%;
-    height: 100%;
-    display: block;
+:deep(.p-image),
+:deep(.p-image > img) {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 </style>

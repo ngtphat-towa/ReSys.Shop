@@ -1,50 +1,76 @@
-import { type AxiosError } from 'axios'
 import type { ApiResponse } from './api.types'
 
 /**
  * Standardizes an error (Axios or otherwise) into a consistent ApiResponse shape.
+ * This function is idempotent and robust against various server response shapes.
  */
 export function parseApiError(error: unknown): Partial<ApiResponse<unknown>> {
-    // 1. Idempotency & Safety Check
-    if (!error || typeof error !== 'object') {
-        return {
-            status: 500,
-            title: 'Connection Error',
-            detail: 'An unexpected error occurred.'
-        };
-    }
+  console.log('[API Trace] Raw error input:', error);
 
-    // If it already looks like our standardized ApiResponse, return it.
-    // We check for 'status' OR 'errors' to be safe.
-    if ('status' in error || 'errors' in error) {
-        return error as Partial<ApiResponse<unknown>>;
-    }
-
-    const axiosError = error as AxiosError;
-    const apiError = axiosError.response?.data as ApiResponse<unknown> | undefined;
-
-    if (apiError && typeof apiError === 'object') {
-        return {
-            ...apiError,
-            status: apiError.status || axiosError.response?.status || 500
-        };
-    }
-
-    // 2. Fallback for network errors, timeouts, or non-standard responses
-    const status = axiosError.response?.status || 500;
-    const title = axiosError.response ? `Error ${status}` : 'Connection Error';
-    
-    let detail = axiosError.message || 'An unexpected error occurred.';
-    
-    if (!axiosError.response && !axiosError.request) {
-        detail = 'An unexpected error occurred.';
-    } else if (!axiosError.response && axiosError.request && !axiosError.code) {
-        detail = 'Network Error. Please check your internet connection.';
-    }
-
+  // 1. Idempotency & Safety Check
+  if (!error || typeof error !== 'object') {
     return {
-        status,
-        title,
-        detail
-    };
+      status: 500,
+      title: 'Connection Error',
+      detail: 'An unexpected error occurred.',
+    }
+  }
+
+  // 2. Handle Axios Error (Highest Priority)
+  const axiosError = error as {
+    isAxiosError?: boolean;
+    response?: { data?: Record<string, unknown>; status?: number };
+    request?: unknown;
+    message?: string;
+  };
+  if (axiosError.isAxiosError || axiosError.response || axiosError.request) {
+    const apiData = axiosError.response?.data;
+    console.log('[API Trace] Axios error detected. Body data:', apiData);
+
+    if (apiData && typeof apiData === 'object') {
+      const data = apiData as Record<string, unknown>;
+      // Handle both snake_case and PascalCase from various backend setups
+      const status = (data.status ?? data.Status ?? axiosError.response?.status) as number | undefined;
+      const title = (data.title ?? data.Title) as string | undefined;
+      const detail = (data.detail ?? data.Detail) as string | undefined;
+      const errors = (data.errors ?? data.Errors) as Record<string, string[]> | undefined;
+      const errorCode = (data.error_code ?? data.ErrorCode ?? data.errorCode) as string | undefined;
+
+      const result = {
+        status: status ?? 500,
+        title: title ?? (status && status >= 500 ? 'Server Error' : 'Request Error'),
+        detail: detail,
+        errors: errors,
+        error_code: errorCode,
+      };
+      console.log('[API Trace] Successfully parsed from Axios response:', result);
+      return result;
+    }
+
+    if (axiosError.request && !axiosError.response) {
+      return {
+        status: 500,
+        title: 'Connection Error',
+        detail: axiosError.message || 'Network Error. Please check your internet connection.',
+      };
+    }
+  }
+
+  // 3. Handle already parsed/standardized objects (Idempotency)
+  const e = error as Record<string, unknown>;
+  if (e.status !== undefined && (e.title !== undefined || e.detail !== undefined || e.errors !== undefined)) {
+    console.log('[API Trace] Error is already parsed:', e);
+    return {
+      status: e.status as number,
+      title: e.title as string,
+      detail: e.detail as string,
+      errors: e.errors as Record<string, string[]>,
+      error_code: e.error_code as string,
+    }
+  }
+
+  // 4. Final generic fallback
+  return {
+    status: 500,
+  }
 }

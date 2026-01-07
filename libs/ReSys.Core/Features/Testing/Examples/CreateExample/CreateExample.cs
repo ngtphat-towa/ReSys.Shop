@@ -51,23 +51,18 @@ public static class CreateExample
                 ImageUrl = request.ImageUrl,
                 Status = request.Status,
                 HexColor = request.HexColor,
+                CategoryId = request.CategoryId,
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
             _context.Set<Example>().Add(example);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return new ExampleDetail
-            {
-                Id = example.Id,
-                Name = example.Name,
-                Description = example.Description,
-                Price = example.Price,
-                ImageUrl = example.ImageUrl,
-                Status = example.Status,
-                HexColor = example.HexColor,
-                CreatedAt = example.CreatedAt
-            };
+            // Fetch with Category for the response
+            return await _context.Set<Example>()
+                .AsNoTracking()
+                .Select(ExampleDetail.Projection)
+                .FirstAsync(x => x.Id == example.Id, cancellationToken);
         }
     }
 }

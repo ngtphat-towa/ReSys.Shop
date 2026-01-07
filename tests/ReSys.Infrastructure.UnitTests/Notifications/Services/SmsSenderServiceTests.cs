@@ -1,9 +1,6 @@
-using ErrorOr;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
@@ -12,7 +9,6 @@ using Sinch.SMS;
 using Sinch.SMS.Batches;
 using Sinch.SMS.Batches.Send;
 using ReSys.Core.Common.Notifications.Errors;
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
 

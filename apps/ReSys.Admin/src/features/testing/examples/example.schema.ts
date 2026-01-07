@@ -23,6 +23,9 @@ export const ExampleSchema = z.object({
 
   /** Optional hex color code for visual branding. */
   hex_color: z.string().regex(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Invalid hex color').optional().nullable(),
+
+  /** ID of the associated category. */
+  category_id: z.string().uuid('Invalid category ID').optional().nullable(),
 })
 
 /**
