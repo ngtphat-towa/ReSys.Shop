@@ -51,6 +51,35 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
         result.Value.HexColor.Should().Be("#123456");
     }
 
+    [Fact(DisplayName = "Should return example details with category name when it has one")]
+    public async Task Handle_WithCategory_ShouldReturnCategoryName()
+    {
+        // Arrange
+        var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "MyCategory" };
+        var exampleId = Guid.NewGuid();
+        var example = new Example
+        {
+            Id = exampleId,
+            Name = "CategorizedExample",
+            Price = 10,
+            CategoryId = category.Id
+        };
+
+        _context.Set<ExampleCategory>().Add(category);
+        _context.Set<Example>().Add(example);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var query = new GetExampleById.Query(new GetExampleById.Request(exampleId));
+
+        // Act
+        var result = await _handler.Handle(query, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.CategoryId.Should().Be(category.Id);
+        result.Value.CategoryName.Should().Be("MyCategory");
+    }
+
     [Fact(DisplayName = "Should return a not found error when searching for an example ID that does not exist")]
     public async Task Handle_NonExistentExample_ShouldReturnNotFound()
     {

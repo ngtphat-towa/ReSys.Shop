@@ -1,4 +1,5 @@
 using ReSys.Core.UnitTests.TestInfrastructure;
+using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Features.Testing.Examples.CreateExample;
 using ReSys.Core.Domain;
@@ -47,6 +48,36 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample.Should().NotBeNull("because the example should be persisted in the database");
         dbExample!.Status.Should().Be(ExampleStatus.Active);
         dbExample.HexColor.Should().Be("#FF5733");
+    }
+
+    [Fact(DisplayName = "Should successfully create an example with a category")]
+    public async Task Handle_WithCategory_ShouldCreateExample()
+    {
+        // Arrange
+        var category = new ExampleCategory { Id = Guid.NewGuid(), Name = $"Cat_{Guid.NewGuid()}" };
+        _context.Set<ExampleCategory>().Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var uniqueName = $"Example_{Guid.NewGuid()}";
+        var request = new CreateExample.Request
+        {
+            Name = uniqueName,
+            Price = 10,
+            CategoryId = category.Id
+        };
+        var command = new CreateExample.Command(request);
+
+        // Act
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.CategoryId.Should().Be(category.Id);
+        result.Value.CategoryName.Should().Be(category.Name);
+
+        var dbExample = await _context.Set<Example>().Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == result.Value.Id, TestContext.Current.CancellationToken);
+        dbExample!.CategoryId.Should().Be(category.Id);
+        dbExample.Category!.Name.Should().Be(category.Name);
     }
 
     [Fact(DisplayName = "Should return a conflict error when attempting to create an example with a name that already exists")]

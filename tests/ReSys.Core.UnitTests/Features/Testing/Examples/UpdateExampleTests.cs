@@ -69,6 +69,50 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample.HexColor.Should().Be("#FFFFFF");
     }
 
+    [Fact(DisplayName = "Handle: Should successfully update the category of an existing example")]
+    public async Task Handle_UpdateCategory_ShouldWork()
+    {
+        // Arrange
+        var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "TargetCategory" };
+        var exampleId = Guid.NewGuid();
+        _context.Set<ExampleCategory>().Add(category);
+        _context.Set<Example>().Add(new Example { Id = exampleId, Name = "CatTest", Price = 10 });
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new UpdateExample.Request { Name = "CatTest", Price = 10, CategoryId = category.Id };
+        var command = new UpdateExample.Command(exampleId, request);
+
+        // Act
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.CategoryId.Should().Be(category.Id);
+        result.Value.CategoryName.Should().Be("TargetCategory");
+    }
+
+    [Fact(DisplayName = "Handle: Should successfully clear the category of an existing example")]
+    public async Task Handle_ClearCategory_ShouldWork()
+    {
+        // Arrange
+        var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "SomeCategory" };
+        var exampleId = Guid.NewGuid();
+        _context.Set<ExampleCategory>().Add(category);
+        _context.Set<Example>().Add(new Example { Id = exampleId, Name = "ClearTest", Price = 10, CategoryId = category.Id });
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var request = new UpdateExample.Request { Name = "ClearTest", Price = 10, CategoryId = null };
+        var command = new UpdateExample.Command(exampleId, request);
+
+        // Act
+        var result = await _handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.CategoryId.Should().BeNull();
+        result.Value.CategoryName.Should().BeNull();
+    }
+
     [Fact(DisplayName = "Handle: Should return a conflict error when updating an example name to one that already exists")]
     public async Task Handle_NameConflict_ShouldReturnConflict()
     {
