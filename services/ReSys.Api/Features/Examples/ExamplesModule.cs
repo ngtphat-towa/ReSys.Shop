@@ -28,6 +28,13 @@ public class ExamplesModule : ICarterModule
         })
         .WithName("GetExamples");
 
+        group.MapGet("/v2", async ([AsParameters] GetExamplesV2.Request request, ISender sender) =>
+        {
+            var result = await sender.Send(new GetExamplesV2.Query(request));
+            return Results.Ok(ApiResponse.Paginated(result));
+        })
+        .WithName("GetExamplesV2");
+
         group.MapGet("/{id}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetExampleById.Query(new GetExampleById.Request(id)));
