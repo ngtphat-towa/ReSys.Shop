@@ -20,6 +20,9 @@ public class Example : Entity, IAuditable
     public string? HexColor { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 
+    public Guid? CategoryId { get; set; }
+    public virtual ExampleCategory? Category { get; set; }
+
     public virtual ExampleEmbedding? Embedding { get; set; }
 }
 

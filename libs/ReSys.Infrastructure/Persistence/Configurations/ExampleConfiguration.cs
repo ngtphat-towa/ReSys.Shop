@@ -22,5 +22,10 @@ public class ExampleConfiguration : IEntityTypeConfiguration<Example>
             .HasMaxLength(ExampleConstraints.HexColorMaxLength);
 
         builder.HasIndex(e => e.Name).IsUnique();
+
+        builder.HasOne(e => e.Category)
+            .WithMany(c => c.Examples)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
