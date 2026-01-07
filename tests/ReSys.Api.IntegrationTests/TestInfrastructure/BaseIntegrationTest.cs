@@ -18,9 +18,6 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     {
         Factory = factory;
         Output = output;
-        
-        // Link xUnit output to Serilog
-        IntegrationTestWebAppFactory.LogOutput.Current = output;
 
         Client = factory.CreateClient();
         JsonSettings = factory.JsonSettings;

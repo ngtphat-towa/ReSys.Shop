@@ -52,23 +52,8 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         }
     }
 
-    public static readonly TestOutputHelperProxy LogOutput = new();
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureLogging((context, logging) =>
-        {
-            logging.ClearProviders(); // Remove Console/Debug to keep output clean
-            
-            var logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(context.Configuration)
-                .Enrich.FromLogContext()
-                .WriteTo.Sink(new TestOutputSink(LogOutput))
-                .CreateLogger();
-                
-            logging.AddSerilog(logger);
-        });
-
         builder.ConfigureAppConfiguration((context, config) =>
         {
             // Only ConnectionStrings are kept here because PersistenceModule reads them directly from IConfiguration

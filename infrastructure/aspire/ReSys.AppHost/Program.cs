@@ -33,12 +33,14 @@ api.WithReference(papercut.GetEndpoint("smtp"))
    .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Port", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"));
 
 // ML Service (Python)
+#pragma warning disable ASPIREHOSTINGPYTHON001
 var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
     .WithHttpEndpoint(env: "PORT", port: 8000)
     .WithEnvironment("USE_MOCK_ML", "true")
     .WithEnvironment("ROOT_PATH", "/ml")
     .WithOtlpExporter()
     .WithHttpHealthCheck("/health");
+#pragma warning restore ASPIREHOSTINGPYTHON001
 
 api.WithReference(ml)
    .WithEnvironment("MlSettings__ServiceUrl", ml.GetEndpoint("http"));
