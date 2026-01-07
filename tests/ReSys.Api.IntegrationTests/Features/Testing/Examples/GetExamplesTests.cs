@@ -170,6 +170,36 @@ public class GetExamplesTests : BaseIntegrationTest
         apiResponse.Data!.Select(x => x.Status).Should().Contain([ExampleStatus.Draft, ExampleStatus.Active]);
         apiResponse.Data!.Select(x => x.Status).Should().NotContain(ExampleStatus.Archived);
     }
+
+    [Fact(DisplayName = "GET /api/testing/examples: Should return empty data when page index exceeds total pages")]
+    public async Task Get_PageExceedingTotal_ReturnsEmptyData()
+    {
+        var uniquePrefix = $"Exceed_{Guid.NewGuid()}";
+        await SeedExamplesAsync(5, uniquePrefix);
+
+        // Page 10 with size 10 -> empty
+        var response = await Client.GetAsync($"/api/testing/examples?search={uniquePrefix}&page=10&page_size=10", TestContext.Current.CancellationToken);
+
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
+        
+        apiResponse!.Data.Should().BeEmpty();
+        apiResponse.Meta!.TotalCount.Should().Be(5);
+    }
+
+    [Fact(DisplayName = "GET /api/testing/examples: Should return empty data when search term has no matches")]
+    public async Task Get_NoSearchMatches_ReturnsEmptyData()
+    {
+        var response = await Client.GetAsync($"/api/testing/examples?search=NonExistentTerm_{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
+        
+        apiResponse!.Data.Should().BeEmpty();
+        apiResponse.Meta!.TotalCount.Should().Be(0);
+    }
 }
 
 
