@@ -5,6 +5,7 @@ namespace ReSys.Gateway;
 public sealed record GatewayOptions
 {
     public const string SectionName = "Gateway";
+    public const string ReverseProxySection = "ReverseProxy";
 
     public bool EnableRateLimiting { get; init; }
 

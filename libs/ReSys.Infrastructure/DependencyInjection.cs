@@ -18,14 +18,14 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "Core");
-
-        services
-            .AddPersistence(configuration)
-            .AddStorage(configuration)
-            .AddMlServices(configuration)
-            .AddImaging(configuration)
-            .AddNotifications(configuration);
+        services.RegisterModule("Infrastructure", "Core", s =>
+        {
+            s.AddPersistence(configuration)
+             .AddStorage(configuration)
+             .AddMlServices(configuration)
+             .AddImaging(configuration)
+             .AddNotifications(configuration);
+        });
 
         return services;
     }

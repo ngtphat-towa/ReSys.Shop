@@ -1,14 +1,19 @@
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
-
+using Xunit;
 
 using System.Net;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 
 [Collection("Shared Database")]
-public class DeleteExampleTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class DeleteExampleTests : BaseIntegrationTest
 {
+    public DeleteExampleTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
+
     [Fact(DisplayName = "DELETE /api/testing/examples/{id}: Should return 204 No Content and delete the Example")]
     public async Task Delete_Existing_ReturnsNoContent()
     {

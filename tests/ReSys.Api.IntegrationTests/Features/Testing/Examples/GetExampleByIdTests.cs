@@ -4,12 +4,17 @@ using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
+using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 
 [Collection("Shared Database")]
-public class GetExampleByIdTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class GetExampleByIdTests : BaseIntegrationTest
 {
+    public GetExampleByIdTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
     [Fact(DisplayName = "GET /api/testing/examples/{id}: Should return Example details")]
     public async Task GetById_ExistingExample_ReturnsExample()
     {

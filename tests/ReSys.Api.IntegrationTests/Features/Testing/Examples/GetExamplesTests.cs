@@ -3,12 +3,18 @@ using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 
 [Collection("Shared Database")]
-public class GetExamplesTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class GetExamplesTests : BaseIntegrationTest
 {
+    public GetExamplesTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
+
     [Fact(DisplayName = "GET /api/testing/examples: Should support pagination (page and page_size)")]
     public async Task Get_WithPagination_ReturnsCorrectSlice()
     {

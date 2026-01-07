@@ -14,24 +14,25 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        services.RegisterModule("Presentation", "API");
-        services
-            .AddCustomSerialization() // Using your extension
-            .AddDocumentation()       // Using the documentation extension
-            .AddCors(options =>
-            {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
-            });
+        services.RegisterModule("Presentation", "API", s =>
+        {
+            s.AddCustomSerialization() // Using your extension
+             .AddDocumentation()       // Using the documentation extension
+             .AddCors(options =>
+             {
+                 options.AddDefaultPolicy(policy =>
+                 {
+                     policy.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                 });
+             });
 
-        services.AddCarter();
+            s.AddCarter();
 
-        services.AddExceptionHandler<GlobalExceptionHandler>();
-        services.AddProblemDetails();
+            s.AddExceptionHandler<GlobalExceptionHandler>();
+            s.AddProblemDetails();
+        });
 
         return services;
     }

@@ -6,12 +6,17 @@ using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using System.Text;
 using ReSys.Core.Domain;
+using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 
 [Collection("Shared Database")]
-public class UpdateExampleTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class UpdateExampleTests : BaseIntegrationTest
 {
+    public UpdateExampleTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
     [Fact(DisplayName = "PUT /api/testing/examples/{id}: Should update Example details")]
     public async Task Put_WithValidRequest_UpdatesExample()
     {

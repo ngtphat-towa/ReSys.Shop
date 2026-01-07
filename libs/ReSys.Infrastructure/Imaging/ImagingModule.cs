@@ -12,14 +12,15 @@ public static class ImagingModule
 {
     public static IServiceCollection AddImaging(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "Imaging");
+        services.RegisterModule("Infrastructure", "Imaging", s =>
+        {
+            s.AddOptions<ImageOptions>()
+                .Bind(configuration.GetSection(ImageOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
-        services.AddOptions<ImageOptions>()
-            .Bind(configuration.GetSection(ImageOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddSingleton<IImageService, ImageService>();
+            s.AddSingleton<IImageService, ImageService>();
+        });
         return services;
     }
 }

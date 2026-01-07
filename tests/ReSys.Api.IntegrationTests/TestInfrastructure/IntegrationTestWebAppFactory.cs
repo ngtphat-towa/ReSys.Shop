@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
+using Serilog;
 
 using Respawn;
 
@@ -12,9 +15,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 using ReSys.Core.Common.Data;
-using ReSys.Infrastructure.AI;
+
 using ReSys.Infrastructure.Persistence;
 using ReSys.Core.Common.Ml;
+using ReSys.Infrastructure.Imaging.Options;
+using ReSys.Infrastructure.Ml.Options;
+using ReSys.Infrastructure.Notifications.Options;
+using ReSys.Infrastructure.Storage.Options;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
@@ -45,30 +52,68 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         }
     }
 
+    public static readonly TestOutputHelperProxy LogOutput = new();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureLogging((context, logging) =>
+        {
+            logging.ClearProviders(); // Remove Console/Debug to keep output clean
+            
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Sink(new TestOutputSink(LogOutput))
+                .CreateLogger();
+                
+            logging.AddSerilog(logger);
+        });
+
         builder.ConfigureAppConfiguration((context, config) =>
         {
+            // Only ConnectionStrings are kept here because PersistenceModule reads them directly from IConfiguration
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:shopdb"] = _connectionString,
-                ["Storage:LocalPath"] = "test-storage",
-                ["Storage:Security:EncryptionKey"] = "TestSecretKey123!",
-                ["Image:MaxWidth"] = "8192",
-                ["Image:MaxHeight"] = "8192",
-                ["ML:ServiceUrl"] = "http://fake-ml-service",
-                ["Notifications:SmtpOptions:EnableEmailNotifications"] = "false",
-                ["Notifications:SmtpOptions:Provider"] = "logger",
-                ["Notifications:SmsOptions:EnableSmsNotifications"] = "false",
-                ["Notifications:SmsOptions:Provider"] = "logger"
+                ["ConnectionStrings:shopdb"] = _connectionString
             });
         });
 
         builder.ConfigureServices(services =>
         {
+            // 1. Configure Options (Type-Safe)
+            services.Configure<StorageOptions>(opts =>
+            {
+                opts.LocalPath = "test-storage";
+                opts.Security.EncryptionKey = "TestSecretKey123!";
+            });
+
+            services.Configure<ImageOptions>(opts =>
+            {
+                opts.MaxWidth = 8192;
+                opts.MaxHeight = 8192;
+            });
+
+            services.Configure<MlOptions>(opts =>
+            {
+                opts.ServiceUrl = "http://fake-ml-service";
+            });
+
+            services.Configure<SmtpOptions>(opts =>
+            {
+                opts.EnableEmailNotifications = false;
+                opts.Provider = "logger";
+            });
+
+            services.Configure<SmsOptions>(opts =>
+            {
+                opts.EnableSmsNotifications = false;
+                opts.Provider = "logger";
+            });
+
+            // 2. Database Modifications
             // Remove ALL registrations for AppDbContext (including pooling-related ones)
-            var contextDescriptors = services.Where(d => 
-                d.ServiceType == typeof(AppDbContext) || 
+            var contextDescriptors = services.Where(d =>
+                d.ServiceType == typeof(AppDbContext) ||
                 d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
                 d.ServiceType == typeof(IApplicationDbContext) ||
                 (d.ServiceType.IsGenericType && d.ServiceType.GetGenericArguments().Contains(typeof(AppDbContext)))).ToList();
@@ -88,6 +133,7 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
 
             services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
+            // 3. Service Replacements
             // Replace IMlService with Fake
             var mlServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMlService));
             if (mlServiceDescriptor != null) services.Remove(mlServiceDescriptor);

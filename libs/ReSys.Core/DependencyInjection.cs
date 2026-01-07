@@ -10,25 +10,27 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCore(this IServiceCollection services, params Assembly[] assemblies)
     {
-        services.RegisterModule("Core", "Application");
-        services.AddMediatR(config =>
+        services.RegisterModule("Core", "Application", s =>
         {
-            config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+            s.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+                foreach (var assembly in assemblies)
+                {
+                    config.RegisterServicesFromAssembly(assembly);
+                }
+                config.AddOpenBehavior(typeof(LoggingBehavior<,>));
+                config.AddOpenBehavior(typeof(TelemetryBehavior<,>));
+                config.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            });
+
+            s.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
             foreach (var assembly in assemblies)
             {
-                config.RegisterServicesFromAssembly(assembly);
+                s.AddValidatorsFromAssembly(assembly);
             }
-            config.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            config.AddOpenBehavior(typeof(TelemetryBehavior<,>));
-            config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
-
-        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
-
-        foreach (var assembly in assemblies)
-        {
-            services.AddValidatorsFromAssembly(assembly);
-        }
 
         return services;
     }

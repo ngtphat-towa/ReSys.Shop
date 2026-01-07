@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using ReSys.Core.Common.Telemetry;
+using ReSys.Core.Common.Constants;
 using System.Diagnostics;
 
 namespace ReSys.Core.Common.Behaviors;
@@ -22,17 +23,17 @@ public class TelemetryBehavior<TRequest, TResponse>(ILogger<TRequest> logger)
 
         try
         {
-            logger.LogInformation("[UseCase] Starting {RequestName}", requestName);
+            logger.LogInformation(LogTemplates.UseCase.Starting, requestName);
 
             var response = await next();
 
             sw.Stop();
 
             // 3. Record Success Metrics
-            TelemetryConstants.UseCaseDuration.Record(sw.ElapsedMilliseconds, 
+            TelemetryConstants.App.UseCaseDuration.Record(sw.ElapsedMilliseconds, 
                 new TagList { { "usecase", requestName }, { "status", "success" } });
 
-            logger.LogInformation("[UseCase] Completed {RequestName} in {Elapsed}ms", requestName, sw.ElapsedMilliseconds);
+            logger.LogInformation(LogTemplates.UseCase.Completed, requestName, sw.ElapsedMilliseconds);
 
             return response;
         }
@@ -41,11 +42,11 @@ public class TelemetryBehavior<TRequest, TResponse>(ILogger<TRequest> logger)
             sw.Stop();
 
             // 4. Record Error Metrics
-            TelemetryConstants.UseCaseErrors.Add(1, new TagList { { "usecase", requestName } });
-            TelemetryConstants.UseCaseDuration.Record(sw.ElapsedMilliseconds, 
+            TelemetryConstants.App.UseCaseErrors.Add(1, new TagList { { "usecase", requestName } });
+            TelemetryConstants.App.UseCaseDuration.Record(sw.ElapsedMilliseconds, 
                 new TagList { { "usecase", requestName }, { "status", "error" } });
 
-            logger.LogError(ex, "[UseCase] Failed {RequestName} after {Elapsed}ms", requestName, sw.ElapsedMilliseconds);
+            logger.LogError(ex, LogTemplates.UseCase.Failed, requestName, sw.ElapsedMilliseconds);
             
             activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             throw;

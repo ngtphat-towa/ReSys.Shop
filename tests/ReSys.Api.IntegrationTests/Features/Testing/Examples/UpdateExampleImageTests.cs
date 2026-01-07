@@ -8,12 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Storage;
+using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 
 [Collection("Shared Database")]
-public class UpdateExampleImageTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class UpdateExampleImageTests : BaseIntegrationTest
 {
+    public UpdateExampleImageTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
+
     [Fact(DisplayName = "POST /api/testing/examples/{id}/image: Should upload image and update Example URL")]
     public async Task UpdateImage_ValidFile_ReturnsUpdatedExample()
     {

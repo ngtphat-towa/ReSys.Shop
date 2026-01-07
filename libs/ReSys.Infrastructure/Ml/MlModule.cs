@@ -12,14 +12,15 @@ public static class MlModule
 {
     public static IServiceCollection AddMlServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "AI");
+        services.RegisterModule("Infrastructure", "AI", s =>
+        {
+            s.AddOptions<MlOptions>()
+                .Bind(configuration.GetSection(MlOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
-        services.AddOptions<MlOptions>()
-            .Bind(configuration.GetSection(MlOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddHttpClient<IMlService, MlService>();
+            s.AddHttpClient<IMlService, MlService>();
+        });
 
         return services;
     }

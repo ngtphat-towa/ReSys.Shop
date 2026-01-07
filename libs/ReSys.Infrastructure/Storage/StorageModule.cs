@@ -13,16 +13,17 @@ public static class StorageModule
 {
     public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "Storage");
-
-        services.AddOptions<StorageOptions>()
-            .Bind(configuration.GetSection(StorageOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        
-        services.AddSingleton<IFileValidator, FileValidator>();
-        services.AddSingleton<IFileSecurityService, FileSecurityService>();
-        services.AddSingleton<IFileService, LocalFileService>();
+        services.RegisterModule("Infrastructure", "Storage", s =>
+        {
+            s.AddOptions<StorageOptions>()
+                .Bind(configuration.GetSection(StorageOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            
+            s.AddSingleton<IFileValidator, FileValidator>();
+            s.AddSingleton<IFileSecurityService, FileSecurityService>();
+            s.AddSingleton<IFileService, LocalFileService>();
+        });
 
         return services;
     }

@@ -1,6 +1,7 @@
-using Newtonsoft.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using ReSys.Core.Common.Data;
+using Xunit;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
@@ -11,10 +12,16 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     protected readonly JsonSerializerSettings JsonSettings;
     protected readonly IServiceScope Scope;
     protected readonly IApplicationDbContext Context;
+    protected readonly ITestOutputHelper Output;
 
-    protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
+    protected BaseIntegrationTest(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
     {
         Factory = factory;
+        Output = output;
+        
+        // Link xUnit output to Serilog
+        IntegrationTestWebAppFactory.LogOutput.Current = output;
+
         Client = factory.CreateClient();
         JsonSettings = factory.JsonSettings;
         Scope = factory.Services.CreateScope();

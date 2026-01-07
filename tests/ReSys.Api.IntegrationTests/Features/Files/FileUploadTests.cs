@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using Xunit;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Common.Storage;
 using ReSys.Api.Features.Files;
@@ -11,8 +12,13 @@ using ReSys.Api.Features.Files;
 namespace ReSys.Api.IntegrationTests.Features.Files;
 
 [Collection("Shared Database")]
-public class FileUploadTests(IntegrationTestWebAppFactory factory) : BaseIntegrationTest(factory)
+public class FileUploadTests : BaseIntegrationTest
 {
+    public FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
+        : base(factory, output)
+    {
+    }
+
     [Fact(DisplayName = "POST /api/files/image: Should upload image and convert to WebP")]
     public async Task UploadImage_ValidPng_ReturnsWebpMetadata()
     {

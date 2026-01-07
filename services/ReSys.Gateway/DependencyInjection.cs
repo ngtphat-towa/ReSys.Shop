@@ -8,34 +8,35 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddGatewayServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "Gateway");
-
-        // Options
-        services.AddOptions<GatewayOptions>()
-            .Bind(configuration.GetSection(GatewayOptions.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddOptions<ServiceEndpoints>()
-            .Bind(configuration.GetSection(ServiceEndpoints.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        // CORS
-        services.AddCors(options =>
+        services.RegisterModule("Infrastructure", "Gateway", s =>
         {
-            options.AddDefaultPolicy(policy =>
-            {
-                policy.AllowAnyOrigin()
-                      .AllowAnyMethod()
-                      .AllowAnyHeader();
-            });
-        });
+            // Options
+            s.AddOptions<GatewayOptions>()
+                .Bind(configuration.GetSection(GatewayOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
 
-        // YARP
-        services.AddReverseProxy()
-            .LoadFromConfig(configuration.GetSection("ReverseProxy"))
-            .AddServiceDiscoveryDestinationResolver();
+            s.AddOptions<ServiceEndpoints>()
+                .Bind(configuration.GetSection(ServiceEndpoints.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            // CORS
+            s.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
+            // YARP
+            s.AddReverseProxy()
+                .LoadFromConfig(configuration.GetSection(GatewayOptions.ReverseProxySection))
+                .AddServiceDiscoveryDestinationResolver();
+        });
 
         return services;
     }
