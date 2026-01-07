@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Models;
 
-namespace ReSys.Core.Common.Extensions;
+namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>
 /// Provides extension methods for paginating IQueryable collections.

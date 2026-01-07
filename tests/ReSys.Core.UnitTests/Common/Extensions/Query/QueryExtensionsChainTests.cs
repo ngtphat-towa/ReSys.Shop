@@ -1,13 +1,7 @@
-using FluentAssertions;
-
-using Microsoft.EntityFrameworkCore;
-
 using ReSys.Core.Common.Extensions;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.UnitTests.TestInfrastructure;
-
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

@@ -3,8 +3,6 @@ using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using Xunit;
-using FluentAssertions;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 

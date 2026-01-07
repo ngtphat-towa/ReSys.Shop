@@ -1,9 +1,15 @@
 using MediatR;
+
+
 using Microsoft.Extensions.Logging;
+
+
 using NSubstitute;
+
+
 using ReSys.Core.Common.Behaviors;
-using FluentAssertions;
-using Xunit;
+
+
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 

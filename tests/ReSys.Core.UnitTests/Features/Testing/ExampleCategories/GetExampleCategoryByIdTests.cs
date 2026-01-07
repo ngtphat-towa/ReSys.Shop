@@ -1,10 +1,8 @@
-using FluentAssertions;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategoryById;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Testing.ExampleCategories;
 

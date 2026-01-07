@@ -1,5 +1,3 @@
-using FluentAssertions;
-
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Extensions;
@@ -7,8 +5,6 @@ using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.GetExamples;
 using ReSys.Core.UnitTests.TestInfrastructure;
-
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 

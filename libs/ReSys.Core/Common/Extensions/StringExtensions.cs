@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using System.Globalization;
 
 namespace ReSys.Core.Common.Extensions;
 

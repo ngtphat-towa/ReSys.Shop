@@ -4,7 +4,6 @@ using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain;
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 

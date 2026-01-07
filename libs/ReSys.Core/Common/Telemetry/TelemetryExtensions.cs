@@ -1,7 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+
+
 using Serilog;
-using System;
+
+
 using System.Diagnostics;
+
+
 using ReSys.Core.Common.Constants;
 
 namespace ReSys.Core.Common.Telemetry;

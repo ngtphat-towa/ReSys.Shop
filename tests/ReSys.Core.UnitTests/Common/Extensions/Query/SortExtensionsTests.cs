@@ -1,8 +1,4 @@
-using FluentAssertions;
-
 using ReSys.Core.Common.Extensions;
-
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

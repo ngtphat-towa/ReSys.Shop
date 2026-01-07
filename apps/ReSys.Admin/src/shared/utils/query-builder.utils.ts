@@ -30,7 +30,7 @@ export type NestedKeyOf<T extends object> = {
  * // Output: { filter: "price>100", sort: "createdAt desc", page: 1, page_size: 20 }
  * ```
  */
-export class QueryBuilder<T extends object = any> {
+export class QueryBuilder<T extends object = Record<string, unknown>> {
   private _filterParts: string[] = [];
   private _sorts: string[] = [];
   private _searchText?: string;
@@ -67,7 +67,7 @@ export class QueryBuilder<T extends object = any> {
    * @param operator Filter operator
    * @param value Value to filter by (null results in "null" string)
    */
-  where(field: NestedKeyOf<T> | string, operator: FilterOperator, value: any): this {
+  where(field: NestedKeyOf<T> | string, operator: FilterOperator, value: unknown): this {
     if (value === undefined || value === '') return this;
 
     this.appendSeparator();
@@ -192,8 +192,15 @@ export class QueryBuilder<T extends object = any> {
    * 
    * @returns An object like `{ filter?: string, sort?: string, search?: string, search_field?: string[], page?: number, page_size?: number }`
    */
-  build(): Record<string, any> {
-    const params: Record<string, any> = {};
+  build(): {
+    filter?: string
+    sort?: string
+    search?: string
+    search_field?: string[]
+    page?: number
+    page_size?: number
+  } {
+    const params: Record<string, unknown> = {};
 
     if (this._filterParts.length > 0) {
       params.filter = this._filterParts.join('');
@@ -233,7 +240,7 @@ export class QueryBuilder<T extends object = any> {
     }
   }
 
-  private formatValue(value: any): string {
+  private formatValue(value: unknown): string {
     if (value === null || value === undefined) return 'null';
     if (value instanceof Date) return value.toISOString();
     return String(value);

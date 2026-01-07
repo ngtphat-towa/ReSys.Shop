@@ -8,7 +8,6 @@ using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Features.Testing.Examples.CreateExample;
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 

@@ -19,6 +19,8 @@ export interface FeatureLocales {
   actions: Record<string, string>
   /** DataTable headers and metadata strings. */
   table?: Record<string, string>
+  /** Localized filter operators. */
+  filters?: Record<string, string>
   /** Configuration for confirmation dialogs. */
   confirm?: Record<string, string | ((...args: string[]) => string)>
   /** Feature-specific common strings. */

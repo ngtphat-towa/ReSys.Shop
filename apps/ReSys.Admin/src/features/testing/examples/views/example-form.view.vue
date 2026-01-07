@@ -13,6 +13,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import { ExampleSchema } from '../example.schema'
 import { ExampleStatus, STATUS_COLORS } from '../example.types'
 import { exampleLocales } from '../example.locales'
+import { useExampleCategoryStore } from '../../example-categories/example-category.store'
 import { useFormatter } from '@/shared/composables/formatter.use'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import ExampleMediaUpload from '../components/media-upload.component.vue'
@@ -22,7 +23,9 @@ import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 const route = useRoute()
 const router = useRouter()
 const exampleStore = useExampleStore()
+const categoryStore = useExampleCategoryStore()
 const { loading } = storeToRefs(exampleStore)
+const { categories } = storeToRefs(categoryStore)
 const { formatCurrency } = useFormatter()
 const { handleApiResult } = useApiErrorHandler()
 
@@ -40,6 +43,7 @@ const { defineField, handleSubmit, errors, setValues, setErrors, values, resetFo
     image_url: null as string | null,
     status: ExampleStatus.Draft,
     hex_color: '#3B82F6',
+    category_id: null as string | null,
   },
 })
 
@@ -49,6 +53,17 @@ const [description] = defineField('description')
 const [price] = defineField('price')
 const [status] = defineField('status')
 const [hex_color] = defineField('hex_color')
+const [category_id] = defineField('category_id')
+
+/**
+ * Normalizes the hex_color value to always include the '#' prefix.
+ * This provides immediate visual feedback when picking colors via ColorPicker.
+ */
+watch(hex_color, (newVal) => {
+  if (newVal && typeof newVal === 'string' && !newVal.startsWith('#')) {
+    setValues({ ...values, hex_color: `#${newVal}` });
+  }
+})
 
 const statusOptions = computed(() => [
   { label: exampleLocales.labels?.status_draft, value: ExampleStatus.Draft, icon: 'pi pi-pencil' },
@@ -75,6 +90,9 @@ const handleFileChange = (file: File | null) => {
  * If fetching fails, redirects the user back to the list view.
  */
 const loadExample = async () => {
+  // Fetch categories regardless of mode for the dropdown
+  await categoryStore.fetchCategories({ page_size: 100 })
+
   if (!isEdit.value) {
     exampleStore.clearCurrent()
     resetForm()
@@ -97,6 +115,7 @@ const loadExample = async () => {
       image_url: data.image_url || null,
       status: data.status,
       hex_color: data.hex_color || '#3B82F6',
+      category_id: data.category_id || null,
     })
   } else if (!handled) {
     router.push({ name: 'testing.examples.list' })
@@ -113,9 +132,19 @@ const loadExample = async () => {
  * 3. Handle successful redirect or backend validation error mapping.
  */
 const onSubmit = handleSubmit(async (formValues) => {
+  // Ensure hex_color has the # prefix if it exists
+  const hex = formValues.hex_color;
+  const normalizedHex = hex && !hex.startsWith('#') ? `#${hex}` : hex;
+
+  const payload = {
+    ...formValues,
+    hex_color: normalizedHex,
+    image_url: values.image_url || undefined
+  };
+
   const result = isEdit.value
-    ? await exampleStore.updateExample(ExampleId.value, { ...formValues, image_url: values.image_url || undefined }, imageFile.value || undefined)
-    : await exampleStore.createExample(formValues, imageFile.value || undefined);
+    ? await exampleStore.updateExample(ExampleId.value, payload, imageFile.value || undefined)
+    : await exampleStore.createExample(payload, imageFile.value || undefined);
 
   const handled = handleApiResult(result, {
     setErrors,
@@ -125,7 +154,6 @@ const onSubmit = handleSubmit(async (formValues) => {
         ? (exampleLocales.messages?.update_success || 'Updated')
         : (exampleLocales.messages?.create_success || 'Created'),
     errorTitle: exampleLocales.common?.error,
-    genericError: exampleLocales.messages?.load_error
   });
 
   if (handled) {
@@ -255,14 +283,16 @@ onMounted(() => {
                   <label class="font-bold text-surface-700 dark:text-surface-200">{{
                     exampleLocales.labels?.brand_color
                   }}</label>
-                  <div class="flex items-stretch gap-3">
+                  <div class="flex items-center gap-2">
                     <ColorPicker
                       v-model="hex_color"
                       format="hex"
                       :invalid="!!errors.hex_color"
                       :pt="{
-                        root: { class: 'flex w-8' },
-                        input: { class: 'rounded-xl h-full w-full' }
+                        root: { class: 'w-12 h-full' },
+                        button: ({ context }: any) => ({
+                          class: 'rounded-xl h-full w-full'
+                        })
                       }"
                     />
                     <InputText
@@ -281,54 +311,36 @@ onMounted(() => {
                   <label class="font-bold text-surface-700 dark:text-surface-200">{{
                     exampleLocales.labels?.status
                   }}</label>
-                  <Select
+                  <SelectButton
                     v-model="status"
                     :options="statusOptions"
                     optionLabel="label"
                     optionValue="value"
-                    :placeholder="exampleLocales.placeholders?.select_status"
-                    class="w-full rounded-xl"
                     :invalid="!!errors.status"
                     :pt="{
-                      label: { class: 'py-1.5 flex items-center' },
-                      option: ({ context }) => ({
+                      root: { class: 'flex w-full' },
+                      button: ({ context }: any) => ({
                         class: [
-                          'flex items-center gap-2 px-4 py-3 transition-all duration-200 cursor-pointer',
+                          'flex-1 flex items-center justify-center gap-2 px-4 py-2.5 transition-all duration-200',
+                          'border border-surface-200 dark:border-surface-700',
+                          'hover:border-primary hover:bg-primary/5',
                           {
-                            // Dynamic Hover Effects
-                            'hover:bg-warn-50 dark:hover:bg-warn-950/20 hover:text-warn-600':
-                              context.option.value === ExampleStatus.Draft,
-                            'hover:bg-success-50 dark:hover:bg-success-950/20 hover:text-success-600':
-                              context.option.value === ExampleStatus.Active,
-                            'hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-700':
-                              context.option.value === ExampleStatus.Archived,
-
-                            // Selected State
-                            'bg-surface-50 dark:bg-surface-800/50 border-l-4 border-primary':
-                              context.selected,
-                          },
-                        ],
-                      }),
+                            // Active/Selected state
+                            'bg-primary text-primary-contrast border-primary shadow-sm': context.active,
+                            // Inactive state
+                            'bg-surface-0 dark:bg-surface-900 text-surface-700 dark:text-surface-200': !context.active,
+                          }
+                        ]
+                      })
                     }"
                   >
-                    <template #value="slotProps">
-                      <div v-if="slotProps.value !== null" class="flex items-center gap-2 leading-none">
-                        <i
-                          :class="statusOptions.find((o) => o.value === slotProps.value)?.icon"
-                          class="text-surface-500"
-                        ></i>
-                        <Badge
-                          :value="statusOptions.find((o) => o.value === slotProps.value)?.label"
-                          :severity="STATUS_COLORS[slotProps.value as ExampleStatus].severity"
-                          class="px-2 py-0 text-[10px] font-bold uppercase rounded-md h-5 flex items-center"
-                        />
+                    <template #option="slotProps">
+                      <div class="flex items-center gap-2">
+                        <i :class="slotProps.option.icon" class="text-sm"></i>
+                        <span class="text-sm font-medium">{{ slotProps.option.label }}</span>
                       </div>
                     </template>
-                    <template #option="slotProps">
-                      <i :class="slotProps.option.icon" class="text-surface-500"></i>
-                      <span class="text-sm font-medium">{{ slotProps.option.label }}</span>
-                    </template>
-                  </Select>
+                  </SelectButton>
                   <small v-if="errors.status" class="font-medium text-danger">{{
                     errors.status
                   }}</small>
@@ -362,14 +374,23 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                  <label class="font-bold text-surface-700 dark:text-surface-200">{{
+                  <label for="category" class="font-bold text-surface-700 dark:text-surface-200">{{
                     exampleLocales.labels?.category
                   }}</label>
-                  <InputText
-                    disabled
-                    :value="exampleLocales.labels?.category_default"
-                    class="bg-surface-50 dark:bg-surface-800 opacity-60 rounded-xl"
+                  <Select
+                    id="category"
+                    v-model="category_id"
+                    :options="categories"
+                    optionLabel="name"
+                    optionValue="id"
+                    :placeholder="exampleLocales.placeholders?.category || 'Select Category'"
+                    class="w-full rounded-xl"
+                    :invalid="!!errors.category_id"
+                    showClear
                   />
+                  <small v-if="errors.category_id" class="font-medium text-danger">{{
+                    errors.category_id
+                  }}</small>
                 </div>
               </div>
             </div>
@@ -436,5 +457,22 @@ onMounted(() => {
 <style scoped>
 :deep(.p-card-body) {
   padding: 2rem;
+}
+
+/* Fix ColorPicker alignment and sizing */
+.color-picker-fixed {
+  width: 3rem;
+}
+
+.color-picker-fixed :deep(.p-colorpicker-preview) {
+  width: 3rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+}
+
+/* Fix Select dropdown label vertical alignment */
+:deep(.p-select .p-select-label) {
+  display: flex;
+  align-items: center;
 }
 </style>

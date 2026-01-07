@@ -1,16 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
 
-using FluentAssertions;
-
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Common.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Features.Testing.ExampleCategories.CreateExampleCategory;
-
-using Xunit;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.ExampleCategories;
 

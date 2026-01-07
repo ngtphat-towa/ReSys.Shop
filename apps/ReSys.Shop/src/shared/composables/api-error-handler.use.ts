@@ -1,4 +1,4 @@
-import type { ApiResult } from '@/shared/api/api.types'
+import type { ApiResult, ApiResponse } from '@/shared/api/api.types'
 import { parseApiError } from '@/shared/api/api.utils'
 import { useToast } from './toast.use'
 
@@ -19,19 +19,18 @@ export function useApiErrorHandler() {
   ) => {
     if (!error) return
     const apiError = parseApiError(error)
+    console.log('[API Trace] Handler received parsed error:', apiError);
 
-    // 1. Handle Validation Errors (If errors dictionary is present)
+    // 1. Handle Validation Errors (If 'errors' dictionary is present)
     if (apiError.errors && Object.keys(apiError.errors).length > 0) {
+      console.log('[API Trace] Validation error dictionary detected.');
       const formErrors: Record<string, string> = {}
       const unmappedMessages: string[] = []
 
       Object.entries(apiError.errors).forEach(([key, messages]) => {
-        // Backend keys are often prefixed (e.g., 'request.name', 'order.customer.name')
         const normalizedKey = key.toLowerCase()
         const messagesArray = messages as string[]
-        
-        // Match if the key is exactly the field name, 
-        // OR if the key ends with .field_name (e.g. 'request.name' matching 'name')
+
         const field = fieldNames.find((f) => {
           const lowerF = f.toLowerCase()
           return normalizedKey === lowerF || normalizedKey.endsWith(`.${lowerF}`)
@@ -44,23 +43,32 @@ export function useApiErrorHandler() {
         }
       })
 
-      if (setErrors) setErrors(formErrors)
-
-      // Show toast for validation errors that couldn't be bound to a specific input
-      if (unmappedMessages.length > 0) {
-        showToast(
-          'warn',
-          locales?.errorTitle || apiError.title || 'Validation Error',
-          unmappedMessages.join('. '),
-        )
+      if (setErrors) {
+        console.log('[API Trace] Mapping errors to fields:', formErrors);
+        setErrors(formErrors)
       }
+
+      // Use server detail or specific unmapped messages
+      const toastDetail = apiError.detail || (unmappedMessages.length > 0 ? unmappedMessages.join('. ') : (locales?.genericError || 'Validation failed'));
+
+      const baseTitle = apiError.title || locales?.errorTitle || 'Validation Error';
+      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle;
+
+      showToast('warn', toastTitle, toastDetail);
     } else {
-      // 2. Handle Global Errors (409, 500, etc.)
-      showToast(
-        apiError.status && apiError.status < 500 ? 'warn' : 'error',
-        locales?.errorTitle || apiError.title || 'Error',
-        locales?.genericError || apiError.detail || 'An unexpected error occurred.',
-      )
+      // 2. Handle Global Errors (409 Conflict, 404 Not Found, 500 Server Error, etc.)
+      // Follows RFC 7807 Problem Details structure (title, detail, status).
+      const status = apiError.status ?? 500;
+      const isClientError = status < 500;
+      const severity = isClientError ? 'warn' : 'error';
+
+      // Use Server info if available, otherwise use custom locales, otherwise system defaults
+      const baseTitle = apiError.title || locales?.errorTitle || (isClientError ? 'Request Error' : 'Server Error');
+      const toastTitle = apiError.error_code ? `${baseTitle} (${apiError.error_code})` : baseTitle;
+      const toastDetail = apiError.detail || locales?.genericError || 'An unexpected error occurred.';
+
+      console.log(`[API Trace] Showing global toast. Severity: ${severity}, Title: ${toastTitle}, Detail: ${toastDetail}`);
+      showToast(severity, toastTitle, toastDetail);
     }
   }
 

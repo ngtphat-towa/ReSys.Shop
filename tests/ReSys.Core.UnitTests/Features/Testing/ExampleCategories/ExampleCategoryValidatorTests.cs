@@ -1,7 +1,8 @@
 using FluentValidation.TestHelper;
+
+
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Features.Testing.ExampleCategories.CreateExampleCategory;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Testing.ExampleCategories;
 

@@ -1,4 +1,6 @@
 using System.Linq.Expressions;
+
+using ReSys.Core.Common.Extensions.Query;
 using ReSys.Core.Common.Models;
 
 namespace ReSys.Core.Common.Extensions;

@@ -24,6 +24,14 @@ const model = ref<MenuItem[]>([
                     { label: 'Catalog List', icon: 'pi pi-fw pi-list', to: { name: 'testing.examples.list' } },
                     { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: { name: 'testing.examples.create' } }
                 ]
+            },
+            {
+                label: 'Example Categories',
+                icon: 'pi pi-fw pi-tags',
+                items: [
+                    { label: 'Category List', icon: 'pi pi-fw pi-list', to: { name: 'testing.example-categories.list' } },
+                    { label: 'Add New', icon: 'pi pi-fw pi-plus-circle', to: { name: 'testing.example-categories.create' } }
+                ]
             }
         ]
     }

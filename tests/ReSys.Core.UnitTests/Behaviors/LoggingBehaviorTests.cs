@@ -1,9 +1,13 @@
 using MediatR;
+
+
 using Microsoft.Extensions.Logging;
+
+
 using NSubstitute;
+
+
 using ReSys.Core.Common.Behaviors;
-using FluentAssertions;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 

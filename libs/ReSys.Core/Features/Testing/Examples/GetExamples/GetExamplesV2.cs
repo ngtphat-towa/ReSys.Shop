@@ -49,6 +49,7 @@ public static class GetExamplesV2
             var request = query.Request;
 
             var dbQuery = _context.Set<Example>()
+                .Include(x => x.Category)
                 .AsNoTracking()
                 .ApplyFilter(request)
                 .ApplySearch(request);

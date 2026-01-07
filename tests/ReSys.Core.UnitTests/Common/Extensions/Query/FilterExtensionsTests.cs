@@ -1,7 +1,5 @@
-using FluentAssertions;
 using ReSys.Core.Common.Extensions;
 using ReSys.Core.Domain;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

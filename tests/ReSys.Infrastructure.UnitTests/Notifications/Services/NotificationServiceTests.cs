@@ -1,7 +1,5 @@
 using ErrorOr;
 
-using FluentAssertions;
-
 using NSubstitute;
 
 using ReSys.Core.Common.Notifications.Constants;
@@ -13,8 +11,6 @@ using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Core.Common.Notifications.Builders;
 
 using FluentValidation;
-
-using Xunit;
 
 namespace ReSys.Infrastructure.UnitTests.Notifications.Services;
 

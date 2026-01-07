@@ -1,10 +1,6 @@
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Common.Models;
 using ReSys.Core.Domain;
 using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Features.Testing.ExampleCategories;
 
