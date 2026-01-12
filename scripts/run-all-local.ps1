@@ -99,22 +99,28 @@ $script:ServiceDefinitions = @{
         WindowTitle = "Admin App"
         Type        = "Node"
     }
+    "identity" = @{
+        Name        = "Identity Service (.NET)"
+        Color       = "Cyan"
+        WindowTitle = "Identity Service"
+        Type        = "DotNet"
+    }
 }
 
 # --- Preset Combinations ---
 $script:Presets = @{
-    "all"            = @("db", "ml", "api", "gateway", "shop", "admin")
-    "shop-full"      = @("db", "api", "gateway", "shop")
-    "admin-full"     = @("db", "ml", "api", "gateway", "admin")
-    "core-logic"     = @("db", "ml", "api", "gateway")
-    "web-no-ml"      = @("db", "api", "gateway", "shop", "admin")
-    "external-db"    = @("ml", "api", "gateway", "shop", "admin")
-    "backend"        = @("db", "ml", "api")
+    "all"            = @("db", "ml", "api", "gateway", "shop", "admin", "identity")
+    "shop-full"      = @("db", "api", "gateway", "shop", "identity")
+    "admin-full"     = @("db", "ml", "api", "gateway", "admin", "identity")
+    "core-logic"     = @("db", "ml", "api", "gateway", "identity")
+    "web-no-ml"      = @("db", "api", "gateway", "shop", "admin", "identity")
+    "external-db"    = @("ml", "api", "gateway", "shop", "admin", "identity")
+    "backend"        = @("db", "ml", "api", "identity")
     "frontend"       = @("shop", "admin")
-    "services"       = @("ml", "api", "gateway")
+    "services"       = @("ml", "api", "gateway", "identity")
     "infrastructure" = @("db", "ml")
-    "dev-api"        = @("db", "api")
-    "ui-test"        = @("gateway", "shop", "admin")
+    "dev-api"        = @("db", "api", "identity")
+    "ui-test"        = @("gateway", "shop", "admin", "identity")
     "apps"           = @("shop", "admin")
 }
 
@@ -339,11 +345,19 @@ function Start-ServiceByKey {
                 Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd apps/ReSys.Shop; npm run dev"
             }
         }
-        "admin" {
+        "admin" = {
             if ($Detached) {
                 Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd apps/ReSys.Admin; npm run dev"
             } else {
                 Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd apps/ReSys.Admin; npm run dev"
+            }
+        }
+        "identity" = {
+            $env:ConnectionStrings__identitydb = "Host=localhost;Database=identitydb;Username=postgres;Password=postgres"
+            if ($Detached) {
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project services/ReSys.Identity/ReSys.Identity.csproj"
+            } else {
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project services/ReSys.Identity/ReSys.Identity.csproj"
             }
         }
     }
@@ -382,7 +396,7 @@ function Stop-AllServices {
     docker-compose -f infrastructure/database/docker-compose.db.yml down 2>$null
     
     # Kill processes by window title
-    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App")
+    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App", "Identity Service")
     foreach ($title in $windowTitles) {
         $processes = Get-Process powershell -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq $title }
         if ($processes) {
@@ -392,7 +406,7 @@ function Stop-AllServices {
     }
     
     # Kill by port (fallback)
-    $ports = @(8000, 5001, 5002, 5173, 5174)
+    $ports = @(8000, 5001, 5002, 5173, 5174, 5003)
     foreach ($port in $ports) {
         $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
         if ($connection) {
@@ -424,12 +438,13 @@ function Get-ServiceStatus {
     }
     
     # Check ports
-    $portChecks = @{
-        "ml"      = 8000
-        "api"     = 5001
-        "gateway" = 5002
-        "shop"    = 5173
-        "admin"   = 5174
+    $portChecks = [ordered]@{
+        "ml"       = 8000
+        "api"      = 5001
+        "gateway"  = 5002
+        "identity" = 5003
+        "shop"     = 5173
+        "admin"    = 5174
     }
     
     foreach ($svc in $portChecks.Keys) {
