@@ -12,6 +12,11 @@ using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Storage;
 using ReSys.Infrastructure.Ml;
 
+using ReSys.Infrastructure.Authentication;
+using ReSys.Infrastructure.Authentication.Authorization;
+using ReSys.Core.Common.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+
 namespace ReSys.Infrastructure;
 
 public static class DependencyInjection
@@ -20,6 +25,12 @@ public static class DependencyInjection
     {
         services.RegisterModule("Infrastructure", "Core", s =>
         {
+            s.AddHttpContextAccessor();
+            s.AddScoped<IUserContext, UserContext>();
+
+            s.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+            s.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
             s.AddPersistence(configuration)
              .AddStorage(configuration)
              .AddMlServices(configuration)

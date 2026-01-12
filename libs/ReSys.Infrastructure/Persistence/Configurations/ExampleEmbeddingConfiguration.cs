@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ReSys.Core.Domain;
+using ReSys.Core.Common.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations;
 
@@ -8,6 +9,7 @@ public class ExampleEmbeddingConfiguration : IEntityTypeConfiguration<ExampleEmb
 {
     public void Configure(EntityTypeBuilder<ExampleEmbedding> builder)
     {
+        builder.ToTable(TableNames.ExampleEmbeddings);
         builder.HasKey(e => e.ExampleId);
         builder.Property(e => e.Embedding).HasColumnType("vector(384)");
         

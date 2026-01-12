@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ReSys.Core.Domain;
+using ReSys.Core.Common.Constants;
 using ReSys.Core.Features.Testing.Examples.Common;
 
 namespace ReSys.Infrastructure.Persistence.Configurations;
@@ -9,6 +10,7 @@ public class ExampleConfiguration : IEntityTypeConfiguration<Example>
 {
     public void Configure(EntityTypeBuilder<Example> builder)
     {
+        builder.ToTable(TableNames.Examples);
         builder.HasKey(e => e.Id);
         
         builder.Property(e => e.Name)
