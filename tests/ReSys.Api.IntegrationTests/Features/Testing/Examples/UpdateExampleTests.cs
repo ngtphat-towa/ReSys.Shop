@@ -29,7 +29,7 @@ public class UpdateExampleTests : BaseIntegrationTest
             HexColor = "#00FF00"
         };
 
-        var response = await Client.PutAsync($"/api/testing/examples/{ExampleId}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PutAsync($"/api/testing/examples/{ExampleId}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -49,7 +49,7 @@ public class UpdateExampleTests : BaseIntegrationTest
         var p2 = await SeedExampleAsync("P2", 20);
         var request = new UpdateExample.Request { Name = "P1", Description = "D", Price = 30 };
 
-        var response = await Client.PutAsync($"/api/testing/examples/{p2}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PutAsync($"/api/testing/examples/{p2}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -58,7 +58,7 @@ public class UpdateExampleTests : BaseIntegrationTest
     public async Task Put_MissingExample_ReturnsNotFound()
     {
         var request = new UpdateExample.Request { Name = "N", Description = "D", Price = 10 };
-        var response = await Client.PutAsync($"/api/testing/examples/{Guid.NewGuid()}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PutAsync($"/api/testing/examples/{Guid.NewGuid()}", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

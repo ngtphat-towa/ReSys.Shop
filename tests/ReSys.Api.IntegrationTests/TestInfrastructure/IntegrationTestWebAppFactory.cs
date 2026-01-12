@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Text.Encodings.Web;
 
 using Respawn;
 
@@ -19,6 +24,9 @@ using ReSys.Infrastructure.Imaging.Options;
 using ReSys.Infrastructure.Ml.Options;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Storage.Options;
+
+using ReSys.Core.Common.Constants;
+using ReSys.Infrastructure.Authentication.Authorization;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;
 
@@ -92,6 +100,11 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
                 opts.Provider = "logger";
             });
 
+            services.Configure<PermissionAuthorizationOptions>(opts =>
+            {
+                opts.AuthenticationSchemes.Add("TestScheme");
+            });
+
             // 2. Database Modifications
             // Remove ALL registrations for AppDbContext (including pooling-related ones)
             var contextDescriptors = services.Where(d =>
@@ -116,11 +129,80 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
             // 3. Service Replacements
+            // Remove OpenIddict Validation to avoid 'no issuer' errors
+            var openIddictDescriptors = services.Where(d => 
+                d.ServiceType.Namespace?.StartsWith("OpenIddict") == true ||
+                d.ImplementationType?.Namespace?.StartsWith("OpenIddict") == true).ToList();
+            
+            foreach (var descriptor in openIddictDescriptors)
+            {
+                services.Remove(descriptor);
+            }
+
+            services.AddAuthentication("TestScheme")
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("TestScheme", options => { });
+
+            services.AddAuthorization();
+
             // Replace IMlService with Fake
             var mlServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMlService));
             if (mlServiceDescriptor != null) services.Remove(mlServiceDescriptor);
             services.AddSingleton<IMlService, FakeMlService>();
         });
+    }
+
+    public class TestAuthHandler(
+        IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder)
+        : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+    {
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        {
+            if (!Context.Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                return Task.FromResult(AuthenticateResult.NoResult());
+            }
+
+            var token = authHeader.ToString().Replace("Bearer ", "");
+
+            if (token == "test-token")
+            {
+                var claims = new[] { new Claim(ClaimTypes.Name, "Admin User"), new Claim(ClaimTypes.Role, "Admin") };
+                var identity = new ClaimsIdentity(claims, "Test");
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, "TestScheme");
+
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+
+            if (token == "test-token-customer")
+            {
+                var claims = new[] { new Claim(ClaimTypes.Name, "Customer User"), new Claim(ClaimTypes.Role, "Customer") };
+                var identity = new ClaimsIdentity(claims, "Test");
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, "TestScheme");
+
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+
+            if (token == "test-token-with-perm")
+            {
+                var claims = new[] 
+                { 
+                    new Claim(ClaimTypes.Name, "Perm User"), 
+                    new Claim(ClaimTypes.Role, "Customer"),
+                    new Claim("permission", AppPermissions.Testing.ExampleCategories.Create) 
+                };
+                var identity = new ClaimsIdentity(claims, "Test");
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, "TestScheme");
+
+                return Task.FromResult(AuthenticateResult.Success(ticket));
+            }
+
+            return Task.FromResult(AuthenticateResult.Fail("Invalid token"));
+        }
     }
 
     public async ValueTask InitializeAsync()

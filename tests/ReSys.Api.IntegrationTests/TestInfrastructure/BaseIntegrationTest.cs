@@ -16,6 +16,7 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     protected readonly IServiceScope Scope;
     protected readonly IApplicationDbContext Context;
     protected readonly ITestOutputHelper Output;
+    protected readonly HttpClient AuthenticatedClient;
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory, ITestOutputHelper output)
     {
@@ -23,6 +24,9 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
         Output = output;
 
         Client = factory.CreateClient();
+        AuthenticatedClient = factory.CreateClient();
+        AuthenticatedClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "test-token");
+        
         JsonSettings = factory.JsonSettings;
         Scope = factory.Services.CreateScope();
         Context = Scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();

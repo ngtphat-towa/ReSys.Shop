@@ -19,7 +19,7 @@ public class DeleteExampleTests : BaseIntegrationTest
         var id = Guid.NewGuid();
         await SeedExampleAsync(id);
 
-        var response = await Client.DeleteAsync($"/api/testing/examples/{id}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.DeleteAsync($"/api/testing/examples/{id}", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         
@@ -30,7 +30,7 @@ public class DeleteExampleTests : BaseIntegrationTest
     [Fact(DisplayName = "DELETE /api/testing/examples/{id}: Should return 404 Not Found when Example does not exist")]
     public async Task Delete_NonExistent_ReturnsNotFound()
     {
-        var response = await Client.DeleteAsync($"/api/testing/examples/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.DeleteAsync($"/api/testing/examples/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 

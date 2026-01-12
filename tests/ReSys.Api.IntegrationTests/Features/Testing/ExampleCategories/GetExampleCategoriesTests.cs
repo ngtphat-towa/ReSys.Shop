@@ -25,11 +25,11 @@ public class GetExampleCategoriesTests : BaseIntegrationTest
     {
         // Arrange
         var baseName = $"List_{Guid.NewGuid()}";
-        await Client.PostAsJsonAsync("/api/testing/example-categories", new CreateExampleCategory.Request { Name = $"{baseName}_1" }, TestContext.Current.CancellationToken);
-        await Client.PostAsJsonAsync("/api/testing/example-categories", new CreateExampleCategory.Request { Name = $"{baseName}_2" }, TestContext.Current.CancellationToken);
+        await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", new CreateExampleCategory.Request { Name = $"{baseName}_1" }, TestContext.Current.CancellationToken);
+        await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", new CreateExampleCategory.Request { Name = $"{baseName}_2" }, TestContext.Current.CancellationToken);
 
         // Act
-        var response = await Client.GetAsync($"/api/testing/example-categories?filter=Name*{baseName}&sort=Name desc", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.GetAsync($"/api/testing/example-categories?filter=Name*{baseName}&sort=Name desc", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);

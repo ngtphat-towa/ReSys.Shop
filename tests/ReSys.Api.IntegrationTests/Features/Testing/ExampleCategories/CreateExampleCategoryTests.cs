@@ -29,7 +29,7 @@ public class CreateExampleCategoryTests : BaseIntegrationTest
             Description = "Test Description"
         };
 
-        var response = await Client.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -48,8 +48,8 @@ public class CreateExampleCategoryTests : BaseIntegrationTest
         var name = $"Dup_{Guid.NewGuid()}";
         var request = new CreateExampleCategory.Request { Name = name };
 
-        await Client.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
-        var response = await Client.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
+        await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -59,7 +59,7 @@ public class CreateExampleCategoryTests : BaseIntegrationTest
     {
         var request = new CreateExampleCategory.Request { Name = "" }; // Required
 
-        var response = await Client.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }

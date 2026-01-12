@@ -61,7 +61,7 @@ public class UpdateExampleImageTests : BaseIntegrationTest
         content.Add(fileContent, "image", "test-image.png");
 
         // Act
-        var response = await Client.PostAsync($"/api/testing/examples/{ExampleId}/image", content, TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsync($"/api/testing/examples/{ExampleId}/image", content, TestContext.Current.CancellationToken);
         var responseString = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
 
         if (!response.IsSuccessStatusCode)

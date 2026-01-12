@@ -23,25 +23,25 @@ public class DeleteExampleCategoryTests : BaseIntegrationTest
     {
         // Arrange
         var createRequest = new CreateExampleCategory.Request { Name = $"ToDelete_{Guid.NewGuid()}" };
-        var createResponse = await Client.PostAsJsonAsync("/api/testing/example-categories", createRequest, TestContext.Current.CancellationToken);
+        var createResponse = await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", createRequest, TestContext.Current.CancellationToken);
         var created = JsonConvert.DeserializeObject<ApiResponse<ExampleCategoryDetail>>(await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken), JsonSettings);
         var id = created!.Data!.Id;
 
         // Act
-        var response = await Client.DeleteAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.DeleteAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // Verify gone
-        var getResponse = await Client.GetAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
+        var getResponse = await AuthenticatedClient.GetAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact(DisplayName = "DELETE /api/testing/example-categories/{id}: Should return NotFound for non-existent id")]
     public async Task Delete_NonExistent_ReturnsNotFound()
     {
-        var response = await Client.DeleteAsync($"/api/testing/example-categories/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.DeleteAsync($"/api/testing/example-categories/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

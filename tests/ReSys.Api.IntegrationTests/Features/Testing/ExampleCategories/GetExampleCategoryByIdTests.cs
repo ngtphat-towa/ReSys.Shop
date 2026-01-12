@@ -25,13 +25,13 @@ public class GetExampleCategoryByIdTests : BaseIntegrationTest
     {
         // Arrange
         var request = new CreateExampleCategory.Request { Name = $"GetById_{Guid.NewGuid()}" };
-        var createResponse = await Client.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
+        var createResponse = await AuthenticatedClient.PostAsJsonAsync("/api/testing/example-categories", request, TestContext.Current.CancellationToken);
         var createContent = await createResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var created = JsonConvert.DeserializeObject<ApiResponse<ExampleCategoryDetail>>(createContent, JsonSettings);
         var id = created!.Data!.Id;
 
         // Act
-        var response = await Client.GetAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.GetAsync($"/api/testing/example-categories/{id}", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -44,7 +44,7 @@ public class GetExampleCategoryByIdTests : BaseIntegrationTest
     [Fact(DisplayName = "GET /api/testing/example-categories/{id}: Should return NotFound for non-existent id")]
     public async Task Get_NonExistent_ReturnsNotFound()
     {
-        var response = await Client.GetAsync($"/api/testing/example-categories/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.GetAsync($"/api/testing/example-categories/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

@@ -31,7 +31,7 @@ public class CreateExampleTests : BaseIntegrationTest
             HexColor = "#FF5733"
         };
 
-        var response = await Client.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
@@ -49,7 +49,7 @@ public class CreateExampleTests : BaseIntegrationTest
     {
         var request = new CreateExample.Request { Name = "LocationTest", Description = "D", Price = 1 };
 
-        var response = await Client.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(content, JsonSettings);
@@ -63,10 +63,10 @@ public class CreateExampleTests : BaseIntegrationTest
     {
         var name = "DuplicateTest";
         var r1 = new CreateExample.Request { Name = name, Description = "D", Price = 1 };
-        await Client.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        await AuthenticatedClient.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(r1, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         var r2 = new CreateExample.Request { Name = name, Description = "D", Price = 2 };
-        var response = await Client.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(r2, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
     }
@@ -76,7 +76,7 @@ public class CreateExampleTests : BaseIntegrationTest
     {
         var request = new CreateExample.Request { Name = "", Description = "D", Price = -1 };
 
-        var response = await Client.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
+        var response = await AuthenticatedClient.PostAsync("/api/testing/examples", new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
