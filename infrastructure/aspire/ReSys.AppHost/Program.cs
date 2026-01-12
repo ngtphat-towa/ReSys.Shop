@@ -14,6 +14,7 @@ var postgres = builder.AddPostgres("postgres", password: dbPassword)
     .WithLifetime(ContainerLifetime.Persistent);
 
 var db = postgres.AddDatabase("shopdb");
+var identityDb = postgres.AddDatabase("identitydb");
 
 // Mail (Papercut)
 var papercut = builder.AddContainer("papercut", "changemakerstudiosus/papercut-smtp")
@@ -21,16 +22,29 @@ var papercut = builder.AddContainer("papercut", "changemakerstudiosus/papercut-s
     .WithEndpoint(port: 2525, targetPort: 2525, name: "smtp")
     .WithContainerName("resys_shop_mail");
 
+// Identity Service
+var identity = builder.AddProject<Projects.ReSys_Identity>("identity")
+    .WithHttpsEndpoint(port: 5003, name: "sso")
+    .WithReference(identityDb)
+    .WithExternalHttpEndpoints()
+    .WaitFor(identityDb);
+
+// Self-reference for Issuer
+identity.WithEnvironment("Identity__Issuer", identity.GetEndpoint("sso"));
+
 // Backend API
-var api = builder.AddProject<Projects.ReSys_Api>("api")
+var api = builder.AddProject<Projects.ReSys_Api>("api", launchProfileName: "https")
     .WithReference(db)
+    .WithReference(identity)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
-    .WaitFor(db);
+    .WaitFor(db)
+    .WaitFor(identity);
 
 api.WithReference(papercut.GetEndpoint("smtp"))
    .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Host", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Host)}"))
-   .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Port", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"));
+   .WithEnvironment("Notifications__SmtpOptions__SmtpConfig__Port", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"))
+   .WithEnvironment("Authentication__Authority", identity.GetEndpoint("sso"));
 
 // ML Service (Python)
 #pragma warning disable ASPIREHOSTINGPYTHON001
@@ -43,7 +57,7 @@ var ml = builder.AddPythonApp("ml", "../../../services/ReSys.ML", "src/main.py")
 #pragma warning restore ASPIREHOSTINGPYTHON001
 
 api.WithReference(ml)
-   .WithEnvironment("MlSettings__ServiceUrl", ml.GetEndpoint("http"));
+   .WithEnvironment("ML__ServiceUrl", ml.GetEndpoint("http"));
 
 // Frontend - Shop (Vue)
 var shop = builder.AddNpmApp("shop", "../../../apps/ReSys.Shop")
@@ -63,12 +77,14 @@ var admin = builder.AddNpmApp("admin", "../../../apps/ReSys.Admin")
 builder.AddProject<Projects.ReSys_Gateway>("gateway")
     .WithReference(api)
     .WithReference(ml)
+    .WithReference(identity)
     .WithReference(shop)
     .WithReference(admin)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WaitFor(api)
     .WaitFor(ml)
+    .WaitFor(identity)
     .WaitFor(shop)
     .WaitFor(admin);
 

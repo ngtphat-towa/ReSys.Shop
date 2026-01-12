@@ -46,11 +46,9 @@ try
 
     // Register Layers
     builder.Services
-        .AddPresentation()
+        .AddPresentation(builder.Configuration)
         .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
         .AddInfrastructure(builder.Configuration);
-
-    builder.Services.AddAuthorization();
 
     var app = builder.Build();
 

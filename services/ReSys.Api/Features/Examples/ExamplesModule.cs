@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using ReSys.Core.Features.Testing.Examples.CreateExample;
 using ReSys.Core.Features.Testing.Examples.GetExamples;
-using ReSys.Core.Features.Testing.Examples.GetSimilarExamples;
 using ReSys.Core.Features.Testing.Examples.GetExampleById;
 using ReSys.Core.Features.Testing.Examples.UpdateExample;
-using ReSys.Core.Features.Testing.Examples.DeleteExample;
 using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
+using ReSys.Core.Features.Testing.Examples.DeleteExample;
+using ReSys.Core.Common.Constants;
 using ReSys.Core.Common.Models;
 using ReSys.Api.Infrastructure.Extensions;
 
@@ -20,7 +20,6 @@ public class ExamplesModule : ICarterModule
         var group = app.MapGroup("/api/testing/examples")
             .WithTags("Examples");
 
-        // [AsParameters] binds automatically after our normalization middleware runs.
         group.MapGet("/", async ([AsParameters] GetExamples.Request request, ISender sender) =>
         {
             var result = await sender.Send(new GetExamples.Query(request));
@@ -50,7 +49,8 @@ public class ExamplesModule : ICarterModule
             var result = await sender.Send(new CreateExample.Command(request), ct);
             return result.ToApiCreatedResponse(example => $"/api/testing/examples/{example.Id}");
         })
-        .WithName("CreateExample");
+        .WithName("CreateExample")
+        .RequireAuthorization(p => p.RequireRole(AuthConstants.Roles.Admin));
 
         group.MapPut("/{id}", async (
             Guid id,
@@ -61,7 +61,8 @@ public class ExamplesModule : ICarterModule
             var result = await sender.Send(new UpdateExample.Command(id, request), ct);
             return result.ToApiResponse();
         })
-        .WithName("UpdateExample");
+        .WithName("UpdateExample")
+        .RequireAuthorization(p => p.RequireRole(AuthConstants.Roles.Admin));
 
         group.MapPost("/{id}/image", async (
             Guid id,
@@ -69,14 +70,12 @@ public class ExamplesModule : ICarterModule
             ISender sender,
             CancellationToken ct) =>
         {
-            using var stream = image.OpenReadStream();
-
-            var request = new UpdateExampleImage.Request(id, stream, image.FileName);
-            var result = await sender.Send(new UpdateExampleImage.Command(request), ct);
+            var result = await sender.Send(new UpdateExampleImage.Command(new UpdateExampleImage.Request(id, image.OpenReadStream(), image.FileName)), ct);
             return result.ToApiResponse();
         })
         .WithName("UpdateExampleImage")
-        .DisableAntiforgery();
+        .DisableAntiforgery()
+        .RequireAuthorization(p => p.RequireRole(AuthConstants.Roles.Admin));
 
         group.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
@@ -89,13 +88,7 @@ public class ExamplesModule : ICarterModule
 
             return Results.NoContent();
         })
-        .WithName("DeleteExample");
-        
-        group.MapGet("/{id}/similar", async (Guid id, ISender sender) =>
-        {
-            var result = await sender.Send(new GetSimilarExamples.Query(new GetSimilarExamples.Request(id)));
-            return result.ToApiResponse();
-        })
-        .WithName("GetSimilarExamples");
+        .WithName("DeleteExample")
+        .RequireAuthorization(p => p.RequireRole(AuthConstants.Roles.Admin));
     }
 }

@@ -5,19 +5,24 @@ using ReSys.Api.Infrastructure.Documentation;
 using ReSys.Api.Infrastructure.Middleware;
 using ReSys.Api.Infrastructure.Serialization;
 using ReSys.Core.Common.Telemetry;
+using ReSys.Core.Common.Constants;
 
 using Serilog;
+
+
+using OpenIddict.Validation.AspNetCore;
 
 namespace ReSys.Api;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration)
     {
         services.RegisterModule("Presentation", "API", s =>
         {
-            s.AddCustomSerialization() // Using your extension
-             .AddDocumentation()       // Using the documentation extension
+            s.AddCustomSerialization() 
+             .AddDocumentation()
+             .AddCustomAuthentication(configuration)
              .AddCors(options =>
              {
                  options.AddDefaultPolicy(policy =>
@@ -33,6 +38,30 @@ public static class DependencyInjection
             s.AddExceptionHandler<GlobalExceptionHandler>();
             s.AddProblemDetails();
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+
+        services.AddOpenIddict()
+            .AddValidation(options =>
+            {
+                var authority = configuration["Authentication:Authority"];
+                if (!string.IsNullOrEmpty(authority))
+                {
+                    options.SetIssuer(authority);
+                }
+                
+                options.AddAudiences(AuthConstants.Resources.ShopApi);
+                
+                options.UseSystemNetHttp();
+                options.UseAspNetCore();
+            });
+
+        services.AddAuthorization();
 
         return services;
     }
@@ -57,6 +86,8 @@ public static class DependencyInjection
 
         app.UseHttpsRedirection();
         app.UseCors();
+
+        app.UseAuthentication();
         app.UseAuthorization();
 
         // 5. Execution (Vertical Slices)

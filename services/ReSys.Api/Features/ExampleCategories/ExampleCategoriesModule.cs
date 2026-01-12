@@ -1,6 +1,9 @@
 using Carter;
+
 using Microsoft.AspNetCore.Mvc;
+
 using MediatR;
+
 using ReSys.Core.Features.Testing.ExampleCategories.CreateExampleCategory;
 using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategoryById;
@@ -8,6 +11,9 @@ using ReSys.Core.Features.Testing.ExampleCategories.UpdateExampleCategory;
 using ReSys.Core.Features.Testing.ExampleCategories.DeleteExampleCategory;
 using ReSys.Core.Common.Models;
 using ReSys.Api.Infrastructure.Extensions;
+
+using ReSys.Core.Common.Constants;
+using ReSys.Infrastructure.Authentication.Authorization;
 
 namespace ReSys.Api.Features.ExampleCategories;
 
@@ -40,7 +46,8 @@ public class ExampleCategoriesModule : ICarterModule
             var result = await sender.Send(new CreateExampleCategory.Command(request), ct);
             return result.ToApiCreatedResponse(category => $"/api/testing/example-categories/{category.Id}");
         })
-        .WithName("CreateExampleCategory");
+        .WithName("CreateExampleCategory")
+        .RequirePermission(AppPermissions.Testing.ExampleCategories.Create);
 
         group.MapPut("/{id}", async (
             Guid id,
@@ -51,7 +58,8 @@ public class ExampleCategoriesModule : ICarterModule
             var result = await sender.Send(new UpdateExampleCategory.Command(id, request), ct);
             return result.ToApiResponse();
         })
-        .WithName("UpdateExampleCategory");
+        .WithName("UpdateExampleCategory")
+        .RequirePermission(AppPermissions.Testing.ExampleCategories.Edit);
 
         group.MapDelete("/{id}", async (Guid id, ISender sender) =>
         {
@@ -64,6 +72,7 @@ public class ExampleCategoriesModule : ICarterModule
 
             return Results.NoContent();
         })
-        .WithName("DeleteExampleCategory");
+        .WithName("DeleteExampleCategory")
+        .RequirePermission(AppPermissions.Testing.ExampleCategories.Delete);
     }
 }
