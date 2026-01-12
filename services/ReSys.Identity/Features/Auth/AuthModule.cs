@@ -1,12 +1,19 @@
-using System.Security.Claims;
 using Carter;
+
+
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+
+
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+
+
+using ReSys.Identity.Authentication;
 using ReSys.Identity.Domain;
+
+
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace ReSys.Identity.Features.Auth;
@@ -52,7 +59,7 @@ public class AuthModule : ICarterModule
 
                 foreach (var claim in principal.Claims)
                 {
-                    claim.SetDestinations(GetDestinations(claim, principal));
+                    claim.SetDestinations(OpenIddictHelpers.GetDestinations(claim));
                 }
 
                 return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -78,7 +85,7 @@ public class AuthModule : ICarterModule
 
                 foreach (var claim in principal.Claims)
                 {
-                    claim.SetDestinations(GetDestinations(claim, principal));
+                    claim.SetDestinations(OpenIddictHelpers.GetDestinations(claim));
                 }
 
                 return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -86,17 +93,5 @@ public class AuthModule : ICarterModule
 
             return Results.Problem("The specified grant type is not implemented.", statusCode: 400);
         });
-    }
-
-    private static IEnumerable<string> GetDestinations(Claim claim, ClaimsPrincipal principal)
-    {
-        // Note: by default, claims are NOT automatically included in the access token.
-        // To include them, you must call SetDestinations() and specify Destinations.AccessToken.
-        yield return Destinations.AccessToken;
-
-        if (claim.Type == Claims.Name || claim.Type == Claims.Role)
-            yield return Destinations.IdentityToken;
-            
-        // Add more claims to ID token if needed
     }
 }
