@@ -5,15 +5,15 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Core", "libs\ReSys.Core\ReSys.Core.csproj", "{F37F9209-1123-4D2F-807E-95513AB76966}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Core", "src\libs\ReSys.Core\ReSys.Core.csproj", "{F37F9209-1123-4D2F-807E-95513AB76966}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Infrastructure", "libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj", "{3D8D7603-CAB6-4264-9A16-553FA08D3DB9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Infrastructure", "src\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj", "{3D8D7603-CAB6-4264-9A16-553FA08D3DB9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{5854FF58-B8C5-05C6-5BF2-ACE42193F22B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Api", "services\ReSys.Api\ReSys.Api.csproj", "{C7F42AEB-BCEF-4FBA-8CCA-2EBD111C3480}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Api", "src\services\ReSys.Api\ReSys.Api.csproj", "{C7F42AEB-BCEF-4FBA-8CCA-2EBD111C3480}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Migrations", "libs\ReSys.Migrations\ReSys.Migrations.csproj", "{9B3A2527-9E88-4E25-90B7-35EFD5B490E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Migrations", "src\libs\ReSys.Migrations\ReSys.Migrations.csproj", "{9B3A2527-9E88-4E25-90B7-35EFD5B490E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
@@ -29,11 +29,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infrastructure", "infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aspire", "aspire", "{611C8D04-6CA9-ECFE-A22D-FC381FFD069A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.ServiceDefaults", "infrastructure\aspire\ReSys.ServiceDefaults\ReSys.ServiceDefaults.csproj", "{7A22121E-4838-4117-A379-58FEEEAA838B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.ServiceDefaults", "src\aspire\ReSys.ServiceDefaults\ReSys.ServiceDefaults.csproj", "{7A22121E-4838-4117-A379-58FEEEAA838B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.AppHost", "infrastructure\aspire\ReSys.AppHost\ReSys.AppHost.csproj", "{E0BCF20D-9662-4E19-81AC-6F022D4BECF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.AppHost", "src\aspire\ReSys.AppHost\ReSys.AppHost.csproj", "{E0BCF20D-9662-4E19-81AC-6F022D4BECF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Gateway", "services\ReSys.Gateway\ReSys.Gateway.csproj", "{9FF1C895-B0FC-4336-9502-49435BD92860}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Gateway", "src\services\ReSys.Gateway\ReSys.Gateway.csproj", "{9FF1C895-B0FC-4336-9502-49435BD92860}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Identity.UnitTests", "tests\ReSys.Identity.UnitTests\ReSys.Identity.UnitTests.csproj", "{7938CC88-7B43-4D14-8797-8DF438820289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Identity.IntegrationTests", "tests\ReSys.Identity.IntegrationTests\ReSys.Identity.IntegrationTests.csproj", "{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReSys.Identity", "src\libs\ReSys.Identity\ReSys.Identity.csproj", "{9A2167D0-D612-4BD4-80C7-B458B59DA969}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -177,6 +183,42 @@ Global
 		{9FF1C895-B0FC-4336-9502-49435BD92860}.Release|x64.Build.0 = Release|Any CPU
 		{9FF1C895-B0FC-4336-9502-49435BD92860}.Release|x86.ActiveCfg = Release|Any CPU
 		{9FF1C895-B0FC-4336-9502-49435BD92860}.Release|x86.Build.0 = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|x64.Build.0 = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Debug|x86.Build.0 = Debug|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|x64.ActiveCfg = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|x64.Build.0 = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|x86.ActiveCfg = Release|Any CPU
+		{7938CC88-7B43-4D14-8797-8DF438820289}.Release|x86.Build.0 = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|x64.Build.0 = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Debug|x86.Build.0 = Debug|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|x64.ActiveCfg = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|x64.Build.0 = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|x86.ActiveCfg = Release|Any CPU
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D}.Release|x86.Build.0 = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|x64.Build.0 = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|x64.ActiveCfg = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|x64.Build.0 = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -194,5 +236,8 @@ Global
 		{7A22121E-4838-4117-A379-58FEEEAA838B} = {611C8D04-6CA9-ECFE-A22D-FC381FFD069A}
 		{E0BCF20D-9662-4E19-81AC-6F022D4BECF6} = {611C8D04-6CA9-ECFE-A22D-FC381FFD069A}
 		{9FF1C895-B0FC-4336-9502-49435BD92860} = {5854FF58-B8C5-05C6-5BF2-ACE42193F22B}
+		{7938CC88-7B43-4D14-8797-8DF438820289} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{01D5DB4A-54A0-48D4-9F0D-04C700C2B45D} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{9A2167D0-D612-4BD4-80C7-B458B59DA969} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 	EndGlobalSection
 EndGlobal

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

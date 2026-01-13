@@ -309,41 +309,41 @@ function Start-ServiceByKey {
         }
         "ml" {
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
             }
         }
         "api" {
             $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=postgres"
             $env:MlSettings__ServiceUrl = "http://localhost:8000"
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project services/ReSys.Api/ReSys.Api.csproj"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Api/ReSys.Api.csproj"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project services/ReSys.Api/ReSys.Api.csproj"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Api/ReSys.Api.csproj"
             }
         }
         "gateway" {
             $env:ServiceEndpoints__ApiUrl = "https://localhost:5001/"
             $env:ServiceEndpoints__MlUrl = "http://localhost:8000/"
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project services/ReSys.Gateway/ReSys.Gateway.csproj"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project services/ReSys.Gateway/ReSys.Gateway.csproj"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj"
             }
         }
         "shop" {
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd apps/ReSys.Shop; npm run dev"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/apps/ReSys.Shop; npm run dev"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd apps/ReSys.Shop; npm run dev"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/apps/ReSys.Shop; npm run dev"
             }
         }
         "admin" {
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd apps/ReSys.Admin; npm run dev"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/apps/ReSys.Admin; npm run dev"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd apps/ReSys.Admin; npm run dev"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/apps/ReSys.Admin; npm run dev"
             }
         }
     }

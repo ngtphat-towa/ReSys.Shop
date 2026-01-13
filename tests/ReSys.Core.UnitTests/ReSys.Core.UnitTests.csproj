@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\libs\ReSys.Core\ReSys.Core.csproj" />
-    <ProjectReference Include="..\..\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\libs\ReSys.Core\ReSys.Core.csproj" />
+    <ProjectReference Include="..\..\src\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

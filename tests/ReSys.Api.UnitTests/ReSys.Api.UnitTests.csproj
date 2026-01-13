@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\services\ReSys.Api\ReSys.Api.csproj" />
+    <ProjectReference Include="..\..\src\services\ReSys.Api\ReSys.Api.csproj" />
   </ItemGroup>
 
 </Project>

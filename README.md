@@ -48,18 +48,19 @@ Instead of putting all database files in one place and all UI files in another, 
 ## Project Folders
 
 ```text
-├── apps/                   
+├── apps/ -> src/apps/
 │   ├── ReSys.Admin/        # Admin panel for managing products and settings.
 │   └── ReSys.Shop/         # Storefront for customers to browse products.
-├── services/               
+├── services/ -> src/services/
 │   ├── ReSys.Api/          # The main API handling business logic and storage.
 │   ├── ReSys.Gateway/      # Single entry point for all API requests.
 │   └── ReSys.ML/           # Python service for AI and image tasks.
-├── libs/                   
+├── libs/ -> src/libs/
 │   ├── ReSys.Core/         # Shared business logic and database models.
 │   └── ReSys.Infrastructure/ # Database and file storage implementations.
-├── infrastructure/         
-│   └── aspire/             # Local development setup using .NET Aspire.
+├── aspire/ -> src/aspire/
+│   ├── ReSys.AppHost/      # Orchestrator for local development.
+│   └── ReSys.ServiceDefaults/ # Shared service configurations.
 └── tests/                  # Automated tests for the whole project.
 ```
 
@@ -93,7 +94,7 @@ When adding a new feature, follow the pattern used in the `testing/examples` fol
 2. **Run all services**:
    The easiest way is to run the `ReSys.AppHost` project using .NET Aspire.
    ```bash
-   dotnet run --project infrastructure/aspire/ReSys.AppHost
+   dotnet run --project src/aspire/ReSys.AppHost
    ```
 
 3. **Alternative**:
