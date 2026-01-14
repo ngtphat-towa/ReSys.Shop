@@ -23,6 +23,11 @@ describe('apiClient', () => {
     const responseInterceptor = (apiClient.interceptors.response as unknown as { 
       handlers: Array<{ fulfilled: (res: AxiosResponse) => unknown, rejected: (err: unknown) => Promise<unknown> }> 
     }).handlers[0];
+
+    if (!responseInterceptor) {
+        throw new Error('Response interceptor not found');
+    }
+
     successInterceptor = responseInterceptor.fulfilled;
     errorInterceptor = responseInterceptor.rejected;
   });

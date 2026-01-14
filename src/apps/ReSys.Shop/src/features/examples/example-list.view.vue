@@ -10,11 +10,13 @@ import { storeToRefs } from 'pinia'
 import { ExampleStatus } from './example.schema'
 import { exampleLocales } from './example.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
+import { useFormatter } from '@/shared/composables/formatter.use'
 
 // --- STORE & SEARCH STATE ---
 const exampleStore = useExampleStore()
 const { examples, loading } = storeToRefs(exampleStore)
 const { handleApiResult } = useApiErrorHandler()
+const { formatCurrency } = useFormatter()
 const search = ref('')
 
 /**
@@ -169,11 +171,7 @@ onMounted(() => {
         </template>
         <template #subtitle>
           <span class="text-3xl font-black text-surface-900 dark:text-surface-50">
-            {{
-              new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
-                example.price,
-              )
-            }}
+            {{ formatCurrency(example.price) }}
           </span>
         </template>
         <template #content>
