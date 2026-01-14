@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 using ReSys.Shared.Helpers;
 
@@ -16,10 +16,13 @@ public sealed class SnakeCaseOperationTransformer : IOpenApiOperationTransformer
 
         foreach (var parameter in operation.Parameters)
         {
-            // Only transform if it's not already snake_case (contains uppercase)
-            if (parameter.Name.Any(char.IsUpper))
+            if (parameter is OpenApiParameter concreteParam) 
             {
-                parameter.Name = NamingHelper.ToSnakeCase(parameter.Name);
+                // Name might be null
+                if (!string.IsNullOrEmpty(concreteParam.Name) && concreteParam.Name.Any(char.IsUpper))
+                {
+                    concreteParam.Name = NamingHelper.ToSnakeCase(concreteParam.Name);
+                }
             }
         }
 
@@ -36,7 +39,8 @@ public sealed class SnakeCaseSchemaTransformer : IOpenApiSchemaTransformer
     {
         if (schema.Properties == null) return Task.CompletedTask;
 
-        var snakeCaseProperties = new Dictionary<string, OpenApiSchema>();
+        // Use IOpenApiSchema interface for the dictionary values
+        var snakeCaseProperties = new Dictionary<string, IOpenApiSchema>();
 
         foreach (var property in schema.Properties)
         {

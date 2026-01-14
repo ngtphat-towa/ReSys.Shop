@@ -6,9 +6,10 @@ using ReSys.Shared.Constants;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+// --- 1. Infrastructure Services ---
 builder.Services.AddHealthChecks();
 
-// Database
+// Database (PostgreSQL)
 var dbPassword = builder.AddParameter("dbPassword", "password", secret: true);
 var postgres = builder.AddPostgres(ServiceNames.Postgres, password: dbPassword)
     .WithImage("pgvector/pgvector", "pg17")
@@ -18,58 +19,64 @@ var postgres = builder.AddPostgres(ServiceNames.Postgres, password: dbPassword)
 
 var db = postgres.AddDatabase(ServiceNames.Database);
 
-// Mail (Papercut)
+// Mail (Papercut SMTP)
 var papercut = builder.AddContainer(ServiceNames.Mail, "changemakerstudiosus/papercut-smtp")
     .WithHttpEndpoint(port: 37408, targetPort: 8080, name: "web")
     .WithEndpoint(port: 2525, targetPort: 2525, name: "smtp")
     .WithContainerName("resys_shop_mail");
 
-// Backend API
+// --- 2. Core Backend Services ---
+
+// ML Service (Python / FastAPI) - First-class citizen support
+// Aspire 13 automates health checks and Uvicorn arguments
+var ml = builder.AddUvicornApp(ServiceNames.Ml, "../../services/ReSys.ML", "src.main:app")
+    .WithUv()
+    .WithEnvironment("USE_MOCK_ML", "true")
+    .WithEnvironment("ROOT_PATH", "/ml")
+    .WithHttpHealthCheck("/health");
+
+// Backend API (.NET)
 var api = builder.AddProject<Projects.ReSys_Api>(ServiceNames.Api)
     .WithReference(db)
+    .WithReference(ml)
+    .WithReference(papercut.GetEndpoint("smtp")) // Inject SMTP endpoint
+    .WithEnvironment($"{SmtpOptions.Section.Replace(":", "__")}__{nameof(SmtpConfig.Host)}", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Host)}"))
+    .WithEnvironment($"{SmtpOptions.Section.Replace(":", "__")}__{nameof(SmtpConfig.Port)}", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"))
+    .WithEnvironment($"{MlOptions.SectionName}__{nameof(MlOptions.ServiceUrl)}", ml.GetEndpoint("http"))
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
-    .WaitFor(db);
+    .WaitFor(db)
+    .WaitFor(ml);
 
-// Identity Service
+// Identity Service (.NET)
 var identity = builder.AddProject<Projects.ReSys_Identity>(ServiceNames.Identity)
     .WithReference(db)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WaitFor(db);
 
-api.WithReference(papercut.GetEndpoint("smtp"))
-   .WithEnvironment($"{SmtpOptions.Section.Replace(":", "__")}__{nameof(SmtpConfig.Host)}", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Host)}"))
-   .WithEnvironment($"{SmtpOptions.Section.Replace(":", "__")}__{nameof(SmtpConfig.Port)}", ReferenceExpression.Create($"{papercut.GetEndpoint("smtp").Property(EndpointProperty.Port)}"));
+// --- 3. Frontend Applications ---
 
-// ML Service (Python)
-#pragma warning disable ASPIREHOSTINGPYTHON001
-var ml = builder.AddPythonApp(ServiceNames.Ml, "../../services/ReSys.ML", "src/main.py")
-    .WithHttpEndpoint(env: "PORT", port: 8000)
-    .WithEnvironment("USE_MOCK_ML", "true")
-    .WithEnvironment("ROOT_PATH", "/ml")
-    .WithOtlpExporter()
-    .WithHttpHealthCheck("/health");
-#pragma warning restore ASPIREHOSTINGPYTHON001
-
-api.WithReference(ml)
-   .WithEnvironment($"{MlOptions.SectionName}__{nameof(MlOptions.ServiceUrl)}", ml.GetEndpoint("http"));
-
-// Frontend - Shop (Vue)
-var shop = builder.AddNpmApp(ServiceNames.Shop, "../../apps/ReSys.Shop")
-    .WithHttpEndpoint(port: 5173, env: "PORT")
+// Shop App (Vue) - Polyglot support via AddJavaScriptApp
+// Reference the API to automatically inject environment variables
+var shop = builder.AddJavaScriptApp(ServiceNames.Shop, "../../apps/ReSys.Shop")
+    .WithReference(api)
+    .WithHttpEndpoint(targetPort: 5174, name: "http")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/")
+    .WithHttpHealthCheck("/", endpointName: "http")
     .WaitFor(api);
 
-// Frontend - Admin (Vue)
-var admin = builder.AddNpmApp(ServiceNames.Admin, "../../apps/ReSys.Admin")
-    .WithHttpEndpoint(port: 5174, env: "PORT")
+// Admin App (Vue) - Polyglot support via AddJavaScriptApp
+var admin = builder.AddJavaScriptApp(ServiceNames.Admin, "../../apps/ReSys.Admin")
+    .WithReference(api)
+    .WithHttpEndpoint(targetPort: 5173, name: "http")
     .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/")
+    .WithHttpHealthCheck("/", endpointName: "http")
     .WaitFor(api);
 
-// Gateway (YARP)
+// --- 4. Gateway / Ingress ---
+
+// YARP Gateway
 builder.AddProject<Projects.ReSys_Gateway>(ServiceNames.Gateway)
     .WithReference(api)
     .WithReference(identity)
@@ -85,3 +92,5 @@ builder.AddProject<Projects.ReSys_Gateway>(ServiceNames.Gateway)
     .WaitFor(admin);
 
 builder.Build().Run();
+
+public partial class Program { }
