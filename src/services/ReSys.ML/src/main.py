@@ -3,10 +3,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
-from settings import settings
-from telemetry import setup_telemetry
-from engine import engine
-from routers import router
+from .settings import settings
+from .telemetry import setup_telemetry
+from .engine import engine
+from .routers import router
 
 # Setup Logging & Telemetry
 logger = logging.getLogger(__name__)

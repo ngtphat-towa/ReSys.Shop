@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from models import EmbeddingRequest, EmbeddingResponse
-from engine import engine
-from settings import settings
+from .models import EmbeddingRequest, EmbeddingResponse
+from .engine import engine
+from .settings import settings
 
 router = APIRouter()
 

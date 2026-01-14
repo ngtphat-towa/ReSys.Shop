@@ -1,6 +1,6 @@
 import random
 import logging
-from settings import settings
+from .settings import settings
 
 logger = logging.getLogger(__name__)
 
