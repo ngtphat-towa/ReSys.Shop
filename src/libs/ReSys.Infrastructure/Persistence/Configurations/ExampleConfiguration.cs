@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ReSys.Core.Domain;
-using ReSys.Core.Features.Testing.Examples.Common;
+
+using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Infrastructure.Persistence.Configurations;
 

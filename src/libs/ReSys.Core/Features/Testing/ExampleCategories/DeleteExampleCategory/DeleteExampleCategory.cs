@@ -1,10 +1,13 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
-using ReSys.Core.Features.Testing.ExampleCategories.Common;
+using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.DeleteExampleCategory;
 
@@ -20,18 +23,11 @@ public static class DeleteExampleCategory
         }
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<Deleted>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Deleted>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<Deleted>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var category = await _context.Set<ExampleCategory>()
+            var category = await context.Set<ExampleCategory>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (category == null)
@@ -39,8 +35,8 @@ public static class DeleteExampleCategory
                 return ExampleCategoryErrors.NotFound;
             }
 
-            _context.Set<ExampleCategory>().Remove(category);
-            await _context.SaveChangesAsync(cancellationToken);
+            context.Set<ExampleCategory>().Remove(category);
+            await context.SaveChangesAsync(cancellationToken);
 
             return Result.Deleted;
         }

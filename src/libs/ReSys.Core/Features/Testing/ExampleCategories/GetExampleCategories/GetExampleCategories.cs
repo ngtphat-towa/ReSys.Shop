@@ -1,10 +1,12 @@
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Extensions;
-using ReSys.Core.Common.Models;
-using ReSys.Core.Domain;
+using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
+using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 
@@ -22,20 +24,13 @@ public static class GetExampleCategories
 
     public record Query(Request Request) : IRequest<PagedList<ExampleCategoryListItem>>;
 
-    public class Handler : IRequestHandler<Query, PagedList<ExampleCategoryListItem>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Query, PagedList<ExampleCategoryListItem>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<PagedList<ExampleCategoryListItem>> Handle(Query query, CancellationToken cancellationToken)
         {
             var request = query.Request;
 
-            var dbQuery = _context.Set<ExampleCategory>()
+            var dbQuery = context.Set<ExampleCategory>()
                 .AsNoTracking()
                 .ApplyFilter(request)
                 .ApplySearch(request);

@@ -1,8 +1,11 @@
 using ReSys.Api;
 using ReSys.Core;
-using ReSys.Core.Common.Telemetry;
+using ReSys.Shared.Telemetry;
 using ReSys.Infrastructure;
+using ReSys.Infrastructure.Persistence;
 using ReSys.Infrastructure.Ml.Options;
+
+using Microsoft.EntityFrameworkCore;
 
 using Serilog;
 using Serilog.Events;
@@ -47,7 +50,7 @@ try
     // Register Layers
     builder.Services
         .AddPresentation()
-        .AddCore(typeof(ReSys.Api.DependencyInjection).Assembly)
+        .AddCore(typeof(ReSys.Api.ApiModule).Assembly)
         .AddInfrastructure(builder.Configuration);
 
     builder.Services.AddAuthorization();
@@ -60,6 +63,14 @@ try
     app.UseInfrastructure();
     app.UseCore();
     app.UsePresentation();
+
+    // Apply Migrations
+    if (app.Environment.IsDevelopment())
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+    }
 
     app.Run();
 }

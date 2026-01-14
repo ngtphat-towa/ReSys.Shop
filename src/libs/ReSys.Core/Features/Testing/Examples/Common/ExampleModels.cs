@@ -1,4 +1,4 @@
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.Examples;
 
 using System.Linq.Expressions;
 

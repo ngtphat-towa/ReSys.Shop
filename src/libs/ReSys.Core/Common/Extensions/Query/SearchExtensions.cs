@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
-using ReSys.Core.Common.Extensions.Query;
 
-namespace ReSys.Core.Common.Extensions;
+namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>
 /// Provides extension methods for global searching across multiple fields.
@@ -49,7 +48,7 @@ public static class SearchExtensions
             foreach (var member in field.Split('.'))
             {
                 var property = QueryHelper.GetPropertyCaseInsensitive(type, member);
-                if (property == null) 
+                if (property == null)
                 {
                     validField = false;
                     break;
@@ -74,21 +73,21 @@ public static class SearchExtensions
             Expression checkExpr = param;
             var pathType = typeof(T);
             var parts = field.Split('.');
-            
+
             for (int i = 0; i < parts.Length - 1; i++)
             {
-                 var property = QueryHelper.GetPropertyCaseInsensitive(pathType, parts[i])!;
-                 checkExpr = Expression.Property(checkExpr, property);
-                 pathType = property.PropertyType;
-                 
-                 // If any segment is a reference type or nullable, ensure it's not null before accessing its child
-                 if (!pathType.IsValueType || Nullable.GetUnderlyingType(pathType) != null)
-                 {
-                     var notNull = Expression.NotEqual(checkExpr, Expression.Constant(null, pathType));
-                     pathNullChecks = pathNullChecks == null ? notNull : Expression.AndAlso(pathNullChecks, notNull);
-                 }
+                var property = QueryHelper.GetPropertyCaseInsensitive(pathType, parts[i])!;
+                checkExpr = Expression.Property(checkExpr, property);
+                pathType = property.PropertyType;
+
+                // If any segment is a reference type or nullable, ensure it's not null before accessing its child
+                if (!pathType.IsValueType || Nullable.GetUnderlyingType(pathType) != null)
+                {
+                    var notNull = Expression.NotEqual(checkExpr, Expression.Constant(null, pathType));
+                    pathNullChecks = pathNullChecks == null ? notNull : Expression.AndAlso(pathNullChecks, notNull);
+                }
             }
-            
+
             // 3. Check the final property itself for null
             if (!type.IsValueType || Nullable.GetUnderlyingType(type) != null)
             {
@@ -99,7 +98,7 @@ public static class SearchExtensions
             // 4. Build case-insensitive "Contains" condition
             var lower = Expression.Call(stringExpr, toLower!);
             var contains = Expression.Call(lower, method!, termConstant);
-            
+
             var condition = pathNullChecks == null ? (Expression)contains : Expression.AndAlso(pathNullChecks, contains);
 
             // 5. Combine with other fields using OR

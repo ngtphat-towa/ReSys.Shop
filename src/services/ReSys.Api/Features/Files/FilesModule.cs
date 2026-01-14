@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.StaticFiles;
 
 using ReSys.Core.Common.Imaging;
 using ReSys.Core.Common.Storage;
-using ReSys.Core.Common.Models;
+using ReSys.Shared.Models;
 
 namespace ReSys.Api.Features.Files;
 

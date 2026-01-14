@@ -1,3 +1,5 @@
+using ReSys.Core.Domain;
+
 namespace ReSys.Core.Common.Ml;
 
 public interface IMlService

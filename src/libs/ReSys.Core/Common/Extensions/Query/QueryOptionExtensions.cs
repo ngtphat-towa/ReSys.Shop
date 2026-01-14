@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 
 using ReSys.Core.Common.Extensions.Query;
-using ReSys.Core.Common.Models;
+using ReSys.Shared.Models;
 
 namespace ReSys.Core.Common.Extensions;
 

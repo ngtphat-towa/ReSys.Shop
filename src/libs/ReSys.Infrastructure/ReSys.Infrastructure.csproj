@@ -6,9 +6,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ReSys.Core\ReSys.Core.csproj" />
+    <ProjectReference Include="..\ReSys.Shared\ReSys.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="EFCore.BulkExtensions" />
+    <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentEmail.Core" />
     <PackageReference Include="FluentEmail.SendGrid" />

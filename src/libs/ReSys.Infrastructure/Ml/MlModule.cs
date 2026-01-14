@@ -2,7 +2,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using ReSys.Core.Common.Ml;
-using ReSys.Core.Common.Telemetry;
+using ReSys.Shared.Constants;
+using ReSys.Shared.Telemetry;
 using ReSys.Infrastructure.Ml.Options;
 using ReSys.Infrastructure.Ml.Services;
 
@@ -12,14 +13,24 @@ public static class MlModule
 {
     public static IServiceCollection AddMlServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "AI", s =>
+        services.RegisterModule(ModuleNames.Infrastructure, "AI", s =>
         {
+            var section = configuration.GetSection(MlOptions.SectionName);
+            var options = section.Get<MlOptions>();
+
             s.AddOptions<MlOptions>()
-                .Bind(configuration.GetSection(MlOptions.SectionName))
+                .Bind(section)
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            s.AddHttpClient<IMlService, MlService>();
+            if (options == null || string.IsNullOrEmpty(options.ServiceUrl) || options.ServiceUrl == "http://fake-ml-service")
+            {
+                s.AddSingleton<IMlService, FakeMlService>();
+            }
+            else
+            {
+                s.AddHttpClient<IMlService, MlService>();
+            }
         });
 
         return services;

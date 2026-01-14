@@ -3,10 +3,10 @@ using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using ReSys.Core.Common.Constants;
+using ReSys.Shared.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
-using ReSys.Core.Common.Telemetry;
+using ReSys.Shared.Telemetry;
 using ReSys.Core.Common.Notifications.Validators;
 using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Notifications.Services;
@@ -25,7 +25,7 @@ public static class NotificationsModule
 {
     public static IServiceCollection AddNotifications(this IServiceCollection services, IConfiguration configuration)
     {
-        services.RegisterModule("Infrastructure", "Notifications", s =>
+        services.RegisterModule(ModuleNames.Infrastructure, "Notifications", s =>
         {
             // Validators - Register manually to avoid NotificationRecipientValidator DI issues
             s.AddScoped<IValidator<NotificationMessage>, NotificationMessageValidator>();

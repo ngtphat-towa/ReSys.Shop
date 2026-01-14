@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="SixLabors.ImageSharp">
+      <NoWarn>NU1902;NU1903</NoWarn>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

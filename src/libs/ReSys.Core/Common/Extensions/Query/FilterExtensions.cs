@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
-using ReSys.Core.Common.Extensions.Query;
 
-namespace ReSys.Core.Common.Extensions;
+namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>
 /// Provides extension methods for dynamic filtering of IQueryable collections using a string-based DSL.

@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using System.Text;
 
 using ReSys.Core.Common.Extensions.Query;
-using ReSys.Core.Common.Models;
+using ReSys.Shared.Models;
 
 namespace ReSys.Core.Common.Data;
 

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Primitives;
-using ReSys.Core.Common.Helpers;
+using ReSys.Shared.Helpers;
 
 namespace ReSys.Api.Infrastructure.Middleware;
 
@@ -8,15 +8,8 @@ namespace ReSys.Api.Infrastructure.Middleware;
 /// or lowercase (e.g., search) to PascalCase (e.g., PageSize, Search).
 /// This ensures ASP.NET Core's [AsParameters] binding works correctly with consistent naming.
 /// </summary>
-public class SnakeCaseQueryMiddleware
+public class SnakeCaseQueryMiddleware(RequestDelegate next)
 {
-    private readonly RequestDelegate _next;
-
-    public SnakeCaseQueryMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
-
     public async Task InvokeAsync(HttpContext context)
     {
         if (context.Request.Query.Count > 0)
@@ -50,6 +43,6 @@ public class SnakeCaseQueryMiddleware
             }
         }
 
-        await _next(context);
+        await next(context);
     }
 }

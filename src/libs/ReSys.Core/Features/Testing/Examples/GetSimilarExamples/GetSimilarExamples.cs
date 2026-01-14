@@ -11,34 +11,26 @@ using Pgvector.EntityFrameworkCore;
 
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Features.Testing.Examples.Common;
 
 namespace ReSys.Core.Features.Testing.Examples.GetSimilarExamples;
 
 public static class GetSimilarExamples
 {
-    public class Request
+    public class Request(Guid id)
     {
-        public Guid Id { get; set; }
-        public Request(Guid id) => Id = id;
+        public Guid Id { get; set; } = id;
     }
 
     public record Query(Request Request) : IRequest<ErrorOr<List<ExampleListItem>>>;
 
-    public class Handler : IRequestHandler<Query, ErrorOr<List<ExampleListItem>>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Query, ErrorOr<List<ExampleListItem>>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<List<ExampleListItem>>> Handle(Query query, CancellationToken cancellationToken)
         {
             var request = query.Request;
-            var exampleEmbedding = await _context.Set<ExampleEmbedding>()
+            var exampleEmbedding = await context.Set<ExampleEmbedding>()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(pe => pe.ExampleId == request.Id, cancellationToken);
 
@@ -47,7 +39,7 @@ public static class GetSimilarExamples
                 return Error.NotFound("Example.NotFound", "Example not found or has no embedding.");
             }
 
-            var similarExamples = await _context.Set<ExampleEmbedding>()
+            var similarExamples = await context.Set<ExampleEmbedding>()
                 .AsNoTracking()
                 .OrderBy(pe => pe.Embedding.L2Distance(exampleEmbedding.Embedding))
                 .Where(pe => pe.ExampleId != request.Id)

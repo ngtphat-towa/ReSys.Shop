@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\services\ReSys.Api\ReSys.Api.csproj" />
     <ProjectReference Include="..\..\services\ReSys.Gateway\ReSys.Gateway.csproj" />
+    <ProjectReference Include="..\..\services\ReSys.Identity\ReSys.Identity.csproj" />
+    <ProjectReference Include="..\..\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 
 </Project>

@@ -11,7 +11,8 @@ using ReSys.Core.Features.Testing.Examples.GetExampleById;
 using ReSys.Core.Features.Testing.Examples.UpdateExample;
 using ReSys.Core.Features.Testing.Examples.DeleteExample;
 using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
-using ReSys.Core.Common.Models;
+using ReSys.Shared.Models;
+using ReSys.Shared.Constants;
 using ReSys.Api.Infrastructure.Extensions;
 
 namespace ReSys.Api.Features.Examples;
@@ -28,7 +29,7 @@ public class ExamplesModule : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         // API: Group all example-related endpoints under a common prefix
-        var group = app.MapGroup("/api/testing/examples")
+        var group = app.MapGroup($"{RouteConstants.ApiPrefix}/testing/examples")
             .WithTags("Examples");
 
         // NOTE: [AsParameters] binds automatically after our normalization middleware runs.
@@ -63,7 +64,7 @@ public class ExamplesModule : ICarterModule
             CancellationToken ct) =>
         {
             var result = await sender.Send(new CreateExample.Command(request), ct);
-            return result.ToApiCreatedResponse(example => $"/api/testing/examples/{example.Id}");
+            return result.ToApiCreatedResponse(example => $"{RouteConstants.ApiPrefix}/testing/examples/{example.Id}");
         })
         .WithName("CreateExample");
 

@@ -1,14 +1,12 @@
 using MediatR;
 
-
 using Microsoft.EntityFrameworkCore;
-
 
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Extensions.Query;
-using ReSys.Core.Common.Models;
-using ReSys.Core.Domain;
+using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.Examples.Common;
+using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.Features.Testing.Examples.GetExamples;
 
@@ -26,32 +24,25 @@ public static class GetExamples
         public DateTimeOffset? CreatedTo { get; set; }
         public string? SortBy { get; set; }
         public bool? IsDescending { get; set; }
-        public int? Page { get; set; } 
+        public int? Page { get; set; }
         public int? PageSize { get; set; }
         public Guid[]? ExampleId { get; set; }
     }
 
     public record Query(Request Request) : IRequest<PagedList<ExampleListItem>>;
 
-    public class Handler : IRequestHandler<Query, PagedList<ExampleListItem>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Query, PagedList<ExampleListItem>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<PagedList<ExampleListItem>> Handle(Query query, CancellationToken cancellationToken)
         {
             var request = query.Request;
-            var dbQuery = _context.Set<Example>().AsNoTracking();
+            var dbQuery = context.Set<Example>().AsNoTracking();
 
             // Search
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var searchTerm = request.Search.ToLower();
-                dbQuery = dbQuery.Where(x => x.Name.ToLower().Contains(searchTerm) 
+                dbQuery = dbQuery.Where(x => x.Name.ToLower().Contains(searchTerm)
                                           || (!string.IsNullOrEmpty(x.Description) && x.Description.ToLower().Contains(searchTerm)));
             }
 

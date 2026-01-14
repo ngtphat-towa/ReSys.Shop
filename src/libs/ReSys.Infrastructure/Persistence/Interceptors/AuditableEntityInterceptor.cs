@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using ReSys.Core.Domain;
+
+using ReSys.Core.Domain.Common.Abtractions;
 
 namespace ReSys.Infrastructure.Persistence.Interceptors;
 

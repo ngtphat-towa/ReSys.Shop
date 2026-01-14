@@ -16,4 +16,8 @@
     <PackageReference Include="Serilog" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ReSys.Shared\ReSys.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

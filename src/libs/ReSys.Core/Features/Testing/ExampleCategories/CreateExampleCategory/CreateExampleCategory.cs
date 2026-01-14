@@ -1,9 +1,13 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.ExampleCategories;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.CreateExampleCategory;
@@ -24,20 +28,13 @@ public static class CreateExampleCategory
         private class RequestValidator : ExampleCategoryValidator<Request> { }
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<ExampleCategoryDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<ExampleCategoryDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<ExampleCategoryDetail>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            if (await _context.Set<ExampleCategory>().AnyAsync(x => x.Name == request.Name, cancellationToken))
+            if (await context.Set<ExampleCategory>().AnyAsync(x => x.Name == request.Name, cancellationToken))
             {
                 return ExampleCategoryErrors.DuplicateName;
             }
@@ -49,8 +46,8 @@ public static class CreateExampleCategory
                 Description = request.Description
             };
 
-            _context.Set<ExampleCategory>().Add(category);
-            await _context.SaveChangesAsync(cancellationToken);
+            context.Set<ExampleCategory>().Add(category);
+            await context.SaveChangesAsync(cancellationToken);
 
             return new ExampleCategoryDetail
             {

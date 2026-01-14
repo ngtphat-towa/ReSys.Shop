@@ -21,7 +21,7 @@ param(
         "all", "db", "ml", "api", "gateway", "apps", 
         "backend", "frontend", "services", "infrastructure", 
         "dev-api", "ui-test", "shop-full", "admin-full", 
-        "core-logic", "web-no-ml", "external-db"
+        "core-logic", "web-no-ml", "external-db", "identity"
     )]
     [string]$Target,
 
@@ -43,6 +43,9 @@ param(
     
     [Parameter(ParameterSetName = 'Flags')]
     [switch]$Admin,
+
+    [Parameter(ParameterSetName = 'Flags')]
+    [switch]$Identity,
 
     # --- Interactive Mode ---
     [Parameter(ParameterSetName = 'Interactive')]
@@ -99,13 +102,19 @@ $script:ServiceDefinitions = @{
         WindowTitle = "Admin App"
         Type        = "Node"
     }
+    "identity" = @{
+        Name        = "Identity Service (.NET)"
+        Color       = "Cyan"
+        WindowTitle = "Identity Service"
+        Type        = "DotNet"
+    }
 }
 
 # --- Preset Combinations ---
 $script:Presets = @{
-    "all"            = @("db", "ml", "api", "gateway", "shop", "admin")
-    "shop-full"      = @("db", "api", "gateway", "shop")
-    "admin-full"     = @("db", "ml", "api", "gateway", "admin")
+    "all"            = @("db", "ml", "api", "gateway", "shop", "admin", "identity")
+    "shop-full"      = @("db", "api", "gateway", "shop", "identity")
+    "admin-full"     = @("db", "ml", "api", "gateway", "admin", "identity")
     "core-logic"     = @("db", "ml", "api", "gateway")
     "web-no-ml"      = @("db", "api", "gateway", "shop", "admin")
     "external-db"    = @("ml", "api", "gateway", "shop", "admin")
@@ -346,6 +355,14 @@ function Start-ServiceByKey {
                 Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/apps/ReSys.Admin; npm run dev"
             }
         }
+        "identity" {
+            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=postgres"
+            if ($Detached) {
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Identity/ReSys.Identity.csproj"
+            } else {
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Identity/ReSys.Identity.csproj"
+            }
+        }
     }
     
     $script:ServicesStarted += $Key
@@ -430,6 +447,7 @@ function Get-ServiceStatus {
         "gateway" = 5002
         "shop"    = 5173
         "admin"   = 5174
+        "identity" = 5074
     }
     
     foreach ($svc in $portChecks.Keys) {

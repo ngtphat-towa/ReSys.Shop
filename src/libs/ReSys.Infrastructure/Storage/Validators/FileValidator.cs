@@ -8,11 +8,9 @@ using ReSys.Infrastructure.Storage.Options;
 
 namespace ReSys.Infrastructure.Storage.Validators;
 
-public sealed class FileValidator : IFileValidator
+public sealed class FileValidator(IOptions<StorageOptions> options, ILogger<FileValidator> logger) : IFileValidator
 {
-    private readonly StorageOptions _options;
-    private readonly ILogger<FileValidator> _logger;
-
+    private readonly StorageOptions _options = options.Value;
     private static readonly Dictionary<string, byte[][]> FileSignatures = new()
     {
         { ".jpg", new[] { new byte[] { 0xFF, 0xD8, 0xFF } } },
@@ -22,12 +20,6 @@ public sealed class FileValidator : IFileValidator
         { ".pdf", new[] { new byte[] { 0x25, 0x50, 0x44, 0x46 } } },
         { ".webp", new[] { new byte[] { 0x52, 0x49, 0x46, 0x46 } } }
     };
-
-    public FileValidator(IOptions<StorageOptions> options, ILogger<FileValidator> logger)
-    {
-        _options = options.Value;
-        _logger = logger;
-    }
 
     public async Task<ErrorOr<Success>> ValidateAsync(
         Stream fileStream,
@@ -67,7 +59,7 @@ public sealed class FileValidator : IFileValidator
                 var signatureValid = await ValidateFileSignatureAsync(fileStream, extension, cancellationToken);
                 if (!signatureValid)
                 {
-                    _logger.LogWarning("File signature mismatch for {FileName}. Content does not match {Extension}.", fileName, extension);
+                    logger.LogWarning("File signature mismatch for {FileName}. Content does not match {Extension}.", fileName, extension);
                     return FileErrors.SignatureMismatch;
                 }
             }
@@ -114,7 +106,7 @@ public sealed class FileValidator : IFileValidator
                 }
             }
 
-            _logger.LogWarning("Signature mismatch for {Extension}. Expected one of {Expected}. Actual: {Actual}", 
+            logger.LogWarning("Signature mismatch for {Extension}. Expected one of {Expected}. Actual: {Actual}", 
                 extension, 
                 string.Join(" | ", signatures.Select(s => BitConverter.ToString(s))),
                 BitConverter.ToString(buffer, 0, totalRead));
@@ -123,7 +115,7 @@ public sealed class FileValidator : IFileValidator
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error validating file signature");
+            logger.LogError(ex, "Error validating file signature");
             return true; 
         }
         finally

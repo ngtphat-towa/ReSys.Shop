@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\aspire\ReSys.ServiceDefaults\ReSys.ServiceDefaults.csproj" />
     <ProjectReference Include="..\..\libs\ReSys.Core\ReSys.Core.csproj" />
+    <ProjectReference Include="..\..\libs\ReSys.Shared\ReSys.Shared.csproj" />
   </ItemGroup>
 
 </Project>

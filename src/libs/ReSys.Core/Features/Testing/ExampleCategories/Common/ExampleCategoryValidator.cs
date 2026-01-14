@@ -1,5 +1,6 @@
 using FluentValidation;
 
+using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.Common;
 

@@ -1,9 +1,13 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Features.Testing.Examples.Common;
 
 namespace ReSys.Core.Features.Testing.Examples.CreateExample;
@@ -24,20 +28,13 @@ public static class CreateExample
         private class RequestValidator : ExampleValidator<Request> { }
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<ExampleDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<ExampleDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<ExampleDetail>> Handle(Command command, CancellationToken cancellationToken)
         {
             var request = command.Request;
 
-            if (await _context.Set<Example>().AnyAsync(x => x.Name == request.Name, cancellationToken))
+            if (await context.Set<Example>().AnyAsync(x => x.Name == request.Name, cancellationToken))
             {
                 return ExampleErrors.DuplicateName;
             }
@@ -55,11 +52,11 @@ public static class CreateExample
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            _context.Set<Example>().Add(example);
-            await _context.SaveChangesAsync(cancellationToken);
+            context.Set<Example>().Add(example);
+            await context.SaveChangesAsync(cancellationToken);
 
             // Fetch with Category for the response
-            return await _context.Set<Example>()
+            return await context.Set<Example>()
                 .AsNoTracking()
                 .Select(ExampleDetail.Projection)
                 .FirstAsync(x => x.Id == example.Id, cancellationToken);

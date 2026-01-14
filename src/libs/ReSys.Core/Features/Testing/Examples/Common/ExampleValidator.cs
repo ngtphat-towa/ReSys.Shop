@@ -1,5 +1,7 @@
 using FluentValidation;
 
+using ReSys.Core.Domain.Testing.Examples;
+
 namespace ReSys.Core.Features.Testing.Examples.Common;
 
 public abstract class ExampleValidator<T> : AbstractValidator<T> where T : ExampleBase

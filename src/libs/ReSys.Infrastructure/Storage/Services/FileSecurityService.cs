@@ -11,16 +11,9 @@ using ReSys.Infrastructure.Storage.Options;
 
 namespace ReSys.Infrastructure.Storage.Services;
 
-public sealed class FileSecurityService : IFileSecurityService
+public sealed class FileSecurityService(IOptions<StorageOptions> options, ILogger<FileSecurityService> logger) : IFileSecurityService
 {
-    private readonly StorageOptions _options;
-    private readonly ILogger<FileSecurityService> _logger;
-
-    public FileSecurityService(IOptions<StorageOptions> options, ILogger<FileSecurityService> logger)
-    {
-        _options = options.Value;
-        _logger = logger;
-    }
+    private readonly StorageOptions _options = options.Value;
 
     public async Task<ErrorOr<string>> EncryptFileAsync(
         Stream inputStream,
@@ -51,7 +44,7 @@ public sealed class FileSecurityService : IFileSecurityService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Encryption failed");
+            logger.LogError(ex, "Encryption failed");
             return Error.Failure("File.EncryptionFailed", ex.Message);
         }
     }
@@ -86,7 +79,7 @@ public sealed class FileSecurityService : IFileSecurityService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Decryption failed");
+            logger.LogError(ex, "Decryption failed");
             return Error.Failure("File.DecryptionFailed", ex.Message);
         }
     }
@@ -108,7 +101,7 @@ public sealed class FileSecurityService : IFileSecurityService
             var eicar = Encoding.ASCII.GetBytes(@"X5O!P%@AP[4\PZX54(P^)7CC)7}");
             if (ContainsPattern(buffer, bytesRead, eicar))
             {
-                _logger.LogWarning("EICAR test pattern detected");
+                logger.LogWarning("EICAR test pattern detected");
                 return false;
             }
 

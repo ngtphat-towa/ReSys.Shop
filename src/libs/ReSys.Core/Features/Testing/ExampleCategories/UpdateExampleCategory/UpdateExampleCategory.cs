@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.ExampleCategories;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.UpdateExampleCategory;
@@ -29,18 +29,11 @@ public static class UpdateExampleCategory
         private class RequestValidator : ExampleCategoryValidator<Request> { }
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<ExampleCategoryDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<ExampleCategoryDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<ExampleCategoryDetail>> Handle(Command command, CancellationToken cancellationToken)
         {
-            var category = await _context.Set<ExampleCategory>()
+            var category = await context.Set<ExampleCategory>()
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (category == null)
@@ -50,7 +43,7 @@ public static class UpdateExampleCategory
 
             var request = command.Request;
 
-            if (await _context.Set<ExampleCategory>().AnyAsync(x => x.Name == request.Name && x.Id != command.Id, cancellationToken))
+            if (await context.Set<ExampleCategory>().AnyAsync(x => x.Name == request.Name && x.Id != command.Id, cancellationToken))
             {
                 return ExampleCategoryErrors.DuplicateName;
             }
@@ -58,7 +51,7 @@ public static class UpdateExampleCategory
             category.Name = request.Name;
             category.Description = request.Description;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
 
             return new ExampleCategoryDetail
             {

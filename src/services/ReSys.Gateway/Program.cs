@@ -1,4 +1,5 @@
 using ReSys.Gateway;
+
 using Serilog;
 using Serilog.Events;
 

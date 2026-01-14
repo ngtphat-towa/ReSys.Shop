@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
-using ReSys.Core.Domain;
+
+using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.Common;
 

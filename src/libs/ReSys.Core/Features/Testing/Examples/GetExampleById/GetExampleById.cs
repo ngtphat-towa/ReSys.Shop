@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
+using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Features.Testing.Examples.Common;
 
 namespace ReSys.Core.Features.Testing.Examples.GetExampleById;
@@ -19,18 +19,11 @@ public static class GetExampleById
 
     public record Query(Request Request) : IRequest<ErrorOr<ExampleDetail>>;
 
-    public class Handler : IRequestHandler<Query, ErrorOr<ExampleDetail>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Query, ErrorOr<ExampleDetail>>
     {
-        private readonly IApplicationDbContext _context;
-
-        public Handler(IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         public async Task<ErrorOr<ExampleDetail>> Handle(Query query, CancellationToken cancellationToken)
         {
-            var response = await _context.Set<Example>()
+            var response = await context.Set<Example>()
                 .AsNoTracking()
                 .Where(x => x.Id == query.Request.Id)
                 .Select(ExampleDetail.Projection)

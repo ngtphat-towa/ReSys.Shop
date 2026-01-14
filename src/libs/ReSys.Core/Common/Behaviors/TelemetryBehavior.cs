@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using ReSys.Core.Common.Telemetry;
-using ReSys.Core.Common.Constants;
+using ReSys.Shared.Telemetry;
+using ReSys.Shared.Constants;
 using System.Diagnostics;
 
 namespace ReSys.Core.Common.Behaviors;

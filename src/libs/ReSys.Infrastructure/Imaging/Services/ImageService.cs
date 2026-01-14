@@ -15,16 +15,9 @@ using ReSys.Infrastructure.Imaging.Options;
 
 namespace ReSys.Infrastructure.Imaging.Services;
 
-public sealed class ImageService : IImageService
+public sealed class ImageService(ILogger<ImageService> logger, IOptions<ImageOptions>? options = null) : IImageService
 {
-    private readonly ILogger<ImageService> _logger;
-    private readonly ImageOptions _options;
-
-    public ImageService(ILogger<ImageService> logger, IOptions<ImageOptions>? options = null)
-    {
-        _logger = logger;
-        _options = options?.Value ?? ImageOptions.Default;
-    }
+    private readonly ImageOptions _options = options?.Value ?? ImageOptions.Default;
 
     public async Task<ErrorOr<ProcessedImageResult>> ProcessAsync(
         Stream stream,
@@ -95,7 +88,7 @@ public sealed class ImageService : IImageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Image processing failed");
+            logger.LogError(ex, "Image processing failed");
             return ImageErrors.ProcessingFailed(ex.Message);
         }
     }
@@ -125,7 +118,7 @@ public sealed class ImageService : IImageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get metadata");
+            logger.LogError(ex, "Failed to get metadata");
             return ImageErrors.ProcessingFailed(ex.Message);
         }
     }
@@ -161,7 +154,7 @@ public sealed class ImageService : IImageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Resize failed");
+            logger.LogError(ex, "Resize failed");
             return ImageErrors.ProcessingFailed(ex.Message);
         }
     }
@@ -221,7 +214,7 @@ public sealed class ImageService : IImageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Format conversion failed");
+            logger.LogError(ex, "Format conversion failed");
             return ImageErrors.ProcessingFailed(ex.Message);
         }
     }
@@ -253,7 +246,7 @@ public sealed class ImageService : IImageService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save variant");
+            logger.LogError(ex, "Failed to save variant");
             return ImageErrors.ProcessingFailed(ex.Message);
         }
     }

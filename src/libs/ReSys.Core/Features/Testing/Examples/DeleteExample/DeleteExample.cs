@@ -3,31 +3,22 @@ using ErrorOr;
 using MediatR;
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Domain;
 using ReSys.Core.Common.Storage;
-using ReSys.Core.Features.Testing.Examples.Common;
+using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.Features.Testing.Examples.DeleteExample;
 
 public static class DeleteExample
 {
-    public class Command : IRequest<ErrorOr<Deleted>>
+    public class Command(Guid id) : IRequest<ErrorOr<Deleted>>
     {
-        public Guid Id { get; set; }
-
-        public Command(Guid id) => Id = id;
+        public Guid Id { get; set; } = id;
     }
 
-    public class Handler : IRequestHandler<Command, ErrorOr<Deleted>>
+    public class Handler(IApplicationDbContext context, IFileService fileService) : IRequestHandler<Command, ErrorOr<Deleted>>
     {
-        private readonly IApplicationDbContext _context;
-        private readonly IFileService _fileService;
-
-        public Handler(IApplicationDbContext context, IFileService fileService)
-        {
-            _context = context;
-            _fileService = fileService;
-        }
+        private readonly IApplicationDbContext _context = context;
+        private readonly IFileService _fileService = fileService;
 
         public async Task<ErrorOr<Deleted>> Handle(Command request, CancellationToken cancellationToken)
         {

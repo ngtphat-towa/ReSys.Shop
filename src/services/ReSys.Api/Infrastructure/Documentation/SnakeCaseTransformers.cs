@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
 
-using ReSys.Core.Common.Helpers;
+using ReSys.Shared.Helpers;
 
 namespace ReSys.Api.Infrastructure.Documentation;
 
