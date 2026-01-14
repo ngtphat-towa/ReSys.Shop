@@ -5,13 +5,13 @@
  * Orchestrates communication between the ExampleStore and the DataTable UI.
  */
 import { onMounted, ref } from 'vue'
-import { useExampleStore } from '../example.store'
-import { useExampleCategoryStore } from '../../example-categories/example-category.store'
+import { useExampleStore } from '../stores/example.store'
+import { useExampleCategoryStore } from '../../example-categories/stores/example-category.store'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { storeToRefs } from 'pinia'
-import { ExampleStatus, STATUS_COLORS, type ExampleListItem } from '../example.types'
-import { exampleLocales } from '../example.locales'
+import { ExampleStatus, STATUS_COLORS, type ExampleListItem } from '../types/example.types'
+import { exampleLocales } from '../locales/example.locales'
 import { FilterMatchMode, FilterOperator as PrimeFilterOperator } from '@primevue/core/api'
 import type {
   DataTablePageEvent,

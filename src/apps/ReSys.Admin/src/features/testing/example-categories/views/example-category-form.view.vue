@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useExampleCategoryStore } from '../example-category.store'
+import { useExampleCategoryStore } from '../stores/example-category.store'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
-import { ExampleCategorySchema } from '../example-category.schema'
-import { exampleCategoryLocales } from '../example-category.locales'
+import { ExampleCategorySchema } from '../schemas/example-category.schema'
+import { exampleCategoryLocales } from '../locales/example-category.locales'
 import { useApiErrorHandler } from '@/shared/composables/api-error-handler.use'
 import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 

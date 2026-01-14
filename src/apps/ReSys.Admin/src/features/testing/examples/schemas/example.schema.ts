@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ExampleStatus } from './example.types'
+import { ExampleStatus } from '../types/example.types'
 
 /**
  * Validation schema for Example entities.
@@ -19,7 +19,7 @@ export const ExampleSchema = z.object({
   image_url: z.string().nullable().optional(),
 
   /** Current lifecycle status. */
-  status: z.enum(ExampleStatus),
+  status: z.nativeEnum(ExampleStatus),
 
   /** Optional hex color code for visual branding. */
   hex_color: z.string().regex(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Invalid hex color').optional().nullable(),

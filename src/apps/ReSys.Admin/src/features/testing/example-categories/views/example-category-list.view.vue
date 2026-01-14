@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useExampleCategoryStore } from '../example-category.store'
+import { useExampleCategoryStore } from '../stores/example-category.store'
 import { useRouter } from 'vue-router'
 import { useConfirm } from 'primevue/useconfirm'
 import { storeToRefs } from 'pinia'
-import { exampleCategoryLocales } from '../example-category.locales'
+import { exampleCategoryLocales } from '../locales/example-category.locales'
 import { FilterMatchMode, FilterOperator } from '@primevue/core/api'
 import type {
   DataTablePageEvent,
@@ -14,7 +14,7 @@ import type {
 import { useToast } from '@/shared/composables/toast.use'
 import AppBreadcrumb from '@/shared/components/breadcrumb.component.vue'
 import { QueryBuilder } from '@/shared/utils/query-builder.utils'
-import type { ExampleCategoryListItem } from '../example-category.types'
+import type { ExampleCategoryListItem } from '../types/example-category.types'
 
 const categoryStore = useExampleCategoryStore()
 const { categories, loading, totalRecords, query } = storeToRefs(categoryStore)
