@@ -5,13 +5,17 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 using ReSys.Api.Infrastructure.Extensions;
 using ReSys.Shared.Models;
+using FluentAssertions;
+using Xunit;
 
 namespace ReSys.Api.UnitTests.Infrastructure.Extensions;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Api")]
 public class ErrorOrExtensionsTests
 {
-    [Fact(DisplayName = "ToApiResponse (Success): Should return 200 OK with data")]
-    public void ToApiResponse_OnSuccess_ShouldReturnOkWithData()
+    [Fact(DisplayName = "ToApiResponse should return 200 OK with data when result is success")]
+    public void ToApiResponse_GivenSuccessResult_ReturnsOkWithData()
     {
         // Arrange
         ErrorOr<string> result = "Success Data";
@@ -25,8 +29,8 @@ public class ErrorOrExtensionsTests
         okResult.Value.Data.Should().Be("Success Data");
     }
 
-    [Fact(DisplayName = "ToApiCreatedResponse (Success): Should return 201 Created with Location header and data")]
-    public void ToApiCreatedResponse_OnSuccess_ShouldReturnCreatedWithLocation()
+    [Fact(DisplayName = "ToApiCreatedResponse should return 201 Created with Location header and data when result is success")]
+    public void ToApiCreatedResponse_GivenSuccessResult_ReturnsCreatedWithLocation()
     {
         // Arrange
         ErrorOr<string> result = "New Resource";
@@ -41,8 +45,8 @@ public class ErrorOrExtensionsTests
         createdResult.Value!.Data.Should().Be("New Resource");
     }
 
-    [Fact(DisplayName = "ToApiResponse (NotFound): Should return 404 Not Found with error details")]
-    public void ToApiResponse_OnNotFoundError_ShouldReturnNotFound()
+    [Fact(DisplayName = "ToApiResponse should return 404 Not Found with error details when result is NotFound error")]
+    public void ToApiResponse_GivenNotFoundError_ReturnsNotFound()
     {
         // Arrange
         ErrorOr<string> result = Error.NotFound("item.not_found", "Item missing");
@@ -51,7 +55,6 @@ public class ErrorOrExtensionsTests
         var response = result.ToApiResponse();
 
         // Assert
-        // Results.Json returns JsonHttpResult<ApiResponse<object>>
         var jsonResult = response.Should().BeOfType<JsonHttpResult<ApiResponse<object>>>().Subject;
         jsonResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
 
@@ -62,8 +65,8 @@ public class ErrorOrExtensionsTests
         body.Detail.Should().Be("Item missing");
     }
 
-    [Fact(DisplayName = "ToApiResponse (Conflict): Should return 409 Conflict with error code")]
-    public void ToApiResponse_OnConflictError_ShouldReturnConflict()
+    [Fact(DisplayName = "ToApiResponse should return 409 Conflict with error code when result is Conflict error")]
+    public void ToApiResponse_GivenConflictError_ReturnsConflict()
     {
         // Arrange
         ErrorOr<string> result = Error.Conflict("item.conflict", "Already exists");
@@ -77,8 +80,8 @@ public class ErrorOrExtensionsTests
         jsonResult.Value!.ErrorCode.Should().Be("item.conflict");
     }
 
-    [Fact(DisplayName = "ToApiResponse (Validation): Should return 400 Bad Request with validation errors dictionary")]
-    public void ToApiResponse_OnValidationError_ShouldReturnBadRequestWithErrors()
+    [Fact(DisplayName = "ToApiResponse should return 400 Bad Request with validation errors when result has validation errors")]
+    public void ToApiResponse_GivenValidationError_ReturnsBadRequestWithErrors()
     {
         // Arrange
         var errors = new List<Error>
@@ -92,7 +95,6 @@ public class ErrorOrExtensionsTests
         var response = result.ToApiResponse();
 
         // Assert
-        // Validation errors use Results.BadRequest(...) which is BadRequest<ApiResponse<object>>
         var badRequestResult = response.Should().BeOfType<BadRequest<ApiResponse<object>>>().Subject;
         badRequestResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
 

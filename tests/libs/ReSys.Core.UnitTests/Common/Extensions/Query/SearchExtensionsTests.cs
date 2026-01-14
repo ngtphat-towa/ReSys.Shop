@@ -3,6 +3,9 @@ using ReSys.Core.Common.Extensions.Query;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Query")]
 public class SearchExtensionsTests
 {
     private class TestItem
@@ -31,8 +34,8 @@ public class SearchExtensionsTests
         }.AsQueryable();
     }
 
-    [Fact(DisplayName = "Search: Global search should match any provided field")]
-    public void ApplySearch_MatchesAnyField()
+    [Fact(DisplayName = "ApplySearch: Global search should match any provided field")]
+    public void ApplySearch_Should_MatchAnyField_WhenValidQueryProvided()
     {
         // Search "apple" in Name or Address.City
         var result = _data.ApplySearch("apple", "Name", "Address.City").ToList();
@@ -41,8 +44,8 @@ public class SearchExtensionsTests
         result.Should().Contain(x => x.Name == "Pineapple");
     }
 
-    [Fact(DisplayName = "Search: Global search should match nested properties")]
-    public void ApplySearch_MatchesNestedField()
+    [Fact(DisplayName = "ApplySearch: Global search should match nested properties")]
+    public void ApplySearch_Should_MatchNestedField_WhenNestedPropertyTargeted()
     {
         // Search "don" -> London (Address.City)
         var result = _data.ApplySearch("don", "Name", "Address.City").ToList();
@@ -50,29 +53,29 @@ public class SearchExtensionsTests
         result.Single().Name.Should().Be("Pear");
     }
 
-    [Fact(DisplayName = "Search: Should return empty if no matches found")]
-    public void ApplySearch_NoMatches_ReturnsEmpty()
+    [Fact(DisplayName = "ApplySearch: Should return empty if no matches found")]
+    public void ApplySearch_Should_ReturnEmpty_WhenNoMatchesFound()
     {
         var result = _data.ApplySearch("xyz", "Name").ToList();
         result.Should().BeEmpty();
     }
 
-    [Fact(DisplayName = "Search: Empty search text should return all items")]
-    public void ApplySearch_EmptySearchText_ReturnsAll()
+    [Fact(DisplayName = "ApplySearch: Should return all items for empty search text")]
+    public void ApplySearch_Should_ReturnAllItems_WhenSearchTextIsEmpty()
     {
         var result = _data.ApplySearch("", "Name").ToList();
         result.Should().HaveCount(5);
     }
 
-    [Fact(DisplayName = "Search: Null search fields should return all items")]
-    public void ApplySearch_NullFields_ReturnsAll()
+    [Fact(DisplayName = "ApplySearch: Should return all items when search fields are null")]
+    public void ApplySearch_Should_ReturnAllItems_WhenFieldsAreNull()
     {
         var result = _data.ApplySearch("apple", null).ToList();
         result.Should().HaveCount(5);
     }
 
-    [Fact(DisplayName = "Search: Non-string fields should be searched")]
-    public void ApplySearch_NonStringField_Searched()
+    [Fact(DisplayName = "ApplySearch: Should work correctly with non-string fields")]
+    public void ApplySearch_Should_SearchNonStringFields_WhenProvided()
     {
         // Age is int, should be searchable via ToString()
         var dataWithAge = new List<TestItem>

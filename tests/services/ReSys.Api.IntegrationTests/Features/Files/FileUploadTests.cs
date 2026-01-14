@@ -10,11 +10,14 @@ using ReSys.Api.Features.Files;
 
 namespace ReSys.Api.IntegrationTests.Features.Files;
 
+[Trait("Category", "Integration")] 
+[Trait("Module", "Api")]
+[Trait("Feature", "Files")]
 [Collection("Shared Database")]
 public class FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHelper output) : BaseIntegrationTest(factory, output)
 {
     [Fact(DisplayName = "POST /api/files/image: Should upload image and convert to WebP")]
-    public async Task UploadImage_ValidPng_ReturnsWebpMetadata()
+    public async Task UploadImage_Should_ReturnWebpMetadata_WhenValidPngProvided()
     {
         // Arrange
         using var content = new MultipartFormDataContent();
@@ -44,14 +47,14 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHe
         apiResponse.Should().NotBeNull();
         
         var data = apiResponse!.Data;
-        Assert.NotNull(data);
+        data.Should().NotBeNull();
         data!.SavedName.Should().EndWith(".webp");
         data.Format.Should().Be("webp");
         data.Width.Should().BeLessThanOrEqualTo(1200); // FilesModule resizes to 1200
     }
 
-    [Fact(DisplayName = "GET /api/files/{path}/metadata: Should return metadata for existing file")]
-    public async Task GetFileMetadata_ExistingFile_ReturnsMetadata()
+    [Fact(DisplayName = "GET /api/files/meta/{path}: Should return metadata for existing file")]
+    public async Task GetFileMetadata_Should_ReturnMetadata_WhenFileExists()
     {
         // Arrange - Upload a file first
         using var content = new MultipartFormDataContent();
@@ -81,7 +84,7 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHe
     }
 
     [Fact(DisplayName = "FileUploadOptions: Should combine Subdirectory and Subdirectories correctly")]
-    public void FileUploadOptions_GetCombinedSubdirectory_ReturnsCorrectPath()
+    public void FileUploadOptions_Should_ReturnCorrectPath_WhenCombined()
     {
         // Arrange
         var options = new FileUploadOptions(new[] { "nested", "level2" });
@@ -94,7 +97,7 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHe
     }
 
     [Fact(DisplayName = "POST /api/files/image: Should sanitize path traversal names")]
-    public async Task UploadImage_PathTraversal_SanitizesName()
+    public async Task UploadImage_Should_SanitizeName_WhenPathTraversalAttempted()
     {
         // Arrange
         using var content = new MultipartFormDataContent();
@@ -121,7 +124,7 @@ public class FileUploadTests(IntegrationTestWebAppFactory factory, ITestOutputHe
     }
 
     [Fact(DisplayName = "POST /api/files/image: Should return BadRequest for invalid file")]
-    public async Task UploadImage_InvalidFile_ReturnsBadRequest()
+    public async Task UploadImage_Should_ReturnBadRequest_WhenFileIsInvalid()
     {
         // Arrange
         using var content = new MultipartFormDataContent();

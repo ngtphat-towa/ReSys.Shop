@@ -13,6 +13,9 @@ using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -31,7 +34,7 @@ public class UpdateExampleImageTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should successfully update the image and its embedding when the example exists")]
-    public async Task Handle_ExistingExample_ShouldUpdateImageAndEmbedding()
+    public async Task Handle_ExampleExists_UpdatesImageAndEmbedding()
     {
         // Arrange
         var exampleId = Guid.NewGuid();

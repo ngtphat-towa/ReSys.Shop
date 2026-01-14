@@ -15,6 +15,9 @@ using System.Diagnostics.Metrics;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Type", "Behavior")]
 public class TelemetryBehaviorTests
 {
     private readonly ILogger<TestRequest> _logger;
@@ -28,8 +31,8 @@ public class TelemetryBehaviorTests
         _next = Substitute.For<RequestHandlerDelegate<string>>();
     }
 
-    [Fact(DisplayName = "Handle: Should log and call next on success")]
-    public async Task Handle_Success_LogsAndCallsNext()
+    [Fact(DisplayName = "Handle: Should log start/end messages and call next on success")]
+    public async Task Handle_Should_LogAndCallNext_OnSuccess()
     {
         // Arrange
         var request = new TestRequest();
@@ -57,8 +60,8 @@ public class TelemetryBehaviorTests
             Arg.Any<Func<object, Exception?, string>>());
     }
 
-    [Fact(DisplayName = "Handle: Should log error and rethrow on exception")]
-    public async Task Handle_Exception_LogsErrorAndRethrows()
+    [Fact(DisplayName = "Handle: Should log error and rethrow when exception occurs")]
+    public async Task Handle_Should_LogErrorAndRethrow_OnException()
     {
         // Arrange
         var request = new TestRequest();
@@ -80,8 +83,8 @@ public class TelemetryBehaviorTests
             Arg.Any<Func<object, Exception?, string>>());
     }
 
-    [Fact(DisplayName = "Handle: Should start an Activity with the correct name")]
-    public async Task Handle_ShouldStartActivity()
+    [Fact(DisplayName = "Handle: Should start an OpenTelemetry activity with the correct name and tags")]
+    public async Task Handle_Should_StartActivity_WithCorrectMetadata()
     {
         // Arrange
         var request = new TestRequest();
@@ -105,8 +108,8 @@ public class TelemetryBehaviorTests
         startedActivity.TagObjects.Should().Contain(t => t.Key == "usecase.name" && t.Value as string == "TestRequest");
     }
 
-    [Fact(DisplayName = "Handle: Should record duration metrics on success")]
-    public async Task Handle_ShouldRecordMetrics()
+    [Fact(DisplayName = "Handle: Should record execution duration metrics on success")]
+    public async Task Handle_Should_RecordDurationMetrics_OnSuccess()
     {
         // Arrange
         var request = new TestRequest();
@@ -144,8 +147,8 @@ public class TelemetryBehaviorTests
         recordedDuration.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Handle: Should record error metrics on failure")]
-    public async Task Handle_ShouldRecordErrorMetrics()
+    [Fact(DisplayName = "Handle: Should record error counts in metrics on failure")]
+    public async Task Handle_Should_RecordErrorMetrics_OnFailure()
     {
         // Arrange
         var request = new TestRequest();

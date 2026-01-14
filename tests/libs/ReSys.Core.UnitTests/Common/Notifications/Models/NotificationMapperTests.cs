@@ -5,10 +5,13 @@ using ReSys.Core.Common.Notifications.Builders;
 
 namespace ReSys.Core.UnitTests.Common.Notifications.Models;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Notifications")]
 public class NotificationMapperTests
 {
-    [Fact(DisplayName = "NotificationMapper should correctly map content and replace placeholders")]
-    public void MapContent_ShouldReplacePlaceholders()
+    [Fact(DisplayName = "MapContent: Should correctly map content and replace placeholders")]
+    public void MapContent_Should_ReplacePlaceholders()
     {
         // Arrange
         var context = NotificationContext.Create(
@@ -31,8 +34,8 @@ public class NotificationMapperTests
         result.Value.Body.Should().Contain("ORD-123");
     }
 
-    [Fact(DisplayName = "NotificationMapper should replace all occurrences of the same placeholder")]
-    public void MapContent_WithDuplicatePlaceholders_ShouldReplaceAll()
+    [Fact(DisplayName = "MapContent: Should replace all occurrences of the same placeholder")]
+    public void MapContent_Should_ReplaceAll_WhenDuplicatePlaceholdersExist()
     {
         // Arrange
         var context = NotificationContext.Create(
@@ -54,8 +57,8 @@ public class NotificationMapperTests
         result.Value.HtmlBody.Should().Contain("Welcome to MyStore");
     }
 
-    [Fact(DisplayName = "NotificationMapper should handle missing parameters by keeping placeholders")]
-    public void MapContent_WhenParametersMissing_ShouldKeepPlaceholders()
+    [Fact(DisplayName = "MapContent: Should keep placeholders when parameters are missing")]
+    public void MapContent_Should_KeepPlaceholders_WhenParametersMissing()
     {
         // Arrange
         var message = NotificationMessageBuilder.Create(
@@ -71,8 +74,8 @@ public class NotificationMapperTests
         result.Value.Body.Should().Contain("{OrderId}");
     }
 
-    [Fact(DisplayName = "NotificationMapper should correctly handle extra parameters in context")]
-    public void MapContent_WithExtraParameters_ShouldStillWork()
+    [Fact(DisplayName = "MapContent: Should correctly handle extra parameters in context")]
+    public void MapContent_Should_StillWork_WithExtraParameters()
     {
         // Arrange
         var context = NotificationContext.Create(
@@ -95,8 +98,8 @@ public class NotificationMapperTests
         result.Value.Body.Should().Contain("ORD-123");
     }
 
-    [Fact(DisplayName = "NotificationMapper should correctly map to Sms UseCase and replace placeholders")]
-    public void MapContent_Sms_ShouldReplacePlaceholders()
+    [Fact(DisplayName = "MapContent: Should correctly map to Sms UseCase and replace placeholders")]
+    public void MapContent_Should_ReplacePlaceholders_ForSms()
     {
         // Arrange
         var context = NotificationContext.Create(
@@ -118,8 +121,8 @@ public class NotificationMapperTests
         result.Value.Body.Should().Contain("999888");
     }
 
-    [Fact(DisplayName = "NotificationMapper should return error when UseCase template is missing")]
-    public void MapContent_WhenUseCaseMissing_ShouldReturnError()
+    [Fact(DisplayName = "MapContent: Should return error when UseCase template is missing")]
+    public void MapContent_Should_ReturnError_WhenUseCaseTemplateMissing()
     {
         // Arrange
         var message = NotificationMessageBuilder.Create(

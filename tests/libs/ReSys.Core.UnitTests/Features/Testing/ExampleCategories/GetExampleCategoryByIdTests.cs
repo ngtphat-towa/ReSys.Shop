@@ -17,7 +17,7 @@ public class GetExampleCategoryByIdTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return category details when it exists")]
-    public async Task Handle_Existing_ShouldReturnDetails()
+    public async Task Handle_CategoryExists_ReturnsDetails()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -36,7 +36,7 @@ public class GetExampleCategoryByIdTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return not found when category does not exist")]
-    public async Task Handle_NonExistent_ShouldReturnNotFound()
+    public async Task Handle_NonExistent_ReturnsNotFound()
     {
         // Arrange
         var query = new GetExampleCategoryById.Query(Guid.NewGuid());

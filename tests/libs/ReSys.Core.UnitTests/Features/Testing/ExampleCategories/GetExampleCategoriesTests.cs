@@ -7,7 +7,7 @@ namespace ReSys.Core.UnitTests.Features.Testing.ExampleCategories;
 public class GetExampleCategoriesTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
     [Fact(DisplayName = "GetExampleCategories: Should filter by name")]
-    public async Task Handle_WithFilter_ShouldReturnCorrectItems()
+    public async Task Handle_WithFilter_ReturnsCorrectItems()
     {
         // Arrange
         var baseName = $"CatFilter_{Guid.NewGuid()}";
@@ -32,7 +32,7 @@ public class GetExampleCategoriesTests(TestDatabaseFixture fixture) : IClassFixt
     }
 
     [Fact(DisplayName = "GetExampleCategories: Should sort by name descending")]
-    public async Task Handle_WithSort_ShouldReturnSortedItems()
+    public async Task Handle_WithSort_ReturnsSortedItems()
     {
         // Arrange
         var baseName = $"CatSort_{Guid.NewGuid()}";
@@ -58,7 +58,7 @@ public class GetExampleCategoriesTests(TestDatabaseFixture fixture) : IClassFixt
     }
 
     [Fact(DisplayName = "GetExampleCategories: Should search globally")]
-    public async Task Handle_WithSearch_ShouldMatchFields()
+    public async Task Handle_WithSearch_MatchesFields()
     {
         // Arrange
         var baseName = $"CatSearch_{Guid.NewGuid()}";
@@ -84,7 +84,7 @@ public class GetExampleCategoriesTests(TestDatabaseFixture fixture) : IClassFixt
     }
 
     [Fact(DisplayName = "GetExampleCategories: Should return empty page when no matches")]
-    public async Task Handle_NoMatches_ShouldReturnEmpty()
+    public async Task Handle_NoMatches_ReturnsEmpty()
     {
         var uniqueSearch = $"NonExistent_{Guid.NewGuid()}";
         var request = new GetExampleCategories.Request 
@@ -99,7 +99,7 @@ public class GetExampleCategoriesTests(TestDatabaseFixture fixture) : IClassFixt
     }
 
     [Fact(DisplayName = "GetExampleCategories: Should handle pagination correctly")]
-    public async Task Handle_Pagination_Works()
+    public async Task Handle_Pagination_ReturnsPagedResults()
     {
         // Arrange
         var baseName = $"CatPage_{Guid.NewGuid()}";

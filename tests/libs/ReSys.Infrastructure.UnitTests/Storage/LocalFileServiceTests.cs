@@ -14,6 +14,9 @@ using ReSys.Infrastructure.Storage.Services;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Infrastructure")]
+[Trait("Service", "Storage")]
 public class LocalFileServiceTests : IDisposable
 {
     private readonly LocalFileService _sut;
@@ -51,7 +54,7 @@ public class LocalFileServiceTests : IDisposable
     // --- SaveFileAsync Tests ---
 
     [Fact(DisplayName = "SaveFileAsync: Should successfully save a valid file")]
-    public async Task SaveFileAsync_ValidFile_ReturnsSuccess()
+    public async Task SaveFileAsync_Should_SuccessfullySave_ValidFile()
     {
         var content = "test content";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
@@ -64,7 +67,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should save to requested subdirectory")]
-    public async Task SaveFileAsync_WithSubdirectory_SavesToCorrectLocation()
+    public async Task SaveFileAsync_Should_SaveTo_RequestedSubdirectory()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("content"));
         var options = new FileUploadOptions("products");
@@ -77,7 +80,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should encrypt file when requested")]
-    public async Task SaveFileAsync_EncryptionEnabled_EncryptsFileAndReturnsKey()
+    public async Task SaveFileAsync_Should_EncryptFile_WhenRequested()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("secret"));
         var options = new FileUploadOptions { EncryptFile = true };
@@ -94,7 +97,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should scan for malware when requested")]
-    public async Task SaveFileAsync_MalwareScanEnabled_ScansFile()
+    public async Task SaveFileAsync_Should_ScanForMalware_WhenRequested()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("content"));
         var options = new FileUploadOptions { ScanForMalware = true };
@@ -109,7 +112,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should return error when file exists and overwrite is disabled")]
-    public async Task SaveFileAsync_ExistingFileNoOverwrite_ReturnsAlreadyExists()
+    public async Task SaveFileAsync_Should_ReturnError_WhenFileExistsAndNoOverwrite()
     {
         var fileName = "exist.txt";
         using var stream1 = new MemoryStream(Encoding.UTF8.GetBytes("content1"));
@@ -124,7 +127,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should overwrite file when requested")]
-    public async Task SaveFileAsync_ExistingFileOverwrite_OverwritesFile()
+    public async Task SaveFileAsync_Should_OverwriteFile_WhenRequested()
     {
         var fileName = "overwrite.txt";
         using var stream1 = new MemoryStream(Encoding.UTF8.GetBytes("old content"));
@@ -141,7 +144,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should return error when validation fails")]
-    public async Task SaveFileAsync_ValidationFails_ReturnsValidationError()
+    public async Task SaveFileAsync_Should_ReturnValidationError_WhenValidationFails()
     {
         using var stream = new MemoryStream();
         _validator.ValidateAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<FileUploadOptions>(), Arg.Any<CancellationToken>())
@@ -156,7 +159,7 @@ public class LocalFileServiceTests : IDisposable
     // --- GetFileStreamAsync Tests ---
 
     [Fact(DisplayName = "GetFileStreamAsync: Should return file stream when file exists")]
-    public async Task GetFileStreamAsync_FileExists_ReturnsStream()
+    public async Task GetFileStreamAsync_Should_ReturnStream_WhenFileExists()
     {
         // Save first
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("data"));
@@ -171,7 +174,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileStreamAsync: Should decrypt and return stream for encrypted files")]
-    public async Task GetFileStreamAsync_EncryptedFile_DecryptsAndReturnsStream()
+    public async Task GetFileStreamAsync_Should_DecryptAndReturnStream_ForEncryptedFiles()
     {
         // Setup mock metadata
         var fileId = "encrypted.txt";
@@ -201,7 +204,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileStreamAsync: Should return NotFound error for missing files")]
-    public async Task GetFileStreamAsync_FileNotFound_ReturnsNotFound()
+    public async Task GetFileStreamAsync_Should_ReturnNotFound_WhenFileNotFound()
     {
         var result = await _sut.GetFileStreamAsync("missing.txt", TestContext.Current.CancellationToken);
         result.IsError.Should().BeTrue();
@@ -209,7 +212,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileStreamAsync: Should return error when decryption fails")]
-    public async Task GetFileStreamAsync_DecryptionFails_ReturnsError()
+    public async Task GetFileStreamAsync_Should_ReturnError_WhenDecryptionFails()
     {
         var fileId = "fail_decrypt.txt";
         var metadata = new FileMetadata(fileId, fileId, fileId, 100, "text/plain", "hash", "temp", DateTime.UtcNow, ".txt", IsEncrypted: true);
@@ -231,7 +234,7 @@ public class LocalFileServiceTests : IDisposable
     // --- DeleteFileAsync Tests ---
 
     [Fact(DisplayName = "DeleteFileAsync: Should delete file and its metadata")]
-    public async Task DeleteFileAsync_FileExists_DeletesFileAndMetadata()
+    public async Task DeleteFileAsync_Should_DeleteFileAndMetadata_WhenFileExists()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("delete me"));
         var saveResult = await _sut.SaveFileAsync(stream, "delete.txt", cancellationToken: TestContext.Current.CancellationToken);
@@ -245,7 +248,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "DeleteFileAsync: Should return NotFound error for missing files")]
-    public async Task DeleteFileAsync_FileNotFound_ReturnsNotFound()
+    public async Task DeleteFileAsync_Should_ReturnNotFound_WhenFileNotFound()
     {
         var result = await _sut.DeleteFileAsync("missing.txt", TestContext.Current.CancellationToken);
         result.IsError.Should().BeTrue();
@@ -255,7 +258,7 @@ public class LocalFileServiceTests : IDisposable
     // --- FileExistsAsync Tests ---
 
     [Fact(DisplayName = "FileExistsAsync: Should return true when file exists")]
-    public async Task FileExistsAsync_FileExists_ReturnsTrue()
+    public async Task FileExistsAsync_Should_ReturnTrue_WhenFileExists()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("exists"));
         var saveResult = await _sut.SaveFileAsync(stream, "exists.txt", cancellationToken: TestContext.Current.CancellationToken);
@@ -265,14 +268,14 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "FileExistsAsync: Should return false when file does not exist")]
-    public async Task FileExistsAsync_FileDoesNotExist_ReturnsFalse()
+    public async Task FileExistsAsync_Should_ReturnFalse_WhenFileDoesNotExist()
     {
         var result = await _sut.FileExistsAsync("ghost.txt", TestContext.Current.CancellationToken);
         result.Value.Should().BeFalse();
     }
 
     [Fact(DisplayName = "FileExistsAsync: Should find file across subdirectories")]
-    public async Task FileExistsAsync_CrossSubdirectory_FindsFile()
+    public async Task FileExistsAsync_Should_FindFile_AcrossSubdirectories()
     {
         // Save to 'products'
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("product"));
@@ -288,7 +291,7 @@ public class LocalFileServiceTests : IDisposable
     // --- GetFileMetadataAsync Tests ---
 
     [Fact(DisplayName = "GetFileMetadataAsync: Should return metadata from JSON file")]
-    public async Task GetFileMetadataAsync_MetadataExists_ReturnsMetadataFromJson()
+    public async Task GetFileMetadataAsync_Should_ReturnMetadata_FromMetadataFile()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("meta"));
         var saveResult = await _sut.SaveFileAsync(stream, "meta.txt", cancellationToken: TestContext.Current.CancellationToken);
@@ -301,7 +304,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileMetadataAsync: Should return fallback metadata when JSON is missing")]
-    public async Task GetFileMetadataAsync_MetadataMissingFileExists_ReturnsFallbackMetadata()
+    public async Task GetFileMetadataAsync_Should_ReturnFallbackMetadata_WhenJsonIsMissing()
     {
         // Save file
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("fallback"));
@@ -321,7 +324,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileMetadataAsync: Should return NotFound for non-existent files")]
-    public async Task GetFileMetadataAsync_FileDoesNotExist_ReturnsNotFound()
+    public async Task GetFileMetadataAsync_Should_ReturnNotFound_WhenFileDoesNotExist()
     {
         var result = await _sut.GetFileMetadataAsync("gone.txt", TestContext.Current.CancellationToken);
         result.IsError.Should().BeTrue();
@@ -331,7 +334,7 @@ public class LocalFileServiceTests : IDisposable
     // --- GetFileHashAsync Tests ---
 
     [Fact(DisplayName = "GetFileHashAsync: Should return hash from metadata if available")]
-    public async Task GetFileHashAsync_HashInMetadata_ReturnsHashFromMetadata()
+    public async Task GetFileHashAsync_Should_ReturnHashFromMetadata_IfAvailable()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("hash"));
         var saveResult = await _sut.SaveFileAsync(stream, "hash.txt", new FileUploadOptions { GenerateHash = true }, TestContext.Current.CancellationToken);
@@ -344,7 +347,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileHashAsync: Should calculate hash if missing from metadata")]
-    public async Task GetFileHashAsync_HashMissingInMetadata_CalculatesHash()
+    public async Task GetFileHashAsync_Should_CalculateHash_IfMissingFromMetadata()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("calc hash"));
         // Save without generating hash
@@ -360,7 +363,7 @@ public class LocalFileServiceTests : IDisposable
     // --- ListFilesAsync Tests ---
 
     [Fact(DisplayName = "ListFilesAsync: Should return all files in a directory")]
-    public async Task ListFilesAsync_RootDirectory_ReturnsAllFiles()
+    public async Task ListFilesAsync_Should_ReturnAllFiles_InDirectory()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("1"));
         await _sut.SaveFileAsync(stream, "1.txt", new FileUploadOptions("temp"), TestContext.Current.CancellationToken);
@@ -372,7 +375,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "ListFilesAsync: Should return files only within specified subdirectory")]
-    public async Task ListFilesAsync_Subdirectory_ReturnsFilesOnlyInSubdirectory()
+    public async Task ListFilesAsync_Should_ReturnFilesOnly_InSpecifiedSubdirectory()
     {
         using var stream1 = new MemoryStream(Encoding.UTF8.GetBytes("p1"));
         await _sut.SaveFileAsync(stream1, "p1.txt", new FileUploadOptions("products"), TestContext.Current.CancellationToken);
@@ -388,7 +391,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "ListFilesAsync: Should return empty list for invalid subdirectory")]
-    public async Task ListFilesAsync_InvalidSubdirectory_ReturnsEmptyList()
+    public async Task ListFilesAsync_Should_ReturnEmptyList_ForInvalidSubdirectory()
     {
         var result = await _sut.ListFilesAsync("nonexistent", TestContext.Current.CancellationToken);
         result.IsError.Should().BeFalse(); // Returns empty list, not error
@@ -396,7 +399,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should sanitize dangerous characters in filenames")]
-    public async Task SaveFileAsync_DangerousCharacters_SanitizesFileName()
+    public async Task SaveFileAsync_Should_SanitizeFileName_WhenDangerousCharactersUsed()
     {
         // Arrange
         var content = "safe";
@@ -415,7 +418,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should successfully save to deep nested subdirectories")]
-    public async Task SaveFileAsync_DeepNested_SavesSuccessfully()
+    public async Task SaveFileAsync_Should_SaveSuccessfully_ToDeepNestedSubdirectories()
     {
         // Arrange
         using var stream = new MemoryStream("content"u8.ToArray());
@@ -432,7 +435,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "FindFilePath: Should recursively find files in deep nested directories")]
-    public async Task FindFilePath_DeepNested_FindsByFileNameOnly()
+    public async Task FindFilePath_Should_RecursivelyFindFiles_InDeepNestedDirectories()
     {
         // Arrange
         using var stream = new MemoryStream("content"u8.ToArray());
@@ -448,7 +451,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "GetFileMetadataAsync: Should find metadata when ID includes subdirectory")]
-    public async Task GetFileMetadataAsync_WithSubdirInId_FindsMetadata()
+    public async Task GetFileMetadataAsync_Should_FindMetadata_WhenIdIncludesSubdirectory()
     {
         // Arrange
         using var stream = new MemoryStream("content"u8.ToArray());
@@ -465,7 +468,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "SaveFileAsync: Should successfully save an empty file stream")]
-    public async Task SaveFileAsync_EmptyStream_SavesSuccessfully()
+    public async Task SaveFileAsync_Should_SaveSuccessfully_EmptyFileStream()
     {
         // Arrange
         using var stream = new MemoryStream(Array.Empty<byte>());
@@ -479,7 +482,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "MoveFileAsync: Should successfully move file and update its metadata")]
-    public async Task MoveFileAsync_ValidMove_MovesFileAndUpdatesMetadata()
+    public async Task MoveFileAsync_Should_MoveFileAndUpdateMetadata_WhenValid()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("move"));
         var saveResult = await _sut.SaveFileAsync(stream, "move.txt", new FileUploadOptions("temp"), TestContext.Current.CancellationToken);
@@ -496,7 +499,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "MoveFileAsync: Should return NotFound for missing source file")]
-    public async Task MoveFileAsync_SourceNotFound_ReturnsNotFound()
+    public async Task MoveFileAsync_Should_ReturnNotFound_WhenSourceFileMissing()
     {
         var result = await _sut.MoveFileAsync("missing.txt", "products", TestContext.Current.CancellationToken);
         result.IsError.Should().BeTrue();
@@ -506,7 +509,7 @@ public class LocalFileServiceTests : IDisposable
     // --- CopyFileAsync Tests ---
 
     [Fact(DisplayName = "CopyFileAsync: Should successfully copy file to a new location")]
-    public async Task CopyFileAsync_ValidCopy_CopiesFile()
+    public async Task CopyFileAsync_Should_CopyFile_ToNewLocation()
     {
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("copy"));
         var saveResult = await _sut.SaveFileAsync(stream, "copy.txt", new FileUploadOptions("temp"), TestContext.Current.CancellationToken);
@@ -523,7 +526,7 @@ public class LocalFileServiceTests : IDisposable
     }
 
     [Fact(DisplayName = "CopyFileAsync: Should return NotFound for missing source file")]
-    public async Task CopyFileAsync_SourceNotFound_ReturnsNotFound()
+    public async Task CopyFileAsync_Should_ReturnNotFound_WhenSourceFileMissing()
     {
         var result = await _sut.CopyFileAsync("missing.txt", "products", TestContext.Current.CancellationToken);
         result.IsError.Should().BeTrue();

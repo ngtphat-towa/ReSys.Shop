@@ -17,7 +17,7 @@ public class UpdateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should successfully update an existing category")]
-    public async Task Handle_ValidRequest_ShouldUpdateCategory()
+    public async Task Handle_ValidRequest_UpdatesCategory()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -37,7 +37,7 @@ public class UpdateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return not found when category does not exist")]
-    public async Task Handle_NonExistent_ShouldReturnNotFound()
+    public async Task Handle_NonExistent_ReturnsNotFound()
     {
         // Arrange
         var request = new UpdateExampleCategory.Request { Name = "New Name" };
@@ -52,7 +52,7 @@ public class UpdateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should allow updating a category with its current name")]
-    public async Task Handle_SameName_ShouldNotReturnConflict()
+    public async Task Handle_SameName_UpdatesCategory()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -72,7 +72,7 @@ public class UpdateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return conflict when updating to a name that already exists")]
-    public async Task Handle_DuplicateName_ShouldReturnConflict()
+    public async Task Handle_DuplicateName_ReturnsConflict()
     {
         // Arrange
         var cat1Id = Guid.NewGuid();

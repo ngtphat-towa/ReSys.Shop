@@ -9,10 +9,13 @@ using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
-    [Fact(DisplayName = "GetExamplesV2: Should filter by dynamic string")]
-    public async Task Handle_WithFilter_ShouldReturnCorrectItems()
+    [Fact(DisplayName = "Handle: Should filter examples by dynamic string correctly")]
+    public async Task Handle_FilterProvided_ReturnsCorrectItems()
     {
         // Arrange
         var baseName = $"V2Filter_{Guid.NewGuid()}";
@@ -37,8 +40,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[0].Name.Should().Contain("Banana");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should sort by dynamic field")]
-    public async Task Handle_WithSort_ShouldReturnSortedItems()
+    [Fact(DisplayName = "Handle: Should sort examples by dynamic field correctly")]
+    public async Task Handle_SortProvided_ReturnsSortedItems()
     {
         // Arrange
         var baseName = $"V2Sort_{Guid.NewGuid()}";
@@ -63,8 +66,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[1].Price.Should().Be(100);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should search globally")]
-    public async Task Handle_WithSearch_ShouldMatchFields()
+    [Fact(DisplayName = "Handle: Should match examples by global search across multiple fields")]
+    public async Task Handle_SearchProvided_MatchesFields()
     {
         // Arrange
         var baseName = $"V2Search_{Guid.NewGuid()}";
@@ -89,8 +92,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[0].Name.Should().Contain("FindMe");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should filter by Enum (Status)")]
-    public async Task Handle_WithEnumFilter_ShouldReturnCorrectItems()
+    [Fact(DisplayName = "Handle: Should filter examples by Enum status correctly")]
+    public async Task Handle_EnumFilterProvided_ReturnsCorrectItems()
     {
         // Arrange
         var baseName = $"V2Enum_{Guid.NewGuid()}";
@@ -114,8 +117,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[0].Status.Should().Be(ExampleStatus.Active);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should filter by Array of IDs (manual OR group)")]
-    public async Task Handle_WithIdArray_ShouldReturnCorrectItems()
+    [Fact(DisplayName = "Handle: Should filter examples by a list of IDs correctly")]
+    public async Task Handle_IdArrayProvided_ReturnsCorrectItems()
     {
         // Arrange
         var id1 = Guid.NewGuid();
@@ -144,8 +147,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items.Select(x => x.Id).Should().NotContain(id3);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should filter by multiple statuses using OR logic (snake_case)")]
-    public async Task Handle_WithStatusOrLogic_ShouldWork()
+    [Fact(DisplayName = "Handle: Should handle OR logic for multiple statuses correctly")]
+    public async Task Handle_StatusOrLogicUsed_WorksCorrectly()
     {
         // Arrange
         var baseName = $"V2StatusOr_{Guid.NewGuid()}";
@@ -171,8 +174,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items.Select(x => x.Status).Should().NotContain(ExampleStatus.Archived);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should ignore invalid filter properties")]
-    public async Task Handle_InvalidFilterProperty_ReturnsAll()
+    [Fact(DisplayName = "Handle: Should ignore invalid properties in the filter string")]
+    public async Task Handle_InvalidFilterPropertiesProvided_IgnoresThem()
     {
         await fixture.Context.Set<Example>().AddAsync(new Example { Id = Guid.NewGuid(), Name = "Test" }, TestContext.Current.CancellationToken);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -184,8 +187,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items.Should().NotBeEmpty();
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should ignore invalid sort properties")]
-    public async Task Handle_InvalidSortProperty_ReturnsDefaultSort()
+    [Fact(DisplayName = "Handle: Should ignore invalid properties in the sort string")]
+    public async Task Handle_InvalidSortPropertyProvided_ReturnsDefaultSort()
     {
         var baseName = $"V2InvalidSort_{Guid.NewGuid()}";
         fixture.Context.Set<Example>().AddRange(
@@ -202,8 +205,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[0].Name.Should().Be($"{baseName}_A");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should handle special characters in search")]
-    public async Task Handle_SpecialCharSearch_ReturnsCorrectItems()
+    [Fact(DisplayName = "Handle: Should correctly handle special characters in search queries")]
+    public async Task Handle_SpecialCharsUsedInSearch_ReturnsCorrectItems()
     {
         var specialName = "Test@#%^&*()";
         await fixture.Context.Set<Example>().AddAsync(new Example { Id = Guid.NewGuid(), Name = specialName }, TestContext.Current.CancellationToken);
@@ -220,8 +223,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items.Should().Contain(x => x.Name == specialName);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should support standalone Filter chain")]
-    public async Task Handle_StandaloneFilterChain_Works()
+    [Fact(DisplayName = "Filter: Should work correctly when applied as a standalone extension method")]
+    public async Task ApplyFilter_UsedStandalone_WorksCorrectly()
     {
         var baseName = $"V2Chain_{Guid.NewGuid()}";
         await fixture.Context.Set<Example>().AddAsync(new Example { Id = Guid.NewGuid(), Name = $"{baseName}_Item", Price = 100 }, TestContext.Current.CancellationToken);
@@ -238,8 +241,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result[0].Name.Should().Be($"{baseName}_Item");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Request record should correctly implement IPageOptions")]
-    public void Request_Implements_IPageOptions()
+    [Fact(DisplayName = "Metadata: Request record should correctly implement the IPageOptions interface")]
+    public void Request_Always_ImplementsIPageOptions()
     {
         var request = new GetExamplesV2.Request { Page = 5, PageSize = 50 };
         IPageOptions options = request;
@@ -248,8 +251,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         options.PageSize.Should().Be(50);
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should filter by nested category name")]
-    public async Task Handle_NestedFilter_ShouldWork()
+    [Fact(DisplayName = "Handle: Should filter examples by nested category properties")]
+    public async Task Handle_NestedPropertyFilter_FiltersCorrectly()
     {
         // Arrange
         var cat1 = new ExampleCategory { Id = Guid.NewGuid(), Name = "NestedCat1" };
@@ -277,8 +280,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[0].CategoryName.Should().Be("NestedCat1");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should filter by nested category name using snake_case")]
-    public async Task Handle_NestedSnakeCaseFilter_ShouldWork()
+    [Fact(DisplayName = "Handle: Should handle snake_case property names for nested filters correctly")]
+    public async Task Handle_SnakeCaseInNestedFilters_HandlesCorrectly()
     {
         // Arrange
         var cat = new ExampleCategory { Id = Guid.NewGuid(), Name = "SnakeCaseCat" };
@@ -306,8 +309,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items.Should().Contain(x => x.CategoryName == "SnakeCaseCat");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should sort by nested category name")]
-    public async Task Handle_NestedSort_ShouldWork()
+    [Fact(DisplayName = "Handle: Should sort examples by nested category properties correctly")]
+    public async Task Handle_NestedPropertySort_SortsCorrectly()
     {
         // Arrange
         var catA = new ExampleCategory { Id = Guid.NewGuid(), Name = "A_Category" };
@@ -336,8 +339,8 @@ public class GetExamplesV2Tests(TestDatabaseFixture fixture) : IClassFixture<Tes
         result.Items[1].CategoryName.Should().Be("B_Category");
     }
 
-    [Fact(DisplayName = "GetExamplesV2: Should search in nested category name")]
-    public async Task Handle_NestedSearch_ShouldWork()
+    [Fact(DisplayName = "Handle: Should match examples when searching within nested category properties")]
+    public async Task Handle_NestedPropertySearch_SearchesCorrectly()
     {
         // Arrange
         var cat = new ExampleCategory { Id = Guid.NewGuid(), Name = "Special Category" };

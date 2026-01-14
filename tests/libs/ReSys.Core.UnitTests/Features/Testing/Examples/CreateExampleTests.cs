@@ -7,6 +7,9 @@ using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -18,8 +21,8 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
         _handler = new CreateExample.Handler(_context);
     }
 
-    [Fact(DisplayName = "Should successfully create an example and save it to the database when the request is valid")]
-    public async Task Handle_ValidRequest_ShouldCreateExample()
+    [Fact(DisplayName = "Handle: Should successfully create an example and save it to the database when the request is valid")]
+    public async Task Handle_ValidRequest_CreatesExample()
     {
         // Arrange
         var uniqueName = $"Example_{Guid.NewGuid()}";
@@ -50,8 +53,8 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample.HexColor.Should().Be("#FF5733");
     }
 
-    [Fact(DisplayName = "Should successfully create an example with a category")]
-    public async Task Handle_WithCategory_ShouldCreateExample()
+    [Fact(DisplayName = "Handle: Should successfully create an example with a category")]
+    public async Task Handle_WithCategory_CreatesExample()
     {
         // Arrange
         var category = new ExampleCategory { Id = Guid.NewGuid(), Name = $"Cat_{Guid.NewGuid()}" };
@@ -80,8 +83,8 @@ public class CreateExampleTests : IClassFixture<TestDatabaseFixture>
         dbExample.Category!.Name.Should().Be(category.Name);
     }
 
-    [Fact(DisplayName = "Should return a conflict error when attempting to create an example with a name that already exists")]
-    public async Task Handle_DuplicateName_ShouldReturnConflict()
+    [Fact(DisplayName = "Handle: Should return a conflict error when attempting to create an example with a name that already exists")]
+    public async Task Handle_NameAlreadyExists_ReturnsConflict()
     {
         // Arrange
         var duplicateName = $"Duplicate_{Guid.NewGuid()}";

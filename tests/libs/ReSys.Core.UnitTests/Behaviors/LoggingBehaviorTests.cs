@@ -11,6 +11,9 @@ using ReSys.Core.Common.Behaviors;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Type", "Behavior")]
 public class LoggingBehaviorTests
 {
     private readonly ILogger<LoggingBehavior<TestRequest, string>> _logger;
@@ -25,7 +28,7 @@ public class LoggingBehaviorTests
     }
 
     [Fact(DisplayName = "Handle: Should log start and end messages and call next")]
-    public async Task Handle_ShouldLogAndCallNext()
+    public async Task Handle_Should_LogAndCallNext_WhenValidRequestProvided()
     {
         // Arrange
         var request = new TestRequest();

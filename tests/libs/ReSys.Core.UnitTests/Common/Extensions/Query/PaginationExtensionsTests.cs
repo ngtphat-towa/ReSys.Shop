@@ -4,10 +4,13 @@ using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Query")]
 public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
-    [Fact(DisplayName = "Pagination: Should return first page with default size when both params are null")]
-    public async Task ToPagedListAsync_BothNull_ShouldReturnFirstPageWithDefaultSize()
+    [Fact(DisplayName = "ToPagedListAsync: Should return first page with default size when both parameters are null")]
+    public async Task ToPagedListAsync_Should_ReturnFirstPageWithDefaultSize_WhenParametersAreNull()
     {
         var baseName = $"PagedNull_{Guid.NewGuid()}";
         await SeedExamples(baseName, 15);
@@ -21,8 +24,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.TotalCount.Should().Be(15);
     }
 
-    [Fact(DisplayName = "Pagination: Dictionary-based params should be parsed correctly")]
-    public async Task ToPagedListAsync_WithDictionary_ShouldParseParams()
+    [Fact(DisplayName = "ToPagedListAsync: Should parse dictionary-based parameters correctly")]
+    public async Task ToPagedListAsync_Should_ParseParameters_WhenDictionaryProvided()
     {
         var baseName = $"Dict_{Guid.NewGuid()}";
         await SeedExamples(baseName, 20);
@@ -41,8 +44,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.Items.Should().HaveCount(5);
     }
 
-    [Fact(DisplayName = "Pagination: Negative page index should fallback to default")]
-    public async Task ToPagedListAsync_NegativePage_ReturnsDefault()
+    [Fact(DisplayName = "ToPagedListAsync: Should fallback to default page when index is negative")]
+    public async Task ToPagedListAsync_Should_FallbackToDefault_WhenPageIndexIsNegative()
     {
         var baseName = $"NegPage_{Guid.NewGuid()}";
         await SeedExamples(baseName, 5);
@@ -53,8 +56,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.Page.Should().Be(1);
     }
 
-    [Fact(DisplayName = "Pagination: Negative page size should fallback to default")]
-    public async Task ToPagedListAsync_NegativeSize_ReturnsDefault()
+    [Fact(DisplayName = "ToPagedListAsync: Should fallback to default size when page size is negative")]
+    public async Task ToPagedListAsync_Should_FallbackToDefault_WhenPageSizeIsNegative()
     {
         var baseName = $"NegSize_{Guid.NewGuid()}";
         await SeedExamples(baseName, 15);
@@ -66,8 +69,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.Items.Should().HaveCount(10);
     }
 
-    [Fact(DisplayName = "Pagination: Page index exceeding total count should return empty")]
-    public async Task ToPagedListAsync_ExceedingPage_ReturnsEmpty()
+    [Fact(DisplayName = "ToPagedListAsync: Should return empty items when page index exceeds total results")]
+    public async Task ToPagedListAsync_Should_ReturnEmpty_WhenPageIndexExceedsTotal()
     {
         var baseName = $"Exceed_{Guid.NewGuid()}";
         await SeedExamples(baseName, 5);
@@ -79,8 +82,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.TotalCount.Should().Be(5);
     }
 
-    [Fact(DisplayName = "Pagination (All): Should return everything when both params are null")]
-    public async Task ToPagedOrAllAsync_BothNull_ShouldReturnAllItems()
+    [Fact(DisplayName = "ToPagedOrAllAsync: Should return all items when both parameters are null")]
+    public async Task ToPagedOrAllAsync_Should_ReturnAllItems_WhenParametersAreNull()
     {
         var baseName = $"AllItems_{Guid.NewGuid()}";
         await SeedExamples(baseName, 25);
@@ -92,8 +95,8 @@ public class PaginationExtensionsTests(TestDatabaseFixture fixture) : IClassFixt
         result.TotalCount.Should().Be(25);
     }
 
-    [Fact(DisplayName = "Pagination (All): Should return paged result when params are provided")]
-    public async Task ToPagedOrAllAsync_WithParams_ReturnsPaged()
+    [Fact(DisplayName = "ToPagedOrAllAsync: Should return paged result when parameters are provided")]
+    public async Task ToPagedOrAllAsync_Should_ReturnPagedResult_WhenParametersProvided()
     {
         var baseName = $"PagedOrAll_{Guid.NewGuid()}";
         await SeedExamples(baseName, 15);

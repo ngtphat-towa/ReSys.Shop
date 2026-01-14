@@ -18,7 +18,7 @@ public class DeleteExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should successfully delete an existing category")]
-    public async Task Handle_ValidRequest_ShouldDeleteCategory()
+    public async Task Handle_CategoryExists_DeletesCategory()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -38,7 +38,7 @@ public class DeleteExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should set CategoryId to null on Examples when category is deleted")]
-    public async Task Handle_CategoryWithExamples_ShouldNullifyReferences()
+    public async Task Handle_CategoryWithExamples_NullifiesReferences()
     {
         // Arrange
         var categoryId = Guid.NewGuid();
@@ -62,7 +62,7 @@ public class DeleteExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return not found when category does not exist")]
-    public async Task Handle_NonExistent_ShouldReturnNotFound()
+    public async Task Handle_NonExistent_ReturnsNotFound()
     {
         // Arrange
         var command = new DeleteExampleCategory.Command(Guid.NewGuid());

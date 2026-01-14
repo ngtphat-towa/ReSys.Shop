@@ -12,6 +12,9 @@ using SixLabors.ImageSharp.Processing;
 
 namespace ReSys.Infrastructure.UnitTests.Imaging;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Infrastructure")]
+[Trait("Service", "Imaging")]
 public class ImageServiceTests
 {
     private readonly ILogger<ImageService> _logger;
@@ -39,8 +42,8 @@ public class ImageServiceTests
         return stream;
     }
 
-    [Fact(DisplayName = "ProcessAsync: Should resize image when dimensions are provided")]
-    public async Task ProcessAsync_ShouldResizeImage_WhenDimensionsProvided()
+    [Fact(DisplayName = "ProcessAsync should resize image when dimensions are provided")]
+    public async Task ProcessAsync_GivenDimensions_ShouldResizeImage()
     {
         // Arrange
         int originalWidth = 1000;
@@ -68,8 +71,8 @@ public class ImageServiceTests
         info.Metadata.DecodedImageFormat?.Name.ToLower().Should().Be("webp");
     }
 
-    [Fact(DisplayName = "ProcessAsync: Should generate thumbnail when requested")]
-    public async Task ProcessAsync_ShouldGenerateThumbnail_WhenRequested()
+    [Fact(DisplayName = "ProcessAsync should generate thumbnail when requested")]
+    public async Task ProcessAsync_GivenThumbnailRequest_ShouldGenerateThumbnail()
     {
         // Arrange
         using var originalStream = CreateTestImageStream(1000, 1000);
@@ -85,8 +88,8 @@ public class ImageServiceTests
         result.Value.Thumbnail.Width.Should().Be(300); // Default thumbnail size
     }
 
-    [Fact(DisplayName = "ProcessAsync: Should generate responsive variants when requested")]
-    public async Task ProcessAsync_ShouldGenerateResponsiveVariants_WhenRequested()
+    [Fact(DisplayName = "ProcessAsync should generate responsive variants when requested")]
+    public async Task ProcessAsync_GivenResponsiveRequest_ShouldGenerateVariants()
     {
         // Arrange
         using var originalStream = CreateTestImageStream(2000, 2000);
@@ -104,8 +107,8 @@ public class ImageServiceTests
         result.Value.Responsive.Should().Contain(x => x.FileName.Contains("_w1920"));
     }
 
-    [Fact(DisplayName = "GetMetadataAsync: Should return correct metadata info")]
-    public async Task GetMetadataAsync_ShouldReturnCorrectInfo()
+    [Fact(DisplayName = "GetMetadataAsync should return correct metadata info")]
+    public async Task GetMetadataAsync_GivenStream_ShouldReturnCorrectInfo()
     {
         // Arrange
         int width = 50;
@@ -122,8 +125,8 @@ public class ImageServiceTests
         result.Value.Format.Should().Be("png");
     }
 
-    [Fact(DisplayName = "ResizeImageAsync: Should resize and return variant")]
-    public async Task ResizeImageAsync_ShouldResizeAndReturnVariant()
+    [Fact(DisplayName = "ResizeImageAsync should resize and return variant")]
+    public async Task ResizeImageAsync_GivenDimensions_ShouldResizeAndReturnVariant()
     {
         // Arrange
         using var stream = CreateTestImageStream(500, 500);
@@ -140,8 +143,8 @@ public class ImageServiceTests
         result.Value.FileName.Should().Contain($"{newWidth}x{newHeight}");
     }
 
-    [Fact(DisplayName = "ProcessAsync: Should return error when image exceeds size limits")]
-    public async Task ProcessAsync_ExceedsLimits_ReturnsTooLargeError()
+    [Fact(DisplayName = "ProcessAsync should return error when image exceeds size limits")]
+    public async Task ProcessAsync_GivenLargeImage_ShouldReturnTooLargeError()
     {
         // Arrange
         using var stream = CreateTestImageStream(3000, 3000); // Default max is 2048
@@ -154,8 +157,8 @@ public class ImageServiceTests
         result.FirstError.Code.Should().Be("Image.TooLarge");
     }
 
-    [Fact(DisplayName = "ProcessAsync: Should resize correctly even for ultra-wide images")]
-    public async Task ProcessAsync_UltraWideImage_ResizesCorrectly()
+    [Fact(DisplayName = "ProcessAsync should resize correctly even for ultra-wide images")]
+    public async Task ProcessAsync_GivenUltraWideImage_ShouldResizeProportionally()
     {
         // Arrange
         using var stream = CreateTestImageStream(2000, 100);
@@ -170,8 +173,8 @@ public class ImageServiceTests
         result.Value.Main.Height.Should().Be(25); // Proportional: 100 * (500/2000)
     }
 
-    [Fact(DisplayName = "ConvertFormatAsync: Should return InvalidImage error for corrupted stream")]
-    public async Task ConvertFormatAsync_CorruptedStream_ReturnsProcessingFailed()
+    [Fact(DisplayName = "ConvertFormatAsync should return InvalidImage error for corrupted stream")]
+    public async Task ConvertFormatAsync_GivenCorruptedStream_ShouldReturnInvalidImageError()
     {
         // Arrange
         var bytes = new byte[] { 0x01, 0x02, 0x03 }; // Not a valid image
@@ -185,8 +188,8 @@ public class ImageServiceTests
         result.FirstError.Code.Should().Be("Image.Invalid");
     }
 
-    [Fact(DisplayName = "ResizeImageAsync: Should work correctly when target size matches current size")]
-    public async Task ResizeImageAsync_ExactlyTheSameSize_WorksCorrectly()
+    [Fact(DisplayName = "ResizeImageAsync should work correctly when target size matches current size")]
+    public async Task ResizeImageAsync_GivenMatchingSize_ShouldWorkCorrectly()
     {
         // Arrange
         using var stream = CreateTestImageStream(100, 100);
@@ -199,8 +202,8 @@ public class ImageServiceTests
         result.Value.Width.Should().Be(100);
     }
 
-    [Fact(DisplayName = "ConvertFormatAsync: Should successfully convert image format")]
-    public async Task ConvertFormatAsync_ShouldConvertFormat()
+    [Fact(DisplayName = "ConvertFormatAsync should successfully convert image format")]
+    public async Task ConvertFormatAsync_GivenValidRequest_ShouldConvertFormat()
     {
         // Arrange
         using var stream = CreateTestImageStream(100, 100);
@@ -217,8 +220,8 @@ public class ImageServiceTests
         info.Metadata.DecodedImageFormat?.Name.ToLower().Should().Be("jpeg"); // ImageSharp identifies jpg as jpeg
     }
     
-    [Fact(DisplayName = "ConvertFormatAsync: Should return UnsupportedFormat error for invalid target format")]
-    public async Task ConvertFormatAsync_ShouldReturnError_ForUnsupportedFormat()
+    [Fact(DisplayName = "ConvertFormatAsync should return UnsupportedFormat error for invalid target format")]
+    public async Task ConvertFormatAsync_GivenUnsupportedFormat_ShouldReturnError()
     {
          // Arrange
         using var stream = CreateTestImageStream(100, 100);

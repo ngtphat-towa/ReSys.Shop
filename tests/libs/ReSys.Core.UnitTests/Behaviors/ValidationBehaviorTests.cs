@@ -10,6 +10,9 @@ using ReSys.Core.Common.Behaviors;
 
 namespace ReSys.Core.UnitTests.Behaviors;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Type", "Behavior")]
 public class ValidationBehaviorTests
 {
     private readonly ValidationBehavior<TestCommand, ErrorOr<string>> _sut;
@@ -24,7 +27,7 @@ public class ValidationBehaviorTests
     }
 
     [Fact(DisplayName = "Handle: Should call next when no validators are present")]
-    public async Task Handle_NoValidators_CallsNext()
+    public async Task Handle_Should_CallNext_WhenNoValidatorsPresent()
     {
         // Arrange
         var behavior = new ValidationBehavior<TestCommand, ErrorOr<string>>([]);
@@ -41,7 +44,7 @@ public class ValidationBehaviorTests
     }
 
     [Fact(DisplayName = "Handle: Should call next when validation succeeds")]
-    public async Task Handle_ValidationSucceeds_CallsNext()
+    public async Task Handle_Should_CallNext_WhenValidationSucceeds()
     {
         // Arrange
         var request = new TestCommand { Name = "Valid" };
@@ -58,7 +61,7 @@ public class ValidationBehaviorTests
     }
 
     [Fact(DisplayName = "Handle: Should return Validation errors when validation fails")]
-    public async Task Handle_ValidationFails_ReturnsErrors()
+    public async Task Handle_Should_ReturnValidationErrors_WhenValidationFails()
     {
         // Arrange
         var request = new TestCommand { Name = "" };

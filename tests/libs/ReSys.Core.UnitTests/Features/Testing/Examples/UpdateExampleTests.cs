@@ -9,6 +9,9 @@ using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -23,7 +26,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should successfully update an existing example with new details when the request is valid")]
-    public async Task Handle_ValidRequest_ShouldUpdateExample()
+    public async Task Handle_ValidRequest_UpdatesExample()
     {
         // Arrange
         var exampleId = Guid.NewGuid();
@@ -70,7 +73,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should successfully update the category of an existing example")]
-    public async Task Handle_UpdateCategory_ShouldWork()
+    public async Task Handle_ValidCategoryIdProvided_UpdatesCategory()
     {
         // Arrange
         var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "TargetCategory" };
@@ -92,7 +95,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should successfully clear the category of an existing example")]
-    public async Task Handle_ClearCategory_ShouldWork()
+    public async Task Handle_CategoryIdIsNull_ClearsCategory()
     {
         // Arrange
         var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "SomeCategory" };
@@ -114,7 +117,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should return a conflict error when updating an example name to one that already exists")]
-    public async Task Handle_NameConflict_ShouldReturnConflict()
+    public async Task Handle_NewNameAlreadyTaken_ReturnsConflict()
     {
         // Arrange
         var existingName = $"Conflict_{Guid.NewGuid()}";
@@ -139,7 +142,7 @@ public class UpdateExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should return a not found error when attempting to update an example that does not exist")]
-    public async Task Handle_NonExistentExample_ShouldReturnNotFound()
+    public async Task Handle_ExampleDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var request = new UpdateExample.Request { Name = "Valid", Description = "Desc", Price = 10 };

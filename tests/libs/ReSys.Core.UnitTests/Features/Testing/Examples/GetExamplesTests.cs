@@ -5,6 +5,9 @@ using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -16,8 +19,8 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
         _handler = new GetExamples.Handler(_context);
     }
 
-    [Fact(DisplayName = "Should return a paged list of examples with correct metadata for total count and next page")]
-    public async Task Handle_DefaultRequest_ShouldReturnPagedList()
+    [Fact(DisplayName = "Handle: Should return a paged list of examples with correct metadata")]
+    public async Task Handle_ValidRequest_ReturnsPagedListWithCorrectMetadata()
     {
         // Arrange
         var baseName = $"PagedExample_{Guid.NewGuid()}";
@@ -40,8 +43,8 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
         result.HasNextPage.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Should correctly filter examples based on a case-insensitive search term in name or description")]
-    public async Task Handle_SearchFilter_ShouldReturnMatchingExamples()
+    [Fact(DisplayName = "Handle: Should filter examples based on case-insensitive search in name or description")]
+    public async Task Handle_SearchFilterProvided_ReturnsMatchingExamples()
     {
         // Arrange
         var uniqueSearch = $"Search_{Guid.NewGuid()}";
@@ -60,11 +63,11 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
 
         // Assert
         result.Items.Should().HaveCount(2);
-        result.Items.Should().Contain(x => x.Name.Contains(uniqueSearch) || x.ImageUrl == null); // ImageUrl is irrelevant here
+        result.Items.Should().Contain(x => x.Name.Contains(uniqueSearch) || (x.Description != null && x.Description.Contains(uniqueSearch)));
     }
 
-    [Fact(DisplayName = "Should correctly sort examples by price in descending order")]
-    public async Task Handle_SortByPriceDescending_ShouldReturnSortedList()
+    [Fact(DisplayName = "Handle: Should sort examples by price in descending order correctly")]
+    public async Task Handle_SortedByPriceDescending_ReturnsSortedList()
     {
         // Arrange
         var baseName = $"SortedExample_{Guid.NewGuid()}";
@@ -92,8 +95,9 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
         result.Items[1].Price.Should().Be(50);
         result.Items[2].Price.Should().Be(10);
     }
-    [Fact(DisplayName = "Should correctly filter examples by a list of ExampleIds")]
-    public async Task Handle_ExampleIdsFilter_ShouldReturnMatchingExamples()
+
+    [Fact(DisplayName = "Handle: Should filter examples by a provided list of IDs")]
+    public async Task Handle_FilteredByExampleIds_ReturnsMatchingExamples()
     {
         // Arrange
         var id1 = Guid.NewGuid();
@@ -119,8 +123,8 @@ public class GetExamplesTests : IClassFixture<TestDatabaseFixture>
         result.Items.Select(x => x.Id).Should().NotContain(id3);
     }
 
-    [Fact(DisplayName = "Should correctly filter examples by Status")]
-    public async Task Handle_StatusFilter_ShouldReturnMatchingExamples()
+    [Fact(DisplayName = "Handle: Should filter examples by their status")]
+    public async Task Handle_FilteredByStatus_ReturnsMatchingExamples()
     {
         // Arrange
         var baseName = $"StatusFilter_{Guid.NewGuid()}";

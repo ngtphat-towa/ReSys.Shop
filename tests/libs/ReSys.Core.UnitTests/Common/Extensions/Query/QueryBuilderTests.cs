@@ -5,6 +5,9 @@ using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Query")]
 public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
     private class TestItem
@@ -13,8 +16,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         public double Price { get; set; }
     }
 
-    [Fact(DisplayName = "QueryBuilder: Should build correct QueryOptions")]
-    public void QueryBuilder_BuildsCorrectOptions()
+    [Fact(DisplayName = "Build: Should build correct QueryOptions")]
+    public void Build_Should_BuildCorrectOptions()
     {
         var builder = new QueryBuilder<TestItem>();
         builder
@@ -33,8 +36,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.SearchField.Should().Contain("Name");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Chaining methods should work correctly")]
-    public void QueryBuilder_Chaining_Works()
+    [Fact(DisplayName = "Chaining: Should correctly chain multiple criteria")]
+    public void Chaining_Should_WorkCorrectly()
     {
         var builder = new QueryBuilder<TestItem>()
             .Where("Price", ">", 10)
@@ -46,8 +49,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Sort.Should().Be("Name");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Adding raw filter should append to existing conditions")]
-    public void QueryBuilder_AddRawFilter_Appends()
+    [Fact(DisplayName = "AddRawFilter: Should append raw filter to existing conditions")]
+    public void AddRawFilter_Should_AppendToExistingConditions()
     {
         var builder = new QueryBuilder<TestItem>()
             .Where("Price", ">", 10)
@@ -57,8 +60,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Filter.Should().Be("Price>10,IsActive=true");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Search with member expressions should resolve property names")]
-    public void QueryBuilder_SearchWithExpressions_Works()
+    [Fact(DisplayName = "Search: Should resolve property names from member expressions")]
+    public void Search_Should_ResolvePropertyNames_FromExpressions()
     {
         var builder = new QueryBuilder<TestItem>()
             .Search("apple", x => x.Name);
@@ -67,8 +70,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.SearchField.Should().Contain("Name");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Custom mapping should replace property names")]
-    public void QueryBuilder_AddMap_Works()
+    [Fact(DisplayName = "AddMap: Should replace custom property names with mapped paths")]
+    public void AddMap_Should_ReplacePropertyNames_WhenBuilding()
     {
         var builder = new QueryBuilder<TestItem>()
             .AddMap("p", "Price")
@@ -81,8 +84,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Sort.Should().Be("Name");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Grouping should generate correct parentheses")]
-    public void QueryBuilder_Grouping_Works()
+    [Fact(DisplayName = "Grouping: Should generate correct logical parentheses in filter string")]
+    public void Grouping_Should_GenerateCorrectParentheses()
     {
         // (Price > 10 OR Name = Apple) AND Price < 50
         var builder = new QueryBuilder<TestItem>()
@@ -97,8 +100,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Filter.Should().Be("(Price>10|Name=Apple),Price<50");
     }
 
-    [Fact(DisplayName = "QueryBuilder: IsValid should detect invalid sort properties")]
-    public void QueryBuilder_IsValid_DetectsInvalidSort()
+    [Fact(DisplayName = "IsValid: Should detect invalid sort properties")]
+    public void IsValid_Should_DetectInvalidSortProperties()
     {
         var builder = new QueryBuilder<TestItem>()
             .OrderBy("InvalidProp");
@@ -108,8 +111,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         errors.Should().Contain(e => e.Contains("InvalidProp"));
     }
 
-    [Fact(DisplayName = "QueryBuilder: Multiple sort fields should be comma separated")]
-    public void QueryBuilder_MultipleSorts_Works()
+    [Fact(DisplayName = "Sort: Should comma separate multiple sort fields")]
+    public void OrderBy_Should_CommaSeparate_MultipleSortFields()
     {
         var builder = new QueryBuilder<TestItem>()
             .OrderBy("Name")
@@ -119,8 +122,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Sort.Should().Be("Name,Price desc");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Complex grouping and OR logic")]
-    public void QueryBuilder_ComplexLogic_Works()
+    [Fact(DisplayName = "Grouping: Should correctly handle complex logical groups")]
+    public void Grouping_Should_HandleComplexLogic()
     {
         // (Name=A | Name=B) | (Price>10, Price<20)
         var builder = new QueryBuilder<TestItem>()
@@ -139,8 +142,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Filter.Should().Be("(Name=A|Name=B)|(Price>10,Price<20)");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Should format different value types correctly")]
-    public void QueryBuilder_FormatValues_Works()
+    [Fact(DisplayName = "Format: Should correctly format different value types in filter")]
+    public void Build_Should_FormatValuesCorrectly()
     {
         var date = new DateTime(2024, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         var builder = new QueryBuilder<Example>()
@@ -153,8 +156,8 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Filter.Should().Be("IsActive=true,Price=null,CreatedAt>2024-01-01T12:00:00.0000000Z");
     }
 
-    [Fact(DisplayName = "QueryBuilder: Should handle deep nested properties in expressions")]
-    public void QueryBuilder_NestedProperties_Works()
+    [Fact(DisplayName = "Expressions: Should handle deep nested properties in expressions")]
+    public void Build_Should_HandleDeepNestedProperties_InExpressions()
     {
         var builder = new QueryBuilder<Example>()
             .OrderBy(x => x.Category!.Name)
@@ -165,90 +168,91 @@ public class QueryBuilderTests(TestDatabaseFixture fixture) : IClassFixture<Test
         options.Filter.Should().Be($"Category.Id={Guid.Empty}");
     }
 
-        [Fact(DisplayName = "QueryBuilder: IsValid should check all sort and search fields")]
-        public void QueryBuilder_IsValid_ChecksEverything()
-        {
-            var builder = new QueryBuilder<TestItem>()
-                .OrderBy("Name") 
-                .OrderBy("InvalidProp1")
-                .Search("test", "InvalidProp2");
-    
-            builder.IsValid(out var errors).Should().BeFalse();
-            errors.Should().HaveCount(2);
-            errors.Should().Contain(e => e.Contains("InvalidProp1"));
-            errors.Should().Contain(e => e.Contains("InvalidProp2"));
-        }
-    
-        [Fact(DisplayName = "QueryBuilder: IsValid should return true when everything is valid")]
-        public void QueryBuilder_IsValid_Success()
-        {
-            var builder = new QueryBuilder<Example>()
-                .OrderBy(x => x.Name)
-                .Search("test", x => x.Description!, x => x.Category!.Name)
-                .Where(x => x.Price, ">", 10);
-    
-            builder.IsValid(out var errors).Should().BeTrue();
-            errors.Should().BeEmpty();
-        }
-    
-        [Fact(DisplayName = "QueryBuilder: AddMap should support nested property paths")]
-        public void QueryBuilder_AddMap_Nested_Works()
-        {
-            var builder = new QueryBuilder<Example>()
-                .AddMap("cat", x => x.Category!.Name)
-                .Where("cat", "=", "Books");
-    
-            var options = builder.Build();
-            options.Filter.Should().Be("Category.Name=Books");
-        }
-    
-        [Fact(DisplayName = "QueryBuilder: Should build granular options separately")]
-        public void QueryBuilder_BuildGranular_Works()
-        {
-            var builder = new QueryBuilder<TestItem>()
-                .Where(x => x.Name, "=", "A")
-                .OrderBy(x => x.Price)
-                .Search("term", x => x.Name)
-                .Page(1, 10);
-    
-            var filter = builder.BuildFilterOptions();
-            var sort = builder.BuildSortOptions();
-            var search = builder.BuildSearchOptions();
-            var page = builder.BuildPageOptions();
-    
-            filter.Filter.Should().Be("Name=A");
-            sort.Sort.Should().Be("Price");
-            search.Search.Should().Be("term");
-            search.SearchField.Should().Contain("Name");
-            page.Page.Should().Be(1);
-            page.PageSize.Should().Be(10);
-        }
-    
-        [Fact(DisplayName = "QueryBuilder: Should format DateTimeOffset and Enums correctly")]
-        public void QueryBuilder_FormatSpecialTypes_Works()
-        {
-            var dto = new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero);
-            var builder = new QueryBuilder<Example>()
-                .Where(x => x.Status, "=", ExampleStatus.Active)
-                .Where(x => x.CreatedAt, ">", dto);
-    
-            var options = builder.Build();
-            // Enums use ToString(), DateTimeOffset uses "o"
-            options.Filter.Should().Be($"Status=Active,CreatedAt>{dto:o}");
-        }
-    
-        [Fact(DisplayName = "QueryBuilder: Search with multiple expressions should collect all fields")]
-        public void QueryBuilder_Search_MultipleExpressions_Works()
-        {
-            var builder = new QueryBuilder<Example>()
-                .Search("query", x => x.Name, x => x.Description!, x => x.Category!.Name);
-    
-            var options = builder.Build();
-            options.SearchField.Should().HaveCount(3);
-            options.SearchField.Should().Contain(new[] { "Name", "Description", "Category.Name" });
-        }
-    
-        [Fact(DisplayName = "ApplyQueryOptionsAsync: Should apply all filter, sort, search and page criteria correctly")]    public async Task ApplyQueryOptionsAsync_AppliesAllCriteria()
+    [Fact(DisplayName = "IsValid: Should check all sort and search fields for validity")]
+    public void IsValid_Should_CheckAllFields()
+    {
+        var builder = new QueryBuilder<TestItem>()
+            .OrderBy("Name") 
+            .OrderBy("InvalidProp1")
+            .Search("test", "InvalidProp2");
+
+        builder.IsValid(out var errors).Should().BeFalse();
+        errors.Should().HaveCount(2);
+        errors.Should().Contain(e => e.Contains("InvalidProp1"));
+        errors.Should().Contain(e => e.Contains("InvalidProp2"));
+    }
+
+    [Fact(DisplayName = "IsValid: Should return true when all provided properties are valid")]
+    public void IsValid_Should_ReturnTrue_WhenEverythingIsValid()
+    {
+        var builder = new QueryBuilder<Example>()
+            .OrderBy(x => x.Name)
+            .Search("test", x => x.Description!, x => x.Category!.Name)
+            .Where(x => x.Price, ">", 10);
+
+        builder.IsValid(out var errors).Should().BeTrue();
+        errors.Should().BeEmpty();
+    }
+
+    [Fact(DisplayName = "AddMap: Should support nested property paths in mappings")]
+    public void AddMap_Should_SupportNestedPaths()
+    {
+        var builder = new QueryBuilder<Example>()
+            .AddMap("cat", x => x.Category!.Name)
+            .Where("cat", "=", "Books");
+
+        var options = builder.Build();
+        options.Filter.Should().Be("Category.Name=Books");
+    }
+
+    [Fact(DisplayName = "Build: Should build granular option objects separately")]
+    public void Build_Should_BuildGranularOptionsSeparately()
+    {
+        var builder = new QueryBuilder<TestItem>()
+            .Where(x => x.Name, "=", "A")
+            .OrderBy(x => x.Price)
+            .Search("term", x => x.Name)
+            .Page(1, 10);
+
+        var filter = builder.BuildFilterOptions();
+        var sort = builder.BuildSortOptions();
+        var search = builder.BuildSearchOptions();
+        var page = builder.BuildPageOptions();
+
+        filter.Filter.Should().Be("Name=A");
+        sort.Sort.Should().Be("Price");
+        search.Search.Should().Be("term");
+        search.SearchField.Should().Contain("Name");
+        page.Page.Should().Be(1);
+        page.PageSize.Should().Be(10);
+    }
+
+    [Fact(DisplayName = "Format: Should correctly format DateTimeOffset and Enums")]
+    public void Build_Should_FormatSpecialTypesCorrectly()
+    {
+        var dto = new DateTimeOffset(2025, 1, 1, 10, 0, 0, TimeSpan.Zero);
+        var builder = new QueryBuilder<Example>()
+            .Where(x => x.Status, "=", ExampleStatus.Active)
+            .Where(x => x.CreatedAt, ">", dto);
+
+        var options = builder.Build();
+        // Enums use ToString(), DateTimeOffset uses "o"
+        options.Filter.Should().Be($"Status=Active,CreatedAt>{dto:o}");
+    }
+
+    [Fact(DisplayName = "Search: Should collect all fields from multiple search expressions")]
+    public void Search_Should_CollectAllFields_FromMultipleExpressions()
+    {
+        var builder = new QueryBuilder<Example>()
+            .Search("query", x => x.Name, x => x.Description!, x => x.Category!.Name);
+
+        var options = builder.Build();
+        options.SearchField.Should().HaveCount(3);
+        options.SearchField.Should().Contain(new[] { "Name", "Description", "Category.Name" });
+    }
+
+    [Fact(DisplayName = "ApplyQueryOptionsAsync: Should apply all criteria correctly to DB set")]
+    public async Task ApplyQueryOptionsAsync_Should_ApplyAllCriteriaCorrectly()
     {
         var baseName = $"Opt_{Guid.NewGuid()}";
         // Create 3 items

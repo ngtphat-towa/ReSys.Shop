@@ -17,7 +17,7 @@ public class CreateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should successfully create an example category and save it to the database when the request is valid")]
-    public async Task Handle_ValidRequest_ShouldCreateCategory()
+    public async Task Handle_ValidRequest_CreatesCategory()
     {
         // Arrange
         var uniqueName = $"Category_{Guid.NewGuid()}";
@@ -42,7 +42,7 @@ public class CreateExampleCategoryTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Should return a conflict error when attempting to create a category with a name that already exists")]
-    public async Task Handle_DuplicateName_ShouldReturnConflict()
+    public async Task Handle_DuplicateName_ReturnsConflict()
     {
         // Arrange
         var duplicateName = $"Duplicate_{Guid.NewGuid()}";

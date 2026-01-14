@@ -6,6 +6,9 @@ using ReSys.Core.Domain.Testing.ExampleCategories;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -17,8 +20,8 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
         _handler = new GetExampleById.Handler(_context);
     }
 
-    [Fact(DisplayName = "Should return the correct example details when an example with the specified ID exists")]
-    public async Task Handle_ExistingExample_ShouldReturnDetails()
+    [Fact(DisplayName = "Handle: Should return the correct example details when an example with the specified ID exists")]
+    public async Task Handle_ExampleExists_ReturnsDetails()
     {
         // Arrange
         var exampleId = Guid.NewGuid();
@@ -51,8 +54,8 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
         result.Value.HexColor.Should().Be("#123456");
     }
 
-    [Fact(DisplayName = "Should return example details with category name when it has one")]
-    public async Task Handle_WithCategory_ShouldReturnCategoryName()
+    [Fact(DisplayName = "Handle: Should return example details with category name when category is assigned")]
+    public async Task Handle_ExampleHasCategory_ReturnsCategoryName()
     {
         // Arrange
         var category = new ExampleCategory { Id = Guid.NewGuid(), Name = "MyCategory" };
@@ -80,8 +83,8 @@ public class GetExampleByIdTests : IClassFixture<TestDatabaseFixture>
         result.Value.CategoryName.Should().Be("MyCategory");
     }
 
-    [Fact(DisplayName = "Should return a not found error when searching for an example ID that does not exist")]
-    public async Task Handle_NonExistentExample_ShouldReturnNotFound()
+    [Fact(DisplayName = "Handle: Should return a not found error when searching for an example ID that does not exist")]
+    public async Task Handle_ExampleDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();

@@ -1,8 +1,11 @@
-using ReSys.Core.Common.Extensions.Query;
 using ReSys.Core.Domain.Testing.Examples;
+using ReSys.Core.Common.Extensions.Query;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Query")]
 public class FilterExtensionsTests
 {
     private class TestItem
@@ -43,24 +46,24 @@ public class FilterExtensionsTests
         }.AsQueryable();
     }
 
-    [Fact(DisplayName = "Filter: Simple Equals should return matching items")]
-    public void ApplyDynamicFilter_SimpleEquals_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for simple equals")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForSimpleEquals()
     {
         var result = _data.ApplyDynamicFilter("Price=20").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Banana");
     }
 
-    [Fact(DisplayName = "Filter: Not Equal should exclude matching items")]
-    public void ApplyDynamicFilter_NotEqual_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should exclude matching items for not equal")]
+    public void ApplyDynamicFilter_Should_ExcludeMatchingItems_ForNotEqual()
     {
         var result = _data.ApplyDynamicFilter("Id!=1").ToList();
         result.Should().HaveCount(5);
         result.Should().NotContain(x => x.Id == 1);
     }
 
-    [Fact(DisplayName = "Filter: Greater Than should return matching items")]
-    public void ApplyDynamicFilter_GreaterThan_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for greater than")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForGreaterThan()
     {
         var result = _data.ApplyDynamicFilter("Price>20").ToList();
         result.Should().HaveCount(2); 
@@ -68,8 +71,8 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Pineapple");
     }
 
-    [Fact(DisplayName = "Filter: Greater Than or Equal should return matching items")]
-    public void ApplyDynamicFilter_GreaterThanOrEqual_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for greater than or equal")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForGreaterThanOrEqual()
     {
         var result = _data.ApplyDynamicFilter("Price>=30").ToList();
         result.Should().HaveCount(2); // Orange (30), Pineapple (50)
@@ -77,22 +80,22 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Pineapple");
     }
 
-    [Fact(DisplayName = "Filter: Less Than should return matching items")]
-    public void ApplyDynamicFilter_LessThan_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for less than")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForLessThan()
     {
         var result = _data.ApplyDynamicFilter("Price<15").ToList();
         result.Should().HaveCount(2); // Apple (10), Apricot (10)
     }
 
-    [Fact(DisplayName = "Filter: Less Than or Equal should return matching items")]
-    public void ApplyDynamicFilter_LessThanOrEqual_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for less than or equal")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForLessThanOrEqual()
     {
         var result = _data.ApplyDynamicFilter("Price<=15").ToList();
         result.Should().HaveCount(3); // Apple (10), Pear (15), Apricot (10)
     }
 
-    [Fact(DisplayName = "Filter: Contains wildcard should return matching items")]
-    public void ApplyDynamicFilter_ContainsWildcard_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for contains wildcard")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForContainsWildcard()
     {
         var result = _data.ApplyDynamicFilter("name=*ap*").ToList();
         // Apple, Pineapple, Apricot
@@ -102,8 +105,8 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Apricot");
     }
 
-    [Fact(DisplayName = "Filter: Not Contains should return non-matching items")]
-    public void ApplyDynamicFilter_NotContains_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return non-matching items for not contains")]
+    public void ApplyDynamicFilter_Should_ReturnNonMatchingItems_ForNotContains()
     {
         var result = _data.ApplyDynamicFilter("name!*ap").ToList();
         // Banana, Orange, Pear
@@ -113,8 +116,8 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Pear");
     }
 
-    [Fact(DisplayName = "Filter: StartsWith should return matching items")]
-    public void ApplyDynamicFilter_StartsWith_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for starts with")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForStartsWith()
     {
         var result = _data.ApplyDynamicFilter("Name^P").ToList();
         result.Should().HaveCount(2);
@@ -122,64 +125,64 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Pineapple");
     }
 
-    [Fact(DisplayName = "Filter: EndsWith should return matching items")]
-    public void ApplyDynamicFilter_EndsWith_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for ends with")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForEndsWith()
     {
         var result = _data.ApplyDynamicFilter("Name$e").ToList();
         // Apple, Orange, Pineapple
         result.Should().HaveCount(3);
     }
 
-    [Fact(DisplayName = "Filter: Enum filtering should work")]
-    public void ApplyDynamicFilter_Enum_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should filter by enum correctly")]
+    public void ApplyDynamicFilter_Should_FilterByEnum_Correctly()
     {
         var result = _data.ApplyDynamicFilter("Status=Archived").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Banana");
     }
     
-    [Fact(DisplayName = "Filter: Guid filtering should work")]
-    public void ApplyDynamicFilter_Guid_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should filter by Guid correctly")]
+    public void ApplyDynamicFilter_Should_FilterByGuid_Correctly()
     {
         var result = _data.ApplyDynamicFilter("ExternalId=11111111-1111-1111-1111-111111111111").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Apple");
     }
 
-    [Fact(DisplayName = "Filter: Date filtering should work")]
-    public void ApplyDynamicFilter_Date_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should filter by Date correctly")]
+    public void ApplyDynamicFilter_Should_FilterByDate_Correctly()
     {
         var result = _data.ApplyDynamicFilter("CreatedAt=2023-01-02").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Banana");
     }
 
-    [Fact(DisplayName = "Filter: Nested property filtering should work")]
-    public void ApplyDynamicFilter_NestedProperty_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should filter by nested property correctly")]
+    public void ApplyDynamicFilter_Should_FilterByNestedProperty_Correctly()
     {
         var result = _data.ApplyDynamicFilter("Address.City=London").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Pear");
     }
     
-    [Fact(DisplayName = "Filter: Deep nested property filtering should work")]
-    public void ApplyDynamicFilter_DeepNestedProperty_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should filter by deep nested property correctly")]
+    public void ApplyDynamicFilter_Should_FilterByDeepNestedProperty_Correctly()
     {
         var result = _data.ApplyDynamicFilter("Address.Zip.Code=95014").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Apple");
     }
 
-    [Fact(DisplayName = "Filter: Nested property with null should not crash")]
-    public void ApplyDynamicFilter_NestedProperty_WithNull_DoesNotCrash()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should not crash when nested property is null")]
+    public void ApplyDynamicFilter_Should_NotCrash_WhenNestedPropertyIsNull()
     {
         // Id=3 has null Address. 
         var result = _data.ApplyDynamicFilter("Address.City=London").ToList();
         result.Should().HaveCount(1);
     }
     
-    [Fact(DisplayName = "Filter: Deep nested property with intermediate null should not crash")]
-    public void ApplyDynamicFilter_DeepNestedProperty_WithIntermediateNull_DoesNotCrash()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should not crash when intermediate deep nested property is null")]
+    public void ApplyDynamicFilter_Should_NotCrash_WhenIntermediateDeepNestedPropertyIsNull()
     {
         // Banana has Address but no Zip (null).
         // Orange has null Address.
@@ -188,60 +191,60 @@ public class FilterExtensionsTests
         result.Single().Name.Should().Be("Apple");
     }
 
-    [Fact(DisplayName = "Filter: Case-insensitive property name should work")]
-    public void ApplyDynamicFilter_CaseInsensitiveProperty_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should work with case-insensitive property names")]
+    public void ApplyDynamicFilter_Should_WorkWithCaseInsensitivePropertyNames()
     {
         var result = _data.ApplyDynamicFilter("name=Apple").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Apple");
     }
 
-    [Fact(DisplayName = "Filter: Snake case property name should work")]
-    public void ApplyDynamicFilter_SnakeCaseProperty_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should work with snake_case property names")]
+    public void ApplyDynamicFilter_Should_WorkWithSnakeCasePropertyNames()
     {
         var result = _data.ApplyDynamicFilter("created_at=2023-01-01").ToList();
         result.Should().HaveCount(1);
         result.Single().Name.Should().Be("Apple");
     }
 
-    [Fact(DisplayName = "Filter: Logical AND should work")]
-    public void ApplyDynamicFilter_LogicalAnd_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should handle logical AND correctly")]
+    public void ApplyDynamicFilter_Should_HandleLogicalAnd_Correctly()
     {
         var result = _data.ApplyDynamicFilter("Price>10,IsActive=true").ToList();
         result.Should().HaveCount(2); // Orange, Pear
     }
 
-    [Fact(DisplayName = "Filter: Logical OR should work")]
-    public void ApplyDynamicFilter_LogicalOr_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should handle logical OR correctly")]
+    public void ApplyDynamicFilter_Should_HandleLogicalOr_Correctly()
     {
         var result = _data.ApplyDynamicFilter("Name=Apple|Name=Banana").ToList();
         result.Should().HaveCount(2);
     }
 
-    [Fact(DisplayName = "Filter: Grouping with precedence should work")]
-    public void ApplyDynamicFilter_GroupingWithPrecedence_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should handle grouping with precedence correctly")]
+    public void ApplyDynamicFilter_Should_HandleGroupingWithPrecedence_Correctly()
     {
         // (Price > 40 OR Price < 15) AND IsActive = true
         var result = _data.ApplyDynamicFilter("(Price>40|Price<15),IsActive=true").ToList();
         result.Should().HaveCount(2); // Apple, Apricot
     }
 
-    [Fact(DisplayName = "Filter: Invalid field should be ignored")]
-    public void ApplyDynamicFilter_InvalidField_Ignored()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should ignore invalid fields")]
+    public void ApplyDynamicFilter_Should_IgnoreInvalidFields()
     {
         var result = _data.ApplyDynamicFilter("InvalidField=10").ToList();
         result.Should().HaveCount(6);
     }
 
-    [Fact(DisplayName = "Filter: Empty string should return all items")]
-    public void ApplyDynamicFilter_EmptyString_ReturnsAll()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return all items for empty filter string")]
+    public void ApplyDynamicFilter_Should_ReturnAllItems_ForEmptyFilterString()
     {
         var result = _data.ApplyDynamicFilter("").ToList();
         result.Should().HaveCount(6);
     }
 
-    [Fact(DisplayName = "Filter: Equals null should return matching items")]
-    public void ApplyDynamicFilter_EqualsNull_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for equals null")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForEqualsNull()
     {
         // Orange and Apricot have null Address
         var result = _data.ApplyDynamicFilter("Address=null").ToList();
@@ -250,8 +253,8 @@ public class FilterExtensionsTests
         result.Should().Contain(x => x.Name == "Apricot");
     }
 
-    [Fact(DisplayName = "Filter: Not Equals null should return matching items")]
-    public void ApplyDynamicFilter_NotEqualsNull_ReturnsCorrectItems()
+    [Fact(DisplayName = "ApplyDynamicFilter: Should return matching items for not equals null")]
+    public void ApplyDynamicFilter_Should_ReturnMatchingItems_ForNotEqualsNull()
     {
         // Apple, Banana, Pear, Pineapple have Address (4 items)
         var result = _data.ApplyDynamicFilter("Address!=null").ToList();

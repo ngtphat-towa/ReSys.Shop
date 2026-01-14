@@ -8,6 +8,9 @@ using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Core")]
+[Trait("Feature", "Examples")]
 public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly IApplicationDbContext _context;
@@ -22,7 +25,7 @@ public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should successfully delete an existing example from the database")]
-    public async Task Handle_ExistingExample_ShouldDelete()
+    public async Task Handle_ExampleExists_DeletesExample()
     {
         // Arrange
         var exampleId = Guid.NewGuid();
@@ -50,7 +53,7 @@ public class DeleteExampleTests : IClassFixture<TestDatabaseFixture>
     }
 
     [Fact(DisplayName = "Handle: Should return a not found error when attempting to delete an example that does not exist")]
-    public async Task Handle_NonExistentExample_ShouldReturnNotFound()
+    public async Task Handle_ExampleDoesNotExist_ReturnsNotFound()
     {
         // Arrange
         var nonExistentId = Guid.NewGuid();

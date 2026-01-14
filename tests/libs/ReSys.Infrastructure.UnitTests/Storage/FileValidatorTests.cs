@@ -11,6 +11,9 @@ using ReSys.Infrastructure.Storage.Validators;
 
 namespace ReSys.Infrastructure.UnitTests.Storage;
 
+[Trait("Category", "Unit")]
+[Trait("Module", "Infrastructure")]
+[Trait("Service", "Storage")]
 public class FileValidatorTests
 {
     private readonly FileValidator _sut;
@@ -34,7 +37,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return success for valid text file")]
-    public async Task ValidateAsync_ValidTextFile_ReturnsSuccess()
+    public async Task ValidateAsync_Should_ReturnSuccess_ForValidTextFile()
     {
         // Arrange
         var content = "Hello World";
@@ -49,7 +52,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error for empty filename")]
-    public async Task ValidateAsync_EmptyFileName_ReturnsError()
+    public async Task ValidateAsync_Should_ReturnError_ForEmptyFileName()
     {
         // Arrange
         using var stream = new MemoryStream();
@@ -64,7 +67,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error for empty file stream")]
-    public async Task ValidateAsync_EmptyFileStream_ReturnsError()
+    public async Task ValidateAsync_Should_ReturnError_ForEmptyFileStream()
     {
         // Arrange
         using var stream = new MemoryStream(); // Empty
@@ -79,7 +82,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error for disallowed extension")]
-    public async Task ValidateAsync_InvalidExtension_ReturnsError()
+    public async Task ValidateAsync_Should_ReturnError_ForDisallowedExtension()
     {
         // Arrange
         var content = "test";
@@ -95,7 +98,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error when max file size is exceeded")]
-    public async Task ValidateAsync_FileSizeExceeded_ReturnsError()
+    public async Task ValidateAsync_Should_ReturnError_WhenMaxFileSizeExceeded()
     {
         // Arrange
         var content = new byte[1024]; // 1KB
@@ -111,7 +114,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error for filenames containing dangerous characters")]
-    public async Task ValidateAsync_DangerousCharacters_ReturnsInvalidFileName()
+    public async Task ValidateAsync_Should_ReturnError_ForFilenamesWithDangerousCharacters()
     {
         // Arrange
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
@@ -130,7 +133,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error for dangerous file extensions")]
-    public async Task ValidateAsync_DangerousExtension_ReturnsDangerousExtension()
+    public async Task ValidateAsync_Should_ReturnError_ForDangerousFileExtensions()
     {
         // Arrange
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes("malware"));
@@ -145,7 +148,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return error when file signature does not match extension")]
-    public async Task ValidateAsync_SignatureMismatch_ReturnsSignatureMismatch()
+    public async Task ValidateAsync_Should_ReturnError_WhenFileSignatureDoesNotMatchExtension()
     {
         // Arrange
         // Fake a PNG file with random text content
@@ -162,7 +165,7 @@ public class FileValidatorTests
     }
 
     [Fact(DisplayName = "ValidateAsync: Should return success when file signature matches extension")]
-    public async Task ValidateAsync_ValidSignature_ReturnsSuccess()
+    public async Task ValidateAsync_Should_ReturnSuccess_WhenFileSignatureMatchesExtension()
     {
         // Arrange
         // Correct PNG header: 89 50 4E 47
