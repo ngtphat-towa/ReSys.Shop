@@ -57,7 +57,10 @@ public static class ApiModule
         app.UseMiddleware<SnakeCaseQueryMiddleware>();
         app.UseDocumentation();
 
-        app.UseHttpsRedirection();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
         app.UseCors();
         app.UseAuthorization();
 
