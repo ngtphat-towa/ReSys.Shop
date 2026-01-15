@@ -1,12 +1,12 @@
 # ReSys.Shop
 
-An e-commerce project built with a .NET backend, a Vue 3 frontend, and a Python service for AI features.
+An e-commerce project built with a .NET 10 backend, a Vue 3 frontend, and a Python service for AI features.
 
-[![.NET 9](https://img.shields.io/badge/.NET-9.0-512bd4.svg)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-512bd4.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![.NET Aspire](https://img.shields.io/badge/.NET_Aspire-512BD4?logo=dotnet&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/aspire/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Python](https://img.shields.io/badge/Python-3.10-3776ab.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776ab.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Vue 3](https://img.shields.io/badge/Vue-3.5-4fc08d.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -22,7 +22,7 @@ This project is organized by **Feature (Vertical Slices)** to keep it easy to ma
 
 Instead of putting all database files in one place and all UI files in another, we group everything belonging to one feature (like "Products" or "Examples") together. If you need to change how a specific feature works, you only need to look in one folder. This avoids searching through many different parts of the project to find related code.
 
-### Backend (.NET 9)
+### Backend (.NET 10)
 - **Features**: Grouped into slices using [Carter](https://github.com/CarterCommunity/Carter).
 - **Logic**: Uses [MediatR](https://github.com/jbogard/MediatR) to separate data reading from data writing.
 - **Validation**: Checks input data using [FluentValidation](https://fluentvalidation.net/).
@@ -53,7 +53,8 @@ Instead of putting all database files in one place and all UI files in another, 
 │   └── ReSys.Shop/         # Storefront for customers to browse products.
 ├── services/ -> src/services/
 │   ├── ReSys.Api/          # The main API handling business logic and storage.
-│   ├── ReSys.Gateway/      # Single entry point for all API requests.
+│   ├── ReSys.Gateway/      # Single entry point for all API requests (YARP).
+│   ├── ReSys.Identity/     # Authentication and Authorization service.
 │   └── ReSys.ML/           # Python service for AI and image tasks.
 ├── libs/ -> src/libs/
 │   ├── ReSys.Core/         # Shared business logic and database models.
@@ -61,6 +62,9 @@ Instead of putting all database files in one place and all UI files in another, 
 ├── aspire/ -> src/aspire/
 │   ├── ReSys.AppHost/      # Orchestrator for local development.
 │   └── ReSys.ServiceDefaults/ # Shared service configurations.
+├── scripts/                # Automation and maintenance scripts.
+│   ├── local/              # Local (Standalone) environment tools.
+│   └── thesis/             # Academic thesis generators.
 └── tests/                  # Automated tests for the whole project.
 ```
 
@@ -86,21 +90,25 @@ When adding a new feature, follow the pattern used in the `testing/examples` fol
 
 ## How to Run
 
-1. **Start the Database**:
+1. **Start the Infrastructure**:
    ```bash
    docker-compose -f infrastructure/database/docker-compose.db.yml up -d
    ```
 
-2. **Run all services**:
-   The easiest way is to run the `ReSys.AppHost` project using .NET Aspire.
+2. **Option A: Run with .NET Aspire (Recommended)**:
+   The easiest way is to run the AppHost project.
    ```bash
    dotnet run --project src/aspire/ReSys.AppHost
    ```
 
-3. **Alternative**:
-   You can also use the PowerShell script to run specific parts of the project:
-   ```bash
-   .\scripts\run-all-local.ps1 all
+3. **Option B: Run Standalone (Local Context)**:
+   Use the local orchestrator for independent service management.
+   ```powershell
+   # Initialize environment (first time only)
+   .\scripts\local\Initialize-Env.ps1
+
+   # Run all services
+   .\scripts\local\Run-Local.ps1 all -Detached
    ```
 
 ---
