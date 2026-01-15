@@ -19,11 +19,12 @@ ReSys.Shop is a modern, high-performance e-commerce ecosystem built with **Verti
 ## 📖 Table of Contents
 - [Architecture & Design](#-architecture--design)
 - [System Components](#-system-components)
-- [Folder Structure](#-folder-structure)
+- [Project Folders](#-project-folders)
 - [Prerequisites](#-prerequisites)
 - [How to Run](#-how-to-run)
-- [Local Development Suite](#-local-development-suite)
+- [Testing & Quality Assurance](#-testing--quality-assurance)
 - [Guide: Adding New Features](#-guide-adding-new-features)
+- [Local Development Suite](#-local-development-suite)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
 
@@ -59,41 +60,52 @@ Unlike traditional N-Tier architecture that groups code by technical role (Contr
 *   **ReSys.Gateway**: Powered by **Microsoft YARP**, it serves as the single point of entry, providing routing, SSL termination, and centralized health monitoring.
 
 ### 3. The AI Service (Intelligence)
-*   **ReSys.ML**: A Python microservice using **FastAPI**. It generates high-dimensional vector embeddings for products to power "Visual Similarity Search" via PostgreSQL's `pgvector` extension.
+*   **ReSys.ML**: Python/FastAPI service for vector embeddings and image analysis.
 
 ---
 
-## 📂 Folder Structure
+## 📂 Project Folders
 
 ```text
 .
-├── src/
-│   ├── apps/               # Vue.js Applications
-│   │   ├── ReSys.Admin/    # Inventory & Management Dashboard
-│   │   └── ReSys.Shop/     # Customer Storefront
-│   ├── services/           # Microservices
-│   │   ├── ReSys.Api/      # Core Business API (.NET 10)
-│   │   ├── ReSys.Gateway/  # YARP Reverse Proxy & Router
-│   │   ├── ReSys.Identity/ # Security & Identity Authority
-│   │   └── ReSys.ML/       # Python Machine Learning Service
-│   ├── libs/               # Shared Class Libraries
-│   │   ├── ReSys.Core/     # VSA Feature Handlers & Domain Models
-│   │   ├── ReSys.Infrastructure/ # Database, AI & Storage implementations
-│   │   ├── ReSys.Migrations/ # EF Core Migration History
-│   │   └── ReSys.Shared/   # Telemetry, Constants & Models
-│   └── aspire/             # Orchestration Layer
-│       ├── ReSys.AppHost/  # .NET Aspire Project Entry
-│       └── ReSys.ServiceDefaults/ # Shared Resiliency & Health Checks
-├── infrastructure/         # Local DevOps & Infrastructure
-│   ├── database/           # PostgreSQL & pgvector setup
-│   ├── mail/               # Papercut SMTP testing tools
-│   └── storage/            # Local binary object storage
-├── scripts/                # The Toolchain
-│   ├── local/              # Standalone Context Runner (Manual mode)
-│   └── thesis/             # Academic Thesis Project Generators
-├── docs/                   # Documentation & Architectural Views
-├── tests/                  # Test Suite (Unit, Integration, AppHost)
-└── ReSys.Shop.sln          # Solution Entry Point
+├── src/                        # Primary Source Code
+│   ├── apps/                   # Frontend Projects (Vite + Vue)
+│   │   ├── ReSys.Admin/        # Staff Management panel
+│   │   └── ReSys.Shop/         # Customer Storefront
+│   ├── services/               # Backend Microservices
+│   │   ├── ReSys.Api/          # Core Business API (.NET 10)
+│   │   ├── ReSys.Gateway/      # YARP Router & Entry Point
+│   │   ├── ReSys.Identity/     # Auth & Identity Authority
+│   │   └── ReSys.ML/           # Python AI Service
+│   ├── libs/                   # Shared Class Libraries
+│   │   ├── ReSys.Core/         # Business Logic (Common, Domain, Features)
+│   │   ├── ReSys.Infrastructure/ # Clients (Imaging, Ml, Notifications, Persistence)
+│   │   ├── ReSys.Migrations/   # EF Core Migration History
+│   │   └── ReSys.Shared/       # Telemetry, Shared Models & Constants
+│   └── aspire/                 # Orchestration Layer
+│       ├── ReSys.AppHost/      # .NET Aspire Entry Point
+│       └── ReSys.ServiceDefaults/ # Shared Configurations
+├── infrastructure/             # Local Infrastructure (Docker)
+│   ├── database/               # PostgreSQL & pgvector config
+│   ├── mail/                   # Papercut SMTP Config
+│   └── storage/                # Local storage simulation
+├── scripts/                    # Utility Suite
+│   ├── local/                  # Standalone Tools (Run-Local, Clear-Ports)
+│   └── thesis/                 # CTU Thesis Generators
+├── tests/                      # Automated Test Suite
+│   ├── aspire/                 # Orchestration Tests
+│   │   └── ReSys.AppHost.Tests # Web & connectivity tests
+│   ├── libs/                   # Library Unit Tests
+│   │   ├── ReSys.Core.UnitTests # Logic & Behavior tests
+│   │   └── ReSys.Infrastructure.UnitTests # Client & DB tests
+│   ├── services/               # Microservice Tests
+│   │   ├── ReSys.Api.IntegrationTests # End-to-end API tests
+│   │   ├── ReSys.Api.UnitTests        # Controller & Middleware tests
+│   │   ├── ReSys.Identity.IntegrationTests
+│   │   └── ReSys.Identity.UnitTests
+│   └── TestAssets/             # Mock files (images, data) for tests
+├── docs/                       # Diagrams, guidelines & views
+└── ReSys.Shop.sln              # Solution Entry Point
 ```
 
 ---
@@ -132,14 +144,22 @@ docker-compose -f infrastructure/database/docker-compose.db.yml up -d
 
 ---
 
-## 🛠️ Local Development Suite
+## 🧪 Testing & Quality Assurance
 
-The `scripts/local/` directory contains a professional-grade toolchain for managing standalone services:
-- **Run-Local.ps1**: Orchestrates service startup with 15+ environment variable overrides for manual service discovery.
-- **Clear-Ports.ps1**: Forcefully terminates zombie processes on development ports (5000-8000).
-- **Get-PortStatus.ps1**: Diagnostic tool mapping active listeners to service names.
+Quality is a first-class citizen in ReSys.Shop, using a multi-layer strategy:
 
-See [scripts/local/README.md](scripts/local/README.md) for full technical details.
+- **Unit Tests**: Found in `tests/libs` and `tests/services`. Focuses on business logic in `ReSys.Core`.
+- **Integration Tests**: Comprehensive API tests in `tests/services` verifying HTTP responses and DB state.
+- **Aspire Tests**: Located in `tests/aspire`, verifying orchestration and service discovery.
+
+**Execution:**
+```bash
+# Run all tests
+dotnet test
+
+# Run tests for a specific project
+dotnet test tests/services/ReSys.Api.UnitTests
+```
 
 ---
 
@@ -155,6 +175,17 @@ Follow the project's **Vertical Slice** pattern:
 ### 2. Frontend Implementation
 - Group Vue components and Pinia stores in a corresponding feature folder under `src/apps/[AppName]/src/modules`.
 - Adhere to the `kebab-case` naming convention for all files.
+
+---
+
+## 🛠️ Local Development Suite
+
+The `scripts/local/` directory contains a professional-grade toolchain for managing standalone services:
+- **Run-Local.ps1**: Orchestrates service startup with 15+ environment variable overrides for manual service discovery.
+- **Clear-Ports.ps1**: Forcefully terminates zombie processes on development ports (5000-8000).
+- **Get-PortStatus.ps1**: Diagnostic tool mapping active listeners to service names.
+
+See [scripts/local/README.md](scripts/local/README.md) for full technical details.
 
 ---
 
