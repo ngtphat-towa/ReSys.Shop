@@ -692,7 +692,16 @@ Can Tho University
 - LanguageTool
 - Microsoft Editor
 
-### 12.3 Contact Information
+### 12.3 Thesis Generator Tools
+
+We provide automated tools to generate the thesis project structure for you:
+
+- **Typst Generator**: `scripts/thesis/Generate-CtUThesis.ps1` or `scripts/thesis/generate-ctu-thesis.sh`
+- **LaTeX Generator**: `scripts/thesis/generate-ctu-thesis-latex.sh`
+
+See [scripts/thesis/README.md](../scripts/thesis/README.md) for usage instructions.
+
+### 12.4 Contact Information
 
 **Department Office**:
 - College of Information and Communication Technology

@@ -1,194 +1,197 @@
-<#
-.SYNOPSIS
-    CTU Thesis Project Generator - PowerShell Edition
-.DESCRIPTION
-    Creates a complete Typst thesis structure conforming to Can Tho University (CTU) format standards.
-    Supports both English and Vietnamese theses with full bilingual capability.
-.PARAMETER ProjectName
-    Name of the thesis project directory (default: ctu-thesis)
-.PARAMETER Language
-    Primary language (en/vi) - default: en
-.PARAMETER StudentName
-    Student's full name
-.PARAMETER StudentId
-    Student ID (e.g., B1234567)
-.PARAMETER ThesisTitle
-    Full thesis title
-.PARAMETER Interactive
-    Enable interactive mode with prompts
-.EXAMPLE
-    .\Generate-CTUThesis.ps1
-    Creates a thesis project with default settings in interactive mode
-.EXAMPLE
-    .\Generate-CTUThesis.ps1 -ProjectName "my-thesis" -Language "vi" -Interactive
-    Creates a Vietnamese thesis project with interactive prompts
-.EXAMPLE
-    .\Generate-CTUThesis.ps1 -ProjectName "ecommerce-thesis" -StudentName "Nguyen Van A" -StudentId "B2012345"
-    Creates a thesis project with specified parameters
-#>
+﻿#!/bin/bash
 
-[CmdletBinding()]
-param(
-    [Parameter()]
-    [string]$ProjectName = "ctu-thesis",
-    
-    [Parameter()]
-    [ValidateSet("en", "vi")]
-    [string]$Language = "en",
-    
-    [Parameter()]
-    [string]$StudentName,
-    
-    [Parameter()]
-    [string]$StudentId,
-    
-    [Parameter()]
-    [string]$ThesisTitle,
-    
-    [switch]$Interactive = $true
-)
+# ============================================================================
+# CTU THESIS PROJECT GENERATOR - BASH EDITION
+# Can Tho University - College of Information and Communication Technology
+# ============================================================================
 
-$ErrorActionPreference = "Stop"
+set -e  # Exit on error
+
+# ============================================================================
+# DEFAULT PARAMETERS
+# ============================================================================
+PROJECT_NAME="ctu-thesis"
+LANGUAGE="en"
+STUDENT_NAME=""
+STUDENT_ID=""
+THESIS_TITLE=""
+INTERACTIVE=true
 
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
 
-function Write-SectionHeader {
-    param([string]$Title)
-    Write-Host "`n$('=' * 60)" -ForegroundColor Cyan
-    Write-Host "  $Title" -ForegroundColor Yellow
-    Write-Host "$('=' * 60)`n" -ForegroundColor Cyan
+write_section_header() {
+    echo -e "\n\033[36m============================================================\033[0m"
+    echo -e "\033[33m  $1\033[0m"
+    echo -e "\033[36m============================================================\033[0m\n"
 }
 
-function Write-Success {
-    param([string]$Message)
-    Write-Host "✅ $Message" -ForegroundColor Green
+write_success() {
+    echo -e "\033[32mâœ… $1\033[0m"
 }
 
-function Write-Info {
-    param([string]$Message)
-    Write-Host "📝 $Message" -ForegroundColor Blue
+write_info() {
+    echo -e "\033[34mðŸ“ $1\033[0m"
 }
 
-function New-FileWithContent {
-    param(
-        [string]$Path,
-        [string]$Content
-    )
+new_file_with_content() {
+    local filepath="$1"
+    local content="$2"
     
-    $dir = Split-Path -Parent $Path
-    if ($dir -and -not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-    }
+    local dirpath=$(dirname "$filepath")
+    if [ -n "$dirpath" ] && [ ! -d "$dirpath" ]; then
+        mkdir -p "$dirpath"
+    fi
     
-    Set-Content -Path $Path -Value $Content -Encoding UTF8
-    Write-Success "Created: $(Split-Path -Leaf $Path)"
+    echo "$content" > "$filepath"
+    write_success "Created: $(basename "$filepath")"
 }
+
+# ============================================================================
+# PARSE ARGUMENTS
+# ============================================================================
+
+show_help() {
+    cat << 'EOF'
+CTU Thesis Project Generator
+
+Usage: $0 [OPTIONS]
+
+Options:
+    -p, --project NAME      Project folder name (default: ctu-thesis)
+    -l, --language LANG     Primary language: en/vi (default: en)
+    -n, --name NAME         Student's full name
+    -i, --id ID             Student ID (e.g., B1234567)
+    -t, --title TITLE       Thesis title
+    --non-interactive       Disable interactive prompts
+    -h, --help              Show this help message
+
+Examples:
+    $0
+    $0 -p my-thesis -l vi
+    $0 -p ecommerce-thesis -n "Nguyen Van A" -i B2012345
+
+EOF
+    exit 0
+}
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -p|--project) PROJECT_NAME="$2"; shift 2 ;;
+        -l|--language) LANGUAGE="$2"; shift 2 ;;
+        -n|--name) STUDENT_NAME="$2"; shift 2 ;;
+        -i|--id) STUDENT_ID="$2"; shift 2 ;;
+        -t|--title) THESIS_TITLE="$2"; shift 2 ;;
+        --non-interactive) INTERACTIVE=false; shift ;;
+        -h|--help) show_help ;;
+        *) echo "Unknown option: $1"; show_help ;;
+    esac
+done
 
 # ============================================================================
 # BANNER
 # ============================================================================
 
-Clear-Host
-Write-Host @"
+clear
+cat << "EOF"
 
-  ╔═══════════════════════════════════════════════════════════╗
-  ║                                                           ║
-  ║     🎓  CTU THESIS PROJECT GENERATOR  🎓                  ║
-  ║                                                           ║
-  ║     Can Tho University - College of ICT                   ║
-  ║     Typst Template Generator                              ║
-  ║                                                           ║
-  ╚═══════════════════════════════════════════════════════════╝
+  â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+  â•‘                                                           â•‘
+  â•‘     ðŸŽ“  CTU THESIS PROJECT GENERATOR  ðŸŽ“                  â•‘
+  â•‘                                                           â•‘
+  â•‘     Can Tho University - College of ICT                   â•‘
+  â•‘     Typst Template Generator                              â•‘
+  â•‘                                                           â•‘
+  â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
-"@ -ForegroundColor Cyan
+EOF
 
 # ============================================================================
 # INTERACTIVE INPUT
 # ============================================================================
 
-if ($Interactive) {
-    Write-Info "Let's set up your thesis project!`n"
+if [ "$INTERACTIVE" = true ]; then
+    write_info "Let's set up your thesis project!\n"
     
-    if (-not $ProjectName -or $ProjectName -eq "ctu-thesis") {
-        $input = Read-Host "Project folder name (default: ctu-thesis)"
-        if ($input) { $ProjectName = $input }
-    }
+    if [ -z "$PROJECT_NAME" ] || [ "$PROJECT_NAME" = "ctu-thesis" ]; then
+        read -p "Project folder name (default: ctu-thesis): " input
+        [ -n "$input" ] && PROJECT_NAME="$input"
+    fi
     
-    if (-not $Language) {
-        $langInput = Read-Host "Primary language (en/vi, default: en)"
-        if ($langInput -and $langInput -in @("en", "vi")) { $Language = $langInput }
-    }
+    if [ -z "$LANGUAGE" ]; then
+        read -p "Primary language (en/vi, default: en): " input
+        if [ "$input" = "en" ] || [ "$input" = "vi" ]; then
+            LANGUAGE="$input"
+        fi
+    fi
     
-    if (-not $StudentName) {
-        $StudentName = Read-Host "Your full name (optional, can edit later in info.typ)"
-    }
+    if [ -z "$STUDENT_NAME" ]; then
+        read -p "Your full name (optional, can edit later in info.typ): " STUDENT_NAME
+    fi
     
-    if (-not $StudentId) {
-        $StudentId = Read-Host "Student ID (optional, e.g., B1234567)"
-    }
+    if [ -z "$STUDENT_ID" ]; then
+        read -p "Student ID (optional, e.g., B1234567): " STUDENT_ID
+    fi
     
-    if (-not $ThesisTitle) {
-        $ThesisTitle = Read-Host "Thesis title (optional, can edit later)"
-    }
-}
+    if [ -z "$THESIS_TITLE" ]; then
+        read -p "Thesis title (optional, can edit later): " THESIS_TITLE
+    fi
+fi
 
 # Set defaults if still empty
-$StudentName = if ($StudentName) { $StudentName } else { "Your Name" }
-$StudentId = if ($StudentId) { $StudentId } else { "B1234567" }
-$ThesisTitle = if ($ThesisTitle) { $ThesisTitle } else { "Your Thesis Title Here" }
+STUDENT_NAME="${STUDENT_NAME:-Your Name}"
+STUDENT_ID="${STUDENT_ID:-B1234567}"
+THESIS_TITLE="${THESIS_TITLE:-Your Thesis Title Here}"
 
 # ============================================================================
 # CREATE PROJECT STRUCTURE
 # ============================================================================
 
-Write-SectionHeader "Creating Project Structure"
+write_section_header "Creating Project Structure"
 
 # Create base directory
-if (Test-Path $ProjectName) {
-    $overwrite = Read-Host "Project '$ProjectName' exists. Overwrite? (y/N)"
-    if ($overwrite -ne "y") {
-        Write-Host "Cancelled by user" -ForegroundColor Yellow
+if [ -d "$PROJECT_NAME" ]; then
+    read -p "Project '$PROJECT_NAME' exists. Overwrite? (y/N): " overwrite
+    if [ "$overwrite" != "y" ]; then
+        echo "Cancelled by user"
         exit 0
-    }
-    Remove-Item -Recurse -Force $ProjectName
-}
+    fi
+    rm -rf "$PROJECT_NAME"
+fi
 
-New-Item -ItemType Directory -Path $ProjectName -Force | Out-Null
-Push-Location $ProjectName
+mkdir -p "$PROJECT_NAME"
+cd "$PROJECT_NAME"
 
-Write-Info "Creating directory structure..."
+write_info "Creating directory structure..."
+
+clear
+
+write_section_header "Creating Project Structure"
+
+cd $PROJECT_NAME
+
+write_info "Creating directory structure..."
 
 # Create all directories
-$directories = @(
-    "template",
-    "frontmatter",
-    "backmatter",
-    "chapters\part1",
-    "chapters\part2\chapter1",
-    "chapters\part2\chapter2",
-    "chapters\part2\chapter3",
-    "chapters\part3",
-    "images\chapter1",
-    "images\chapter2",
-    "images\chapter3",
-    "images\logo"
-)
+mkdir -p "template"
+mkdir -p "frontmatter"
+mkdir -p "backmatter"
+mkdir -p "chapters/part1"
+mkdir -p "chapters/part2/chapter1"
+mkdir -p "chapters/part2/chapter2"
+mkdir -p "chapters/part2/chapter3"
+mkdir -p "chapters/part3"
+mkdir -p "images/chapter1"
+mkdir -p "images/chapter2"
+mkdir -p "images/chapter3"
+mkdir -p "images/logo"
 
-foreach ($dir in $directories) {
-    New-Item -ItemType Directory -Path $dir -Force | Out-Null
-}
+write_success "Directory structure created"
 
-Write-Success "Directory structure created"
+write_section_header "Creating Configuration Files"
 
-# ============================================================================
-# CREATE: info.typ (CTU FORMATTED)
-# ============================================================================
-
-Write-SectionHeader "Creating Configuration Files"
-
-$infoTyp = @"
+new_file_with_content "info.typ" "
 // ============================================================================
 // CTU THESIS INFORMATION CONFIGURATION
 // Can Tho University - College of Information and Communication Technology
@@ -197,8 +200,8 @@ $infoTyp = @"
 #let info = (
   en: (
     student: (
-      name: "$StudentName",
-      id: "$StudentId",
+      name: "$STUDENT_NAME",
+      id: "$STUDENT_ID",
       class: "Your Class",
       major: "INFORMATION TECHNOLOGY",
       program: "High-Quality Program",
@@ -208,9 +211,9 @@ $infoTyp = @"
       title: "Dr.", // Academic title
     ),
     thesis: (
-      title: "$ThesisTitle",
+      title: "$THESIS_TITLE",
       short_title: "SHORT TITLE FOR HEADERS", // Max 50 characters
-      date: "December 2025",
+      date: "January 2026",
       location: "Can Tho",
       degree: "BACHELOR OF ENGINEERING",
     ),
@@ -236,41 +239,41 @@ $infoTyp = @"
   ),
   vi: (
     student: (
-      name: "$StudentName",
-      id: "$StudentId",
-      class: "Lớp Của Bạn",
-      major: "Công nghệ Thông tin",
-      program: "Chất lượng cao",
+      name: "$STUDENT_NAME",
+      id: "$STUDENT_ID",
+      class: "Lá»›p Cá»§a Báº¡n",
+      major: "CÃ´ng nghá»‡ ThÃ´ng tin",
+      program: "Cháº¥t lÆ°á»£ng cao",
     ),
     advisor: (
-      name: "TS. Tên GVHD",
+      name: "TS. TÃªn GVHD",
       title: "TS.",
     ),
     thesis: (
-      title: "$ThesisTitle",
-      short_title: "TIÊU ĐỀ NGẮN", // Tối đa 50 ký tự
-      date: "Tháng 12/2025",
-      location: "Cần Thơ",
-      degree: "KỸ SƯ",
+      title: "$THESIS_TITLE",
+      short_title: "TIÃŠU Äá»€ NGáº®N", // Tá»‘i Ä‘a 50 kÃ½ tá»±
+      date: "ThÃ¡ng 01/2026",
+      location: "Cáº§n ThÆ¡",
+      degree: "Ká»¸ SÆ¯",
     ),
     keywords: (
-      "từ khóa 1", 
-      "từ khóa 2", 
-      "từ khóa 3",
-      "từ khóa 4",
-      "từ khóa 5"
+      "tá»« khÃ³a 1", 
+      "tá»« khÃ³a 2", 
+      "tá»« khÃ³a 3",
+      "tá»« khÃ³a 4",
+      "tá»« khÃ³a 5"
     ),
     committee: (
-      chairman: "TS. Tên Chủ Tịch",
-      reviewer: "TS. Tên Phản Biện",
-      advisor: "TS. Tên GVHD",
+      chairman: "TS. TÃªn Chá»§ Tá»‹ch",
+      reviewer: "TS. TÃªn Pháº£n Biá»‡n",
+      advisor: "TS. TÃªn GVHD",
     ),
     abbreviations: (
-      ("API", "Giao diện lập trình ứng dụng"),
-      ("CTU", "Đại học Cần Thơ"),
-      ("CNTT-TT", "Công nghệ Thông tin và Truyền thông"),
-      ("UI/UX", "Giao diện/Trải nghiệm người dùng"),
-      ("HTTP", "Giao thức truyền tải siêu văn bản"),
+      ("API", "Giao diá»‡n láº­p trÃ¬nh á»©ng dá»¥ng"),
+      ("CTU", "Äáº¡i há»c Cáº§n ThÆ¡"),
+      ("CNTT-TT", "CÃ´ng nghá»‡ ThÃ´ng tin vÃ  Truyá»n thÃ´ng"),
+      ("UI/UX", "Giao diá»‡n/Tráº£i nghiá»‡m ngÆ°á»i dÃ¹ng"),
+      ("HTTP", "Giao thá»©c truyá»n táº£i siÃªu vÄƒn báº£n"),
     ),
   ),
 )
@@ -279,7 +282,7 @@ $infoTyp = @"
 // GLOBAL SETTINGS (CTU STANDARD)
 // ============================================================================
 #let settings = (
-  primary_lang: "$Language",
+  primary_lang: "$LANGUAGE",
   
   // CTU Official Colors
   border_color: rgb(0, 51, 153), // CTU Blue (#003399)
@@ -300,15 +303,9 @@ $infoTyp = @"
     abstract_words: (200, 350), // Min-max words
   ),
 )
-"@
+"
 
-New-FileWithContent -Path "info.typ" -Content $infoTyp
-
-# ============================================================================
-# CREATE: main.typ
-# ============================================================================
-
-$mainTyp = @"
+new_file_with_content "main.typ" "
 // ============================================================================
 // CTU GRADUATION THESIS - MAIN FILE
 // Can Tho University Format (2025-2026)
@@ -405,18 +402,11 @@ $mainTyp = @"
 #counter(heading).update(0)
 #set heading(numbering: "A.1")
 #include "backmatter/appendices.typ"
-"@
+"
 
-New-FileWithContent -Path "main.typ" -Content $mainTyp
+write_section_header "Creating Template Files"
 
-# ============================================================================
-# CREATE: Template Files (CTU-Specific)
-# ============================================================================
-
-Write-SectionHeader "Creating Template Files"
-
-# i18n.typ (Internationalization)
-$i18nTyp = @'
+new_file_with_content "template/i18n.typ" "
 // ============================================================================
 // INTERNATIONALIZATION DICTIONARY (CTU STANDARD)
 // Contains official CTU terminology in English and Vietnamese
@@ -462,40 +452,40 @@ $i18nTyp = @'
   ),
   vi: (
     // Organization (CTU Official Vietnamese)
-    ministry: "BỘ GIÁO DỤC VÀ ĐÀO TẠO",
-    university: "ĐẠI HỌC CẦN THƠ",
-    college: "TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG",
-    department: "KHOA CÔNG NGHỆ PHẦN MỀM",
+    ministry: "Bá»˜ GIÃO Dá»¤C VÃ€ ÄÃ€O Táº O",
+    university: "Äáº I Há»ŒC Cáº¦N THÆ ",
+    college: "TRÆ¯á»œNG CÃ”NG NGHá»† THÃ”NG TIN VÃ€ TRUYá»€N THÃ”NG",
+    department: "KHOA CÃ”NG NGHá»† PHáº¦N Má»€M",
     
     // Document Type
-    thesis_type: "LUẬN VĂN TỐT NGHIỆP",
-    in_major: "NGÀNH",
+    thesis_type: "LUáº¬N VÄ‚N Tá»T NGHIá»†P",
+    in_major: "NGÃ€NH",
     
     // Labels
-    student_label: "Sinh viên thực hiện:",
+    student_label: "Sinh viÃªn thá»±c hiá»‡n:",
     student_id_label: "MSSV:",
-    class_label: "Lớp:",
-    advisor_label: "Cán bộ hướng dẫn:",
-    keywords_label: "Từ khóa:",
+    class_label: "Lá»›p:",
+    advisor_label: "CÃ¡n bá»™ hÆ°á»›ng dáº«n:",
+    keywords_label: "Tá»« khÃ³a:",
     
     // Headings
-    figure: "Hình",
-    table: "Bảng",
-    toc: "MỤC LỤC",
-    lof: "DANH MỤC HÌNH",
-    lot: "DANH MỤC BẢNG",
-    ref: "TÀI LIỆU THAM KHẢO",
-    appendix: "PHỤ LỤC",
-    part: "PHẦN",
-    chapter: "CHƯƠNG",
+    figure: "HÃ¬nh",
+    table: "Báº£ng",
+    toc: "Má»¤C Lá»¤C",
+    lof: "DANH Má»¤C HÃŒNH",
+    lot: "DANH Má»¤C Báº¢NG",
+    ref: "TÃ€I LIá»†U THAM KHáº¢O",
+    appendix: "PHá»¤ Lá»¤C",
+    part: "PHáº¦N",
+    chapter: "CHÆ¯Æ NG",
     
     // Front Matter
-    abbreviations_title: "DANH MỤC TỪ VIẾT TẮT",
-    abbreviations_term: "Từ viết tắt",
-    abbreviations_desc: "Diễn giải",
-    abstract_title: "TÓM TẮT",
-    acknowledgments_title: "LỜI CẢM ƠN",
-    evaluation_title: "NHẬN XÉT CỦA CÁN BỘ HƯỚNG DẪN",
+    abbreviations_title: "DANH Má»¤C Tá»ª VIáº¾T Táº®T",
+    abbreviations_term: "Tá»« viáº¿t táº¯t",
+    abbreviations_desc: "Diá»…n giáº£i",
+    abstract_title: "TÃ“M Táº®T",
+    acknowledgments_title: "Lá»œI Cáº¢M Æ N",
+    evaluation_title: "NHáº¬N XÃ‰T Cá»¦A CÃN Bá»˜ HÆ¯á»šNG DáºªN",
   ),
 )
 
@@ -504,14 +494,11 @@ $i18nTyp = @'
   let lang-dict = dict.at(lang, default: dict.en)
   lang-dict.at(key, default: key)
 }
-'@
+"
 
-New-FileWithContent -Path "template\i18n.typ" -Content $i18nTyp
+write_info "Creating CTU style template..."
 
-# Continue with remaining template files in next section...
-Write-Info "Creating CTU style template..."
-
-$ctuStylesTyp = @'
+new_file_with_content "template/ctu-styles.typ" "
 // ============================================================================
 // CTU THESIS STYLES
 // Based on CTU Format Guidelines (2025-2026)
@@ -571,7 +558,7 @@ $ctuStylesTyp = @'
   // Paragraph settings (CTU Standard: 1.2 spacing, 1cm indent)
   set par(
     justify: true,
-    leading: 0.25cm,  // 1.2 line spacing ≈ 0.25cm
+    leading: 0.25cm,  // 1.2 line spacing â‰ˆ 0.25cm
     first-line-indent: settings.format.paragraph_indent,
   )
 
@@ -640,14 +627,11 @@ $ctuStylesTyp = @'
   
   doc
 }
-'@
+"
 
-New-FileWithContent -Path "template\ctu-styles.typ" -Content $ctuStylesTyp
+write_section_header "Creating Front Matter"
 
-# Frontmatter templates (abbreviated for space, generate all)
-Write-SectionHeader "Creating Front Matter"
-
-$coverTyp = @'
+new_file_with_content "frontmatter/cover.typ" "
 // CTU Main Cover Page
 #import "../info.typ": *
 #import "../template/i18n.typ": term
@@ -726,12 +710,9 @@ $coverTyp = @'
     ]
   ]
 }
-'@
+"
 
-New-FileWithContent -Path "frontmatter\cover.typ" -Content $coverTyp
-
-# Create remaining frontmatter files (abbreviated)
-$acknowledgmentsTyp = @'
+new_file_with_content "frontmatter/acknowledgements.typ" "
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
@@ -755,12 +736,9 @@ Can Tho, [Date]
 #v(1cm)
 [Your Name]
 #pagebreak()
-'@
+"
 
-New-FileWithContent -Path "frontmatter\acknowledgements.typ" -Content $acknowledgmentsTyp
-
-# Create abstract with CTU word count requirements
-$abstractTyp = @'
+new_file_with_content "frontmatter/abstract.typ" "
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
@@ -790,17 +768,11 @@ Structure:
 ]
 
 #pagebreak()
-'@
+"
 
-New-FileWithContent -Path "frontmatter\abstract.typ" -Content $abstractTyp
+write_info "Creating remaining essential files..."
 
-# Add the rest of the critical files
-Write-Info "Creating remaining essential files..."
-
-# Create compact versions of other frontmatter, chapters, and backmatter files
-# (This is abbreviated for space - in full script, all files would be created)
-
-$evaluationTyp = @'
+new_file_with_content "frontmatter/evaluation.typ" "
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
@@ -822,12 +794,9 @@ $evaluationTyp = @'
   #line(length: 6cm) \ #data.advisor.name
 ]
 #pagebreak()
-'@
+"
 
-New-FileWithContent -Path "frontmatter\evaluation.typ" -Content $evaluationTyp
-
-# Table of Contents
-$tocTyp = @'
+new_file_with_content "frontmatter/table-of-contents.typ" "
 #import "../template/i18n.typ": term
 
 #heading(level: 1, numbering: none, outlined: true)[TABLE OF CONTENTS]
@@ -856,27 +825,21 @@ $tocTyp = @'
 }
 
 #outline(title: none, indent: auto, depth: 3)
-'@
+"
 
-New-FileWithContent -Path "frontmatter\table-of-contents.typ" -Content $tocTyp
-
-$lofTyp = @'
+new_file_with_content "frontmatter/list-of-figures.typ" "
 #heading(level: 1, numbering: none, outlined: true)[LIST OF FIGURES]
 #v(1cm)
 #outline(title: none, target: figure.where(kind: image))
-'@
+"
 
-New-FileWithContent -Path "frontmatter\list-of-figures.typ" -Content $lofTyp
-
-$lotTyp = @'
+new_file_with_content "frontmatter/list-of-tables.typ" "
 #heading(level: 1, numbering: none, outlined: true)[LIST OF TABLES]
 #v(1cm)
 #outline(title: none, target: figure.where(kind: table))
-'@
+"
 
-New-FileWithContent -Path "frontmatter\list-of-tables.typ" -Content $lotTyp
-
-$abbreviationsTyp = @'
+new_file_with_content "frontmatter/abbreviations.typ" "
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
@@ -897,11 +860,9 @@ $abbreviationsTyp = @'
   ..data.abbreviations.flatten()
 )
 #pagebreak()
-'@
+"
 
-New-FileWithContent -Path "frontmatter\abbreviations.typ" -Content $abbreviationsTyp
-
-$innerCoverTyp = @'
+new_file_with_content "frontmatter/inner-cover.typ" "
 #import "../info.typ": *
 #import "../template/i18n.typ": term
 
@@ -972,28 +933,19 @@ $innerCoverTyp = @'
     ]
   ]
 }
-'@
+"
 
-New-FileWithContent -Path "frontmatter\inner-cover.typ" -Content $innerCoverTyp
+write_section_header "Creating Chapter Structure"
 
-# ============================================================================
-# CREATE: Chapter structure
-# ============================================================================
-
-Write-SectionHeader "Creating Chapter Structure"
-
-$part1Intro = @'
+new_file_with_content "chapters/part1-introduction.typ" "
 #include "part1/01-context.typ"
 #include "part1/02-related-work.typ"
 #include "part1/03-objectives.typ"
 #include "part1/04-research-content.typ"
 #include "part1/05-thesis-outline.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part1-introduction.typ" -Content $part1Intro
-
-# Part 1 Chapter 1: Context
-$contextTyp = @'
+new_file_with_content "chapters/part1/01-context.typ" "
 == Context and Problem Statement
 
 In recent years, the rapid growth of e-commerce has transformed the retail industry. Traditional brick-and-mortar stores are increasingly moving online to reach a broader customer base. However, developing a robust e-commerce platform presents several challenges including inventory management, payment processing, and user experience optimization.
@@ -1003,12 +955,9 @@ The main problem addressed in this thesis is the lack of integrated solutions th
 This research focuses on designing and implementing a comprehensive e-commerce system using modern technologies such as ASP.NET Core, Vue.js, and PostgreSQL. The system aims to demonstrate best practices in software architecture, including microservices, API gateway patterns, and responsive user interfaces.
 
 According to recent studies @example2023, the global e-commerce market is expected to reach \$6.3 trillion by 2024, highlighting the importance of robust online retail solutions.
-'@
+"
 
-New-FileWithContent -Path "chapters\part1\01-context.typ" -Content $contextTyp
-
-# Part 1 Chapter 2: Related Work  
-$relatedWorkTyp = @'
+new_file_with_content "chapters/part1/02-related-work.typ" "
 == Related Work
 
 Several e-commerce platforms have been developed in both academic and commercial contexts. This section reviews existing solutions and identifies gaps that this thesis addresses.
@@ -1033,12 +982,9 @@ Recent academic work has explored various aspects of e-commerce systems:
 === Research Gap
 
 Despite these contributions, there remains a need for open-source, educational e-commerce platforms that demonstrate modern software engineering practices while maintaining production-ready quality. This thesis fills this gap by providing a comprehensive reference implementation.
-'@
+"
 
-New-FileWithContent -Path "chapters\part1\02-related-work.typ" -Content $relatedWorkTyp
-
-# Part 1 Chapter 3: Objectives
-$objectivesTyp = @'
+new_file_with_content "chapters/part1/03-objectives.typ" "
 == Objectives and Scope
 
 === Primary Objectives
@@ -1079,12 +1025,9 @@ Upon completion, this thesis will deliver:
 - Comprehensive technical documentation
 - Performance evaluation results
 - Best practices guide for similar projects
-'@
+"
 
-New-FileWithContent -Path "chapters\part1\03-objectives.typ" -Content $objectivesTyp
-
-# Part 1 Chapter 4: Research Content
-$researchContentTyp = @'
+new_file_with_content "chapters/part1/04-research-content.typ" "
 == Research Content
 
 === Research Methodology
@@ -1110,7 +1053,7 @@ Performance testing and usability studies to validate the proposed solution.
 The technical approach consists of several key components:
 
 *Backend Architecture*:
-- ASP.NET Core 8.0 for REST APIs
+- ASP.NET Core 10.0 for REST APIs
 - Entity Framework Core for data access
 - PostgreSQL with pgvector for database
 - FastAPI for machine learning services
@@ -1136,12 +1079,9 @@ The development is structured in phases:
 3. Frontend implementation
 4. Integration and testing
 5. Deployment and documentation
-'@
+"
 
-New-FileWithContent -Path "chapters\part1\04-research-content.typ" -Content $researchContentTyp
-
-# Part 1 Chapter 5: Outline
-$outlineTyp = @'
+new_file_with_content "chapters/part1/05-thesis-outline.typ" "
 == Thesis Outline
 
 This thesis is organized into three main parts:
@@ -1187,24 +1127,23 @@ Summarizes findings and discusses future directions:
 - Limitations and challenges
 - Recommendations for future work
 - Final remarks
-'@
+"
 
-New-FileWithContent -Path "chapters\part1\05-thesis-outline.typ" -Content $outlineTyp
+new_file_with_content "chapters/part2-content.typ" "
+#include "part2/chapter1-background.typ"
+#include "part2/chapter2-design.typ"
+#include "part2/chapter3-testing.typ"
+"
 
-New-FileWithContent -Path "chapters\part2-content.typ" -Content $part2Content
-
-# Chapter 1: Background
-$chapter1Main = @'
+new_file_with_content "chapters/part2/chapter1-background.typ" "
 = CHAPTER 1: BACKGROUND AND RELATED WORK <chap1>
 
 #include "chapter1/01-background-intro.typ"
 #include "chapter1/02-technologies.typ"
 #include "chapter1/03-architecture-patterns.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter1-background.typ" -Content $chapter1Main
-
-$chapter1Intro = @'
+new_file_with_content "chapters/part2/chapter1/01-background-intro.typ" "
 == Introduction to E-Commerce Systems
 
 E-commerce, or electronic commerce, refers to the buying and selling of goods and services over the internet. The evolution of e-commerce has dramatically changed consumer behavior and business operations globally.
@@ -1224,11 +1163,9 @@ A modern e-commerce system typically consists of:
 5. *User Management*: Authentication, authorization, and profile management
 
 These components work together to provide a complete e-commerce solution.
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter1\01-background-intro.typ" -Content $chapter1Intro
-
-$chapter1Tech = @'
+new_file_with_content "chapters/part2/chapter1/02-technologies.typ" "
 == Technology Stack Overview
 
 This section describes the technologies used in the implementation.
@@ -1237,7 +1174,7 @@ This section describes the technologies used in the implementation.
 
 The backend is built using modern .NET technologies:
 
-==== ASP.NET Core 8.0
+==== ASP.NET Core 10.0
 
 ASP.NET Core provides a high-performance, cross-platform framework for building web APIs. Key features include:
 
@@ -1313,11 +1250,9 @@ async def extract_features(image: UploadFile):
     features = model.predict(img_array)
     return {"features": features.tolist()}
 ```
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter1\02-technologies.typ" -Content $chapter1Tech
-
-$chapter1Patterns = @'
+new_file_with_content "chapters/part2/chapter1/03-architecture-patterns.typ" "
 == Architecture Patterns
 
 === Microservices Architecture
@@ -1385,23 +1320,18 @@ Performance metrics are shown in @tab-gateway-performance:
 ) <tab-gateway-performance>
 
 The overhead is minimal (< 7%) while providing routing, load balancing, and centralized authentication.
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter1\03-architecture-patterns.typ" -Content $chapter1Patterns
-
-# Chapter 2: Design and Implementation
-$chapter2Main = @'
+new_file_with_content "chapters/part2/chapter2-design.typ" "
 = CHAPTER 2: DESIGN AND IMPLEMENTATION <chap2>
 
 #include "chapter2/01-overview.typ"
 #include "chapter2/02-database-design.typ"
 #include "chapter2/03-api-implementation.typ"
 #include "chapter2/04-frontend.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter2-design.typ" -Content $chapter2Main
-
-$chapter2Overview = @'
+new_file_with_content "chapters/part2/chapter2/01-overview.typ" "
 == System Overview
 
 The system architecture follows a three-tier design:
@@ -1446,11 +1376,9 @@ services:
     ports:
       - "8080:8080"
 ```
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter2\01-overview.typ" -Content $chapter2Overview
-
-$chapter2Database = @'
+new_file_with_content "chapters/part2/chapter2/02-database-design.typ" "
 == Database Design
 
 The database schema follows normalization principles up to 3NF.
@@ -1537,11 +1465,9 @@ Query performance comparison is shown in @tab-query-performance:
   ),
   caption: [Query Performance with Indexing]
 ) <tab-query-performance>
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter2\02-database-design.typ" -Content $chapter2Database
-
-$chapter2API = @'
+new_file_with_content "chapters/part2/chapter2/03-api-implementation.typ" "
 == API Design and Implementation
 
 The REST API follows OpenAPI 3.0 specifications.
@@ -1630,11 +1556,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 ```
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter2\03-api-implementation.typ" -Content $chapter2API
-
-$chapter2Frontend = @'
+new_file_with_content "chapters/part2/chapter2/04-frontend.typ" "
 == Frontend Implementation
 
 The frontend uses Vue.js 3 with the Composition API and TypeScript.
@@ -1645,19 +1569,19 @@ The application follows a component-based architecture:
 
 ```
 src/
-├── components/
-│   ├── ProductCard.vue
-│   ├── ShoppingCart.vue
-│   └── OrderSummary.vue
-├── views/
-│   ├── ProductList.vue
-│   ├── ProductDetail.vue
-│   └── Checkout.vue
-├── stores/
-│   ├── cart.ts
-│   └── auth.ts
-└── services/
-    └── api.ts
+â”œâ”€â”€ components/
+â”‚   â”œâ”€â”€ ProductCard.vue
+â”‚   â”œâ”€â”€ ShoppingCart.vue
+â”‚   â””â”€â”€ OrderSummary.vue
+â”œâ”€â”€ views/
+â”‚   â”œâ”€â”€ ProductList.vue
+â”‚   â”œâ”€â”€ ProductDetail.vue
+â”‚   â””â”€â”€ Checkout.vue
+â”œâ”€â”€ stores/
+â”‚   â”œâ”€â”€ cart.ts
+â”‚   â””â”€â”€ auth.ts
+â””â”€â”€ services/
+    â””â”€â”€ api.ts
 ```
 
 === Sample Component
@@ -1755,22 +1679,17 @@ Build size comparison:
   ),
   caption: [Bundle Size Optimization Results]
 ) <tab-bundle-size>
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter2\04-frontend.typ" -Content $chapter2Frontend
-
-# Chapter 3: Testing
-$chapter3Main = @'
+new_file_with_content "chapters/part2/chapter3-testing.typ" "
 = CHAPTER 3: TESTING AND EVALUATION <chap3>
 
 #include "chapter3/01-testing-goal.typ"
 #include "chapter3/02-unit-tests.typ"
 #include "chapter3/03-performance.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter3-testing.typ" -Content $chapter3Main
-
-$chapter3Goals = @'
+new_file_with_content "chapters/part2/chapter3/01-testing-goal.typ" "
 == Testing Methodology
 
 A comprehensive testing strategy ensures system reliability and performance.
@@ -1805,11 +1724,9 @@ Target coverage metrics:
   ),
   caption: [Code Coverage Targets and Results]
 ) <tab-coverage>
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter3\01-testing-goal.typ" -Content $chapter3Goals
-
-$chapter3Unit = @'
+new_file_with_content "chapters/part2/chapter3/02-unit-tests.typ" "
 == Unit and Integration Tests
 
 === Backend Unit Tests
@@ -1915,11 +1832,9 @@ public class ProductsApiTests : IClassFixture<WebApplicationFactory<Program>>
     }
 }
 ```
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter3\02-unit-tests.typ" -Content $chapter3Unit
-
-$chapter3Perf = @'
+new_file_with_content "chapters/part2/chapter3/03-performance.typ" "
 == Performance Testing and Results
 
 === Load Testing Methodology
@@ -2024,32 +1939,20 @@ User satisfaction ratings:
   ),
   caption: [User Satisfaction Ratings]
 ) <tab-satisfaction>
-'@
+"
 
-New-FileWithContent -Path "chapters\part2\chapter3\03-performance.typ" -Content $chapter3Perf
-
-# Define Part 2 Content Structure
-$part2Content = @'
+new_file_with_content "chapters/part2-content.typ" "
 #include "part2/chapter1-background.typ"
 #include "part2/chapter2-design.typ"
 #include "part2/chapter3-testing.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part2-content.typ" -Content $part2Content
-
-# ============================================================================
-# PART 3: CONCLUSION
-# ============================================================================
-
-$part3Conclusion = @'
+new_file_with_content "chapters/part3-conclusion.typ" "
 #include "part3/01-conclusion.typ"
 #include "part3/02-future-work.typ"
-'@
+"
 
-New-FileWithContent -Path "chapters\part3-conclusion.typ" -Content $part3Conclusion
-
-# Part 3 Chapter 1: Conclusion
-$conclusionTyp = @'
+new_file_with_content "chapters/part3/01-conclusion.typ" "
 == I. CONCLUSION
 
 This thesis presented the design and implementation of a comprehensive e-commerce platform using modern web technologies. The project successfully achieved its stated objectives and demonstrated the practical application of contemporary software engineering principles.
@@ -2137,12 +2040,9 @@ This thesis demonstrates that modern e-commerce platforms can be built with:
 - Extensible architecture (accommodating future requirements)
 
 The project validates that academic research projects can produce practically viable software systems while maintaining rigorous engineering standards.
-'@
+"
 
-New-FileWithContent -Path "chapters\part3\01-conclusion.typ" -Content $conclusionTyp
-
-# Part 3 Chapter 2: Future Work
-$futureWorkTyp = @'
+new_file_with_content "chapters/part3/02-future-work.typ" "
 == II. FUTURE WORK
 
 While this thesis achieved its primary objectives, several areas present opportunities for future research and development.
@@ -2479,17 +2379,11 @@ Priority recommendations for immediate next steps:
    - Conduct comprehensive scalability research
 
 The combination of technical depth, practical implementation, and extensible design positions this work as both a completed thesis project and a launchpad for future innovations in e-commerce technology.
-'@
+"
 
-New-FileWithContent -Path "chapters\part3\02-future-work.typ" -Content $futureWorkTyp
+write_section_header "Creating Back Matter"
 
-# ============================================================================
-# CREATE: Back matter
-# ============================================================================
-
-Write-SectionHeader "Creating Back Matter"
-
-$bibliographyBib = @'
+new_file_with_content "backmatter/bibliography.bib" "
 @article{example2023,
   author = {Author Name},
   title = {Article Title},
@@ -2506,11 +2400,9 @@ $bibliographyBib = @'
   year = {2024},
   address = {City}
 }
-'@
+"
 
-New-FileWithContent -Path "backmatter\bibliography.bib" -Content $bibliographyBib
-
-$appendicesTyp = @'
+new_file_with_content "backmatter/appendices.typ" "
 #page[
   #set align(center)
   #text(size: 14pt, weight: "bold")[APPENDICES]
@@ -2528,23 +2420,17 @@ $appendicesTyp = @'
   
   [Include code samples if needed]
 ]
-'@
+"
 
-New-FileWithContent -Path "backmatter\appendices.typ" -Content $appendicesTyp
+write_section_header "Creating Project Documentation"
 
-# ============================================================================
-# CREATE: Project documentation
-# ============================================================================
-
-Write-SectionHeader "Creating Project Documentation"
-
-$readmeMd = @"
+new_file_with_content "README.md" "
 # CTU Graduation Thesis - Typst Template
 
 **Can Tho University** - College of Information and Communication Technology  
 **Format Compliant with**: CTU Guidelines 2025-2026
 
-## 🎓 Quick Start
+## ðŸŽ“ Quick Start
 
 ### Prerequisites
 - **Typst** CLI: Download from [https://github.com/typst/typst/releases](https://github.com/typst/typst/releases)
@@ -2564,46 +2450,46 @@ make          # Compile
 make watch    # Auto-recompile on changes
 ``````
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 ``````
-$ProjectName/
-├── info.typ                    # ⚙️ YOUR INFO HERE - Edit first!
-├── main.typ                    # 📄 Main document file
-│
-├── template/                   # Template system (don't edit)
-│   ├── ctu-styles.typ         # CTU formatting rules
-│   └── i18n.typ               # Bilingual support
-│
-├── frontmatter/                # Front matter pages
-│   ├── cover.typ              # Main cover page
-│   ├── inner-cover.typ        # Inner cover
-│   ├── abstract.typ           # Abstract (200-350 words)
-│   ├── acknowledgements.typ   # Thank you section
-│   ├── table-of-contents.typ  # Auto-generated TOC
-│   ├── list-of-figures.typ    # Auto-generated LOF
-│   ├── list-of-tables.typ     # Auto-generated LOT
-│   └── abbreviations.typ      # Abbreviations list
-│
-├── chapters/                   # 📝 YOUR CONTENT HERE
-│   ├── part1-introduction.typ # Part 1 container
-│   ├── part2-content.typ      # Part 2 container
-│   ├── part3-conclusion.typ   # Part 3 container
-│   ├── part1/                 # Introduction sections
-│   ├── part2/                 # Main chapters
-│   └── part3/                 # Conclusion sections
-│
-├── backmatter/                 # Back matter
-│   ├── bibliography.bib       # References (IEEE style)
-│   └── appendices.typ         # Appendices
-│
-└── images/                     # 🖼️ Your figures
-    ├── chapter1/
-    ├── chapter2/
-    └── chapter3/
+$PROJECT_NAME/
+â”œâ”€â”€ info.typ                    # âš™ï¸ YOUR INFO HERE - Edit first!
+â”œâ”€â”€ main.typ                    # ðŸ“„ Main document file
+â”‚
+â”œâ”€â”€ template/                   # Template system (don't edit)
+â”‚   â”œâ”€â”€ ctu-styles.typ         # CTU formatting rules
+â”‚   â””â”€â”€ i18n.typ               # Bilingual support
+â”‚
+â”œâ”€â”€ frontmatter/                # Front matter pages
+â”‚   â”œâ”€â”€ cover.typ              # Main cover page
+â”‚   â”œâ”€â”€ inner-cover.typ        # Inner cover
+â”‚   â”œâ”€â”€ abstract.typ           # Abstract (200-350 words)
+â”‚   â”œâ”€â”€ acknowledgements.typ   # Thank you section
+â”‚   â”œâ”€â”€ table-of-contents.typ  # Auto-generated TOC
+â”‚   â”œâ”€â”€ list-of-figures.typ    # Auto-generated LOF
+â”‚   â”œâ”€â”€ list-of-tables.typ     # Auto-generated LOT
+â”‚   â””â”€â”€ abbreviations.typ      # Abbreviations list
+â”‚
+â”œâ”€â”€ chapters/                   # ðŸ“ YOUR CONTENT HERE
+â”‚   â”œâ”€â”€ part1-introduction.typ # Part 1 container
+â”‚   â”œâ”€â”€ part2-content.typ      # Part 2 container
+â”‚   â”œâ”€â”€ part3-conclusion.typ   # Part 3 container
+â”‚   â”œâ”€â”€ part1/                 # Introduction sections
+â”‚   â”œâ”€â”€ part2/                 # Main chapters
+â”‚   â””â”€â”€ part3/                 # Conclusion sections
+â”‚
+â”œâ”€â”€ backmatter/                 # Back matter
+â”‚   â”œâ”€â”€ bibliography.bib       # References (IEEE style)
+â”‚   â””â”€â”€ appendices.typ         # Appendices
+â”‚
+â””â”€â”€ images/                     # ðŸ–¼ï¸ Your figures
+    â”œâ”€â”€ chapter1/
+    â”œâ”€â”€ chapter2/
+    â””â”€â”€ chapter3/
 ``````
 
-## ✏️ How to Write
+## âœï¸ How to Write
 
 ### 1. Edit Your Information
 Open ``info.typ`` and update:
@@ -2658,7 +2544,7 @@ Edit ``backmatter/bibliography.bib``:
 
 Cite in text: ``@smith2023``
 
-## 📐 CTU Format Compliance
+## ðŸ“ CTU Format Compliance
 
 This template follows **Can Tho University** official guidelines:
 
@@ -2674,7 +2560,7 @@ This template follows **Can Tho University** official guidelines:
 | Keywords | 3-5 keywords |
 | Citation Style | IEEE |
 
-## 🌐 Language Support
+## ðŸŒ Language Support
 
 - **English** (default)
 - **Vietnamese**
@@ -2684,7 +2570,7 @@ Change in ``info.typ``:
 primary_lang: "vi"  // or "en"
 ``````
 
-## 🆘 Troubleshooting
+## ðŸ†˜ Troubleshooting
 
 ### Typst not found?
 Install from: https://github.com/typst/typst/releases
@@ -2696,7 +2582,7 @@ Check for syntax errors in your ``.typ`` files.
 - Ensure image paths are correct
 - Use relative paths: ``../images/...``
 
-## 📚 Resources
+## ðŸ“š Resources
 
 - **Typst Docs**: https://typst.app/docs
 - **CTU Guidelines**: Check with your department
@@ -2704,15 +2590,12 @@ Check for syntax errors in your ``.typ`` files.
 
 ---
 
-**Good luck with your thesis!** 🎓
+**Good luck with your thesis!** ðŸŽ“
 
 Generated by CTU Thesis Generator v2.0
-"@
+"
 
-New-FileWithContent -Path "README.md" -Content $readmeMd
-
-# Create .gitignore
-$gitignore = @'
+new_file_with_content ".gitignore" "
 # Typst output
 *.pdf
 
@@ -2741,12 +2624,9 @@ ehthumbs.db
 .DS_Store
 .AppleDouble
 .LSOverride
-'@
+"
 
-New-FileWithContent -Path ".gitignore" -Content $gitignore
-
-# Create Makefile (PowerShell-compatible comments)
-$makefile = @'
+new_file_with_content "Makefile" "
 .PHONY: all watch clean help
 
 all:
@@ -2763,12 +2643,9 @@ help:
 	@echo   make         - Compile thesis
 	@echo   make watch   - Watch and auto-compile
 	@echo   make clean   - Remove PDF
-'@
+"
 
-New-FileWithContent -Path "Makefile" -Content $makefile
-
-# Create PowerShell build script
-$buildPs1 = @'
+new_file_with_content "build.ps1" "
 # CTU Thesis Build Script for PowerShell
 
 param(
@@ -2779,40 +2656,33 @@ param(
 
 switch ($Action) {
     "build" {
-        Write-Host "🔨 Compiling thesis..." -ForegroundColor Cyan
+        Write-Host "ðŸ”¨ Compiling thesis..." -ForegroundColor Cyan
         typst compile main.typ thesis.pdf
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✅ Compilation successful! Output: thesis.pdf" -ForegroundColor Green
+            Write-Host "âœ… Compilation successful! Output: thesis.pdf" -ForegroundColor Green
         } else {
-            Write-Host "❌ Compilation failed!" -ForegroundColor Red
+            Write-Host "âŒ Compilation failed!" -ForegroundColor Red
         }
     }
     "watch" {
-        Write-Host "👀 Watching for changes..." -ForegroundColor Cyan
+        Write-Host "ðŸ‘€ Watching for changes..." -ForegroundColor Cyan
         Write-Host "Press Ctrl+C to stop" -ForegroundColor Yellow
         typst watch main.typ thesis.pdf
     }
     "clean" {
         if (Test-Path "thesis.pdf") {
             Remove-Item "thesis.pdf"
-            Write-Host "✅ Cleaned: thesis.pdf removed" -ForegroundColor Green
+            Write-Host "âœ… Cleaned: thesis.pdf removed" -ForegroundColor Green
         } else {
-            Write-Host "ℹ️  Nothing to clean" -ForegroundColor Gray
+            Write-Host "â„¹ï¸  Nothing to clean" -ForegroundColor Gray
         }
     }
 }
-'@
+"
 
-New-FileWithContent -Path "build.ps1" -Content $buildPs1
+write_section_header "Finalization"
 
-# ============================================================================
-# FINALIZATION
-# ============================================================================
-
-Write-SectionHeader "Finalization"
-
-# Create a quick start guide
-$quickStartMd = @"
+new_file_with_content "QUICKSTART.md" "
 # Quick Start Guide - CTU Thesis
 
 ## Step 1: Install Typst
@@ -2843,68 +2713,55 @@ Navigate to ``chapters/part1/01-context.typ`` and begin writing.
 - Add images to ``images/`` folders
 - Update ``backmatter/bibliography.bib`` as you research
 
-Happy writing! 🎓
-"@
+Happy writing! ðŸŽ“
+"
 
-New-FileWithContent -Path "QUICKSTART.md" -Content $quickStartMd
+cd ..
 
-Pop-Location
+write_section_header "âœ¨ Project Created Successfully!"
+
+
+cd ..
 
 # ============================================================================
 # SUMMARY AND NEXT STEPS
 # ============================================================================
 
-Write-SectionHeader "✨ Project Created Successfully!"
+write_section_header "âœ¨ Project Created Successfully!"
 
-Write-Host ""
-Write-Host "📁 Project Location:" -ForegroundColor Cyan
-Write-Host "   $(Get-Location)\$ProjectName" -ForegroundColor White
-Write-Host ""
+echo ""
+echo -e "\033[36mðŸ“ Project Location:\033[0m"
+echo -e "   $(pwd)/$PROJECT_NAME"
+echo ""
 
-Write-Host "📊 Project Statistics:" -ForegroundColor Cyan
-$fileCount = (Get-ChildItem -Path $ProjectName -Recurse -File | Measure-Object).Count
-$dirCount = (Get-ChildItem -Path $ProjectName -Recurse -Directory | Measure-Object).Count
-Write-Host "   Files created: $fileCount" -ForegroundColor White
-Write-Host "   Directories: $dirCount" -ForegroundColor White
-Write-Host ""
+file_count=$(find "$PROJECT_NAME" -type f 2>/dev/null | wc -l)
+dir_count=$(find "$PROJECT_NAME" -type d 2>/dev/null | wc -l)
 
-Write-Host "🎯 Next Steps:" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "  1. " -ForegroundColor White -NoNewline
-Write-Host "cd $ProjectName" -ForegroundColor Green
-Write-Host ""
-Write-Host "  2. " -ForegroundColor White -NoNewline
-Write-Host "Edit info.typ with your personal information" -ForegroundColor Green
-Write-Host "     - Student name, ID, class" -ForegroundColor DarkGray
-Write-Host "     - Thesis title and advisor" -ForegroundColor DarkGray
-Write-Host "     - Keywords and abbreviations" -ForegroundColor DarkGray
-Write-Host ""
-Write-Host "  3. " -ForegroundColor White -NoNewline
-Write-Host "Compile your thesis:" -ForegroundColor Green
-Write-Host "     Option A: " -ForegroundColor DarkGray -NoNewline
-Write-Host ".\build.ps1" -ForegroundColor Cyan
-Write-Host "     Option B: " -ForegroundColor DarkGray -NoNewline
-Write-Host "typst compile main.typ" -ForegroundColor Cyan
-Write-Host "     Option C: " -ForegroundColor DarkGray -NoNewline
-Write-Host ".\build.ps1 watch" -ForegroundColor Cyan -NoNewline
-Write-Host " (auto-recompile)" -ForegroundColor DarkGray
-Write-Host ""
-Write-Host "  4. " -ForegroundColor White -NoNewline
-Write-Host "Start writing in chapters/part1/" -ForegroundColor Green
-Write-Host ""
+echo -e "\033[36mðŸ“Š Project Statistics:\033[0m"
+echo -e "   Files created: $file_count"
+echo -e "   Directories: $dir_count"
+echo ""
 
-Write-Host "📚 Documentation:" -ForegroundColor Cyan
-Write-Host "   - README.md      - Full documentation" -ForegroundColor White
-Write-Host "   - QUICKSTART.md  - Quick reference" -ForegroundColor White
-Write-Host ""
+echo -e "\033[33mðŸŽ¯ Next Steps:\033[0m"
+echo ""
+echo -e "  1. cd $PROJECT_NAME"
+echo ""
+echo -e "  2. Edit info.typ with your information"
+echo ""
+echo -e "  3. Compile your thesis:"
+echo -e "     ./build.sh"
+echo -e "     or: typst compile main.typ"
+echo ""
+echo -e "  4. Start writing in chapters/part1/"
+echo ""
 
-Write-Host "🎓 CTU Format Compliance:" -ForegroundColor Green
-Write-Host "   ✅ Times New Roman 13pt" -ForegroundColor White
-Write-Host "   ✅ Margins: Left 4cm, Others 2.5cm" -ForegroundColor White
-Write-Host "   ✅ Line spacing: 1.2 (main text)" -ForegroundColor White
-Write-Host "   ✅ Abstract: 200-350 words" -ForegroundColor White
-Write-Host "   ✅ IEEE citation style" -ForegroundColor White
-Write-Host ""
+echo -e "\033[32mðŸŽ“ CTU Format Compliance:\033[0m"
+echo -e "   âœ… Times New Roman 13pt"
+echo -e "   âœ… Margins: Left 4cm, Others 2.5cm"
+echo -e "   âœ… Line spacing: 1.2"
+echo -e "   âœ… Abstract: 200-350 words"
+echo -e "   âœ… IEEE citation style"
+echo ""
 
-Write-Host "Good luck with your thesis! 🎉" -ForegroundColor Magenta
-Write-Host ""
+echo -e "\033[35mGood luck with your thesis! ðŸŽ‰\033[0m"
+echo ""

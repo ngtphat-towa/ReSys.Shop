@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # ============================================================================
 # CTU THESIS PROJECT GENERATOR - LATEX EDITION (BASH)
@@ -29,11 +29,11 @@ write_section_header() {
 }
 
 write_success() {
-    echo -e "\033[32m✅ $1\033[0m"
+    echo -e "\033[32mâœ… $1\033[0m"
 }
 
 write_info() {
-    echo -e "\033[34m📝 $1\033[0m"
+    echo -e "\033[34mðŸ“ $1\033[0m"
 }
 
 new_file_with_content() {
@@ -97,14 +97,14 @@ done
 clear
 cat << "EOF"
 
-  ╔═══════════════════════════════════════════════════════════╗
-  ║                                                           ║
-  ║     🎓  CTU THESIS LATEX GENERATOR  🎓                    ║
-  ║                                                           ║
-  ║     Can Tho University - College of ICT                   ║
-  ║     LaTeX Template Generator                              ║
-  ║                                                           ║
-  ╚═══════════════════════════════════════════════════════════╝
+  â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+  â•‘                                                           â•‘
+  â•‘     ðŸŽ“  CTU THESIS LATEX GENERATOR  ðŸŽ“                    â•‘
+  â•‘                                                           â•‘
+  â•‘     Can Tho University - College of ICT                   â•‘
+  â•‘     LaTeX Template Generator                              â•‘
+  â•‘                                                           â•‘
+  â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 EOF
 
@@ -206,7 +206,7 @@ new_file_with_content "config.tex" "
 % Thesis Information
 \\newcommand{\\thesistitle}{$THESIS_TITLE}
 \\newcommand{\\thesisshorttitle}{Short Title for Headers}
-\\newcommand{\\thesisdate}{December 2025}
+\\newcommand{\\thesisdate}{January 2026}
 \\newcommand{\\thesislocation}{Can Tho}
 \\newcommand{\\thesisdegree}{Bachelor of Engineering}
 
@@ -757,7 +757,7 @@ The technical approach consists of several key components:
 
 \\textbf{Backend Architecture:}
 \\begin{itemize}
-    \\item ASP.NET Core 8.0 for REST APIs
+    \\item ASP.NET Core 10.0 for REST APIs
     \\item Entity Framework Core for data access
     \\item PostgreSQL with pgvector for database
     \\item FastAPI for machine learning services
@@ -1188,7 +1188,7 @@ new_file_with_content "README.md" "
 **Can Tho University** - College of Information and Communication Technology  
 **Format Compliant with**: CTU Guidelines 2025-2026
 
-## 🎓 Quick Start
+## ðŸŽ“ Quick Start
 
 ### Prerequisites
 - **LaTeX Distribution**: 
@@ -1225,30 +1225,30 @@ latexmk -pdf -pvc main.tex
 1. Upload all files to Overleaf
 2. Click \"Recompile\"
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 \`\`\`
 $PROJECT_NAME/
-├── main.tex                    # Main document
-├── config.tex                  # Configuration (EDIT THIS!)
-├── frontmatter/                # Front matter
-│   ├── cover.tex
-│   ├── inner-cover.tex
-│   ├── evaluation.tex
-│   ├── acknowledgements.tex
-│   ├── abbreviations.tex
-│   └── abstract.tex
-├── chapters/                   # Your content
-│   ├── part1/                  # Introduction
-│   ├── part2/                  # Main content
-│   └── part3/                  # Conclusion
-├── backmatter/                 # References & appendices
-│   ├── references.bib
-│   └── appendices.tex
-└── images/                     # Your figures
+â”œâ”€â”€ main.tex                    # Main document
+â”œâ”€â”€ config.tex                  # Configuration (EDIT THIS!)
+â”œâ”€â”€ frontmatter/                # Front matter
+â”‚   â”œâ”€â”€ cover.tex
+â”‚   â”œâ”€â”€ inner-cover.tex
+â”‚   â”œâ”€â”€ evaluation.tex
+â”‚   â”œâ”€â”€ acknowledgements.tex
+â”‚   â”œâ”€â”€ abbreviations.tex
+â”‚   â””â”€â”€ abstract.tex
+â”œâ”€â”€ chapters/                   # Your content
+â”‚   â”œâ”€â”€ part1/                  # Introduction
+â”‚   â”œâ”€â”€ part2/                  # Main content
+â”‚   â””â”€â”€ part3/                  # Conclusion
+â”œâ”€â”€ backmatter/                 # References & appendices
+â”‚   â”œâ”€â”€ references.bib
+â”‚   â””â”€â”€ appendices.tex
+â””â”€â”€ images/                     # Your figures
 \`\`\`
 
-## ✏️ How to Write
+## âœï¸ How to Write
 
 ### 1. Edit Configuration
 Open \`config.tex\` and update:
@@ -1305,7 +1305,7 @@ Edit \`backmatter/references.bib\`:
 
 Cite in text: \`\\cite{smith2023}\`
 
-## 📐 CTU Format Compliance
+## ðŸ“ CTU Format Compliance
 
 | Requirement | Value |
 |-------------|-------|
@@ -1317,7 +1317,7 @@ Cite in text: \`\\cite{smith2023}\`
 | Abstract | 200-350 words |
 | Citation Style | IEEE |
 
-## 🆘 Troubleshooting
+## ðŸ†˜ Troubleshooting
 
 ### LaTeX not installed?
 - Windows: Download MiKTeX from https://miktex.org/
@@ -1334,7 +1334,7 @@ Cite in text: \`\\cite{smith2023}\`
 - Use relative paths: \`images/chapter1/...\`
 - Supported formats: PNG, JPG, PDF
 
-## 📚 Resources
+## ðŸ“š Resources
 
 - **LaTeX Documentation**: https://www.latex-project.org/help/documentation/
 - **Overleaf Tutorials**: https://www.overleaf.com/learn
@@ -1342,7 +1342,7 @@ Cite in text: \`\\cite{smith2023}\`
 
 ---
 
-**Good luck with your thesis!** 🎓
+**Good luck with your thesis!** ðŸŽ“
 
 Generated by CTU Thesis LaTeX Generator v1.0
 "
@@ -1407,24 +1407,24 @@ new_file_with_content "compile.sh" "
 
 case \"\${1:-build}\" in
     build)
-        echo \"🔨 Compiling LaTeX thesis...\"
+        echo \"ðŸ”¨ Compiling LaTeX thesis...\"
         latexmk -pdf main.tex
         if [ \$? -eq 0 ]; then
-            echo \"✅ Compilation successful! Output: main.pdf\"
+            echo \"âœ… Compilation successful! Output: main.pdf\"
         else
-            echo \"❌ Compilation failed!\"
+            echo \"âŒ Compilation failed!\"
         fi
         ;;
     watch)
-        echo \"👀 Watching for changes...\"
+        echo \"ðŸ‘€ Watching for changes...\"
         echo \"Press Ctrl+C to stop\"
         latexmk -pdf -pvc main.tex
         ;;
     clean)
-        echo \"🧹 Cleaning auxiliary files...\"
+        echo \"ðŸ§¹ Cleaning auxiliary files...\"
         latexmk -C
         rm -f *.aux *.bbl *.blg *.log *.out *.toc *.lof *.lot *.bcf *.run.xml
-        echo \"✅ Cleaned!\"
+        echo \"âœ… Cleaned!\"
         ;;
     *)
         echo \"Usage: \$0 {build|watch|clean}\"
@@ -1471,7 +1471,7 @@ Edit files in \`chapters/part1/\` and begin writing
 - Add images to \`images/\` folders
 - Update \`backmatter/references.bib\` as you research
 
-Happy writing! 🎓
+Happy writing! ðŸŽ“
 "
 
 cd ..
@@ -1480,22 +1480,22 @@ cd ..
 # SUMMARY
 # ============================================================================
 
-write_section_header "✨ LaTeX Project Created Successfully!"
+write_section_header "âœ¨ LaTeX Project Created Successfully!"
 
 echo ""
-echo -e "\033[36m📁 Project Location:\033[0m"
+echo -e "\033[36mðŸ“ Project Location:\033[0m"
 echo -e "   $(pwd)/$PROJECT_NAME"
 echo ""
 
 file_count=$(find "$PROJECT_NAME" -type f 2>/dev/null | wc -l)
 dir_count=$(find "$PROJECT_NAME" -type d 2>/dev/null | wc -l)
 
-echo -e "\033[36m📊 Project Statistics:\033[0m"
+echo -e "\033[36mðŸ“Š Project Statistics:\033[0m"
 echo -e "   Files created: $file_count"
 echo -e "   Directories: $dir_count"
 echo ""
 
-echo -e "\033[33m🎯 Next Steps:\033[0m"
+echo -e "\033[33mðŸŽ¯ Next Steps:\033[0m"
 echo ""
 echo -e "  1. cd $PROJECT_NAME"
 echo ""
@@ -1508,13 +1508,13 @@ echo ""
 echo -e "  4. Start writing in chapters/part1/"
 echo ""
 
-echo -e "\033[32m🎓 CTU Format Compliance:\033[0m"
-echo -e "   ✅ Times New Roman 13pt"
-echo -e "   ✅ Margins: Left 4cm, Others 2.5cm"
-echo -e "   ✅ Line spacing: 1.2"
-echo -e "   ✅ Abstract: 200-350 words"
-echo -e "   ✅ IEEE citation style"
+echo -e "\033[32mðŸŽ“ CTU Format Compliance:\033[0m"
+echo -e "   âœ… Times New Roman 13pt"
+echo -e "   âœ… Margins: Left 4cm, Others 2.5cm"
+echo -e "   âœ… Line spacing: 1.2"
+echo -e "   âœ… Abstract: 200-350 words"
+echo -e "   âœ… IEEE citation style"
 echo ""
 
-echo -e "\033[35mGood luck with your thesis! 🎉\033[0m"
+echo -e "\033[35mGood luck with your thesis! ðŸŽ‰\033[0m"
 echo ""
