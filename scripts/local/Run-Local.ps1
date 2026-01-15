@@ -318,30 +318,46 @@ function Start-ServiceByKey {
         }
         "ml" {
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
+                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/services/ReSys.ML; .\.venv\Scripts\activate; uvicorn src.main:app --host 0.0.0.0 --port 8000"
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/services/ReSys.ML; .\.venv\Scripts\activate; python src/main.py"
+                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/services/ReSys.ML; .\.venv\Scripts\activate; uvicorn src.main:app --host 0.0.0.0 --port 8000"
             }
         }
         "api" {
-            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=postgres"
+            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=password"
             $env:MlSettings__ServiceUrl = "http://localhost:8000"
+            $env:ASPNETCORE_URLS = "https://localhost:5001;http://localhost:5000"
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Api/ReSys.Api.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Api/ReSys.Api.csproj --launch-profile https" -WindowStyle Hidden
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Api/ReSys.Api.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Api/ReSys.Api.csproj --launch-profile https"
             }
         }
         "gateway" {
-            $env:ServiceEndpoints__ApiUrl = "https://localhost:5001/"
-            $env:ServiceEndpoints__MlUrl = "http://localhost:8000/"
+            # Service Endpoints for options
+            $env:ServiceEndpoints__ApiUrl = "https://localhost:5001"
+            $env:ServiceEndpoints__MlUrl = "http://localhost:8000"
+            $env:ServiceEndpoints__IdentityUrl = "https://localhost:7217"
+            $env:ServiceEndpoints__ShopUrl = "http://localhost:5174"
+            $env:ServiceEndpoints__AdminUrl = "http://localhost:5173"
+            $env:ASPNETCORE_URLS = "https://localhost:7073;http://localhost:5129"
+
+            # YARP Cluster Destination Overrides (Crucial for routing)
+            # Use HTTP for internal routing to avoid SSL handshake issues in local dev
+            ${env:ReverseProxy__Clusters__api-cluster__Destinations__destination1__Address} = "http://localhost:5000"
+            ${env:ReverseProxy__Clusters__ml-cluster__Destinations__destination1__Address} = "http://localhost:8000"
+            ${env:ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address} = "http://localhost:5074"
+            ${env:ReverseProxy__Clusters__shop-cluster__Destinations__destination1__Address} = "http://localhost:5174"
+            ${env:ReverseProxy__Clusters__admin-cluster__Destinations__destination1__Address} = "http://localhost:5173"
+
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj --launch-profile https" -WindowStyle Hidden
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Gateway/ReSys.Gateway.csproj --launch-profile https"
             }
         }
         "shop" {
+            $env:PORT = "5174"
             if ($Detached) {
                 Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/apps/ReSys.Shop; npm run dev"
             } else {
@@ -349,6 +365,7 @@ function Start-ServiceByKey {
             }
         }
         "admin" {
+            $env:PORT = "5173"
             if ($Detached) {
                 Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/apps/ReSys.Admin; npm run dev"
             } else {
@@ -356,11 +373,12 @@ function Start-ServiceByKey {
             }
         }
         "identity" {
-            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=postgres"
+            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=password"
+            $env:ASPNETCORE_URLS = "https://localhost:7217;http://localhost:5074"
             if ($Detached) {
-                Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "dotnet run --project src/services/ReSys.Identity/ReSys.Identity.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Identity/ReSys.Identity.csproj --launch-profile https" -WindowStyle Hidden
             } else {
-                Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; dotnet run --project src/services/ReSys.Identity/ReSys.Identity.csproj"
+                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Identity/ReSys.Identity.csproj --launch-profile https"
             }
         }
     }
@@ -399,7 +417,7 @@ function Stop-AllServices {
     docker-compose -f infrastructure/database/docker-compose.db.yml down 2>$null
     
     # Kill processes by window title
-    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App")
+    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App", "Identity Service")
     foreach ($title in $windowTitles) {
         $processes = Get-Process powershell -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq $title }
         if ($processes) {
@@ -409,7 +427,7 @@ function Stop-AllServices {
     }
     
     # Kill by port (fallback)
-    $ports = @(8000, 5001, 5002, 5173, 5174)
+    $ports = @(8000, 5001, 7073, 5174, 5173, 7217)
     foreach ($port in $ports) {
         $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
         if ($connection) {
@@ -433,7 +451,7 @@ function Get-ServiceStatus {
     Write-Host ""
     
     # Check Docker
-    $dockerRunning = docker ps --filter "name=postgres" --format "{{.Names}}" 2>$null
+    $dockerRunning = docker ps --filter "name=resys_shop_db" --format "{{.Names}}" 2>$null
     if ($dockerRunning) {
         Write-ServiceStatus -ServiceKey "db" -Status "Running" -Details "Container: $dockerRunning"
     } else {
@@ -444,18 +462,35 @@ function Get-ServiceStatus {
     $portChecks = @{
         "ml"      = 8000
         "api"     = 5001
-        "gateway" = 5002
-        "shop"    = 5173
-        "admin"   = 5174
-        "identity" = 5074
+        "gateway" = 7073
+        "shop"    = 5174
+        "admin"   = 5173
+        "identity" = 7217
     }
     
     foreach ($svc in $portChecks.Keys) {
         $port = $portChecks[$svc]
-        $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Where-Object State -eq "Listen"
+        $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -First 1
+        
+        # Fallback for API port 5000 if 5001 is not found
+        if (-not $connection -and $svc -eq "api") {
+            $connection = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($connection) { $port = 5000 }
+        }
+
+        # Fallback for Identity port 5074 if 7217 is not found
+        if (-not $connection -and $svc -eq "identity") {
+            $connection = Get-NetTCPConnection -LocalPort 5074 -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($connection) { $port = 5074 }
+        }
+
         if ($connection) {
-            $process = Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue
-            Write-ServiceStatus -ServiceKey $svc -Status "Running" -Details "Port $port (PID: $($connection.OwningProcess))"
+            if ($connection -eq "FoundViaNetstat") {
+                Write-ServiceStatus -ServiceKey $svc -Status "Running" -Details "Port $port (Detected via Netstat)"
+            } else {
+                $process = Get-Process -Id $connection.OwningProcess -ErrorAction SilentlyContinue
+                Write-ServiceStatus -ServiceKey $svc -Status "Running" -Details "Port $port (PID: $($connection.OwningProcess))"
+            }
         } else {
             Write-ServiceStatus -ServiceKey $svc -Status "Stopped"
         }

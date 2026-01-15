@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    ReSys.Shop Development Environment Setup
+    ReSys.Shop Development Environment Initialization
 .DESCRIPTION
     Sets up the local development environment:
     - Checks for .NET 10 SDK
@@ -55,7 +55,7 @@ if (-not (Get-Command "uv" -ErrorAction SilentlyContinue)) {
     Write-Success "Found uv"
 }
 
-$mlDir = Join-Path $PSScriptRoot "..\src\services\ReSys.ML"
+$mlDir = Join-Path $PSScriptRoot "..\..\src\services\ReSys.ML"
 Push-Location $mlDir
 try {
     if (-not (Test-Path ".venv")) {
@@ -86,7 +86,7 @@ Write-Step "Setting up Node.js apps..."
 
 $apps = @("ReSys.Shop", "ReSys.Admin")
 foreach ($app in $apps) {
-    $appDir = Join-Path $PSScriptRoot "..\src\apps\$app"
+    $appDir = Join-Path $PSScriptRoot "..\..\src\apps\$app"
     if (Test-Path $appDir) {
         Push-Location $appDir
         Write-Host "    Installing dependencies for $app..." -ForegroundColor Gray
@@ -103,4 +103,4 @@ foreach ($app in $apps) {
 
 Write-Host ""
 Write-Host "Setup Completed Successfully!" -ForegroundColor Green
-Write-Host "You can now run the application using: .\scripts\run-all-local.ps1" -ForegroundColor Gray
+Write-Host "You can now run the application using: .\scripts\local\Run-Local.ps1" -ForegroundColor Gray
