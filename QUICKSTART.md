@@ -1,93 +1,81 @@
 # ReSys.Shop - Quick Start Guide
 
-## 🚀 One-Command Startup
+## 🚀 One-Command Startup (Standalone)
 
 ```powershell
-# Start everything
-.\scripts\run-all-local.ps1
+# Start everything in background
+.\scripts\local\Run-Local.ps1 all -Detached
 
-# Interactive menu
-.\scripts\run-all-local.ps1 -Interactive
+# Check status
+.\scripts\local\Run-Local.ps1 -Action Status
 ```
 
 ---
 
 ## 📦 Common Development Stacks
 
-| Command | What it starts | Best for |
-|---------|---------------|----------|
-| `.\scripts\run-all-local.ps1 shop-full` | db, api, gateway, shop | Shop development |
-| `.\scripts\run-all-local.ps1 admin-full` | db, ml, api, gateway, admin | Admin + ML development |
-| `.\scripts\run-all-local.ps1 dev-api` | db, api | Backend API work |
-| `.\scripts\run-all-local.ps1 frontend` | shop, admin | Frontend only |
+| Command | Starts | Best for |
+|---------|--------|----------|
+| `.\scripts\local\Run-Local.ps1 shop-full` | db, identity, api, gateway, shop | Consumer Features |
+| `.\scripts\local\Run-Local.ps1 admin-full` | db, identity, ml, api, gateway, admin | Admin & AI Features |
+| `.\scripts\local\Run-Local.ps1 dev-api` | db, api | Backend logic only |
+| `.\scripts\local\Run-Local.ps1 frontend` | shop, admin | UI work only |
 
 ---
 
 ## 🎛️ Service Management
 
 ```powershell
-# Check what's running
-.\scripts\run-all-local.ps1 -Action Status
+# View health and PIDs
+.\scripts\local\Run-Local.ps1 -Action Status
 
-# Stop all services
-.\scripts\run-all-local.ps1 -Action Stop
+# Stop all processes
+.\scripts\local\Run-Local.ps1 -Action Stop
 
-# Restart
-.\scripts\run-all-local.ps1 shop-full -Action Restart
+# Forceful port cleanup (Emergency)
+.\scripts\local\Clear-Ports.ps1
 ```
 
 ---
 
-## 🔧 Custom Combinations
-
-```powershell
-# Mix and match with flags
-.\scripts\run-all-local.ps1 -Database -Api -Shop
-
-# Available flags:
-# -Database, -ML, -Api, -Gateway, -Shop, -Admin
-```
-
----
-
-## 📖 Full Documentation
-
-- **Detailed Guide**: `docs/RUNNING_GUIDE.md`
-- **Script Help**: `.\scripts\run-all-local.ps1 -Help`
-
----
-
-## 🌐 Default Ports
+## 🌐 Default Ports (Local Context)
 
 | Service | Port | URL |
 |---------|------|-----|
-| PostgreSQL | 5432 | localhost:5432 |
-| ML Service | 8000 | http://localhost:8000 |
-| Backend API | 5001 | https://localhost:5001 |
-| Gateway | 5002 | https://localhost:5002 |
-| Shop App | 5173 | http://localhost:5173 |
-| Admin App | 5174 | http://localhost:5174 |
+| **Gateway** | 7073 | https://localhost:7073 |
+| **Backend API** | 5001 | https://localhost:5001 |
+| **Identity Service** | 7217 | https://localhost:7217 |
+| **ML Service** | 8000 | http://localhost:8000 |
+| **Shop App** | 5174 | http://localhost:5174 |
+| **Admin App** | 5173 | http://localhost:5173 |
+| **PostgreSQL** | 5432 | localhost:5432 |
+
+---
+
+## 📖 Related Documentation
+
+- **Full Manual**: `scripts/local/README.md`
+- **Thesis Suite**: `scripts/thesis/README.md`
+- **Architecture**: `README.md`
 
 ---
 
 ## 🆘 Troubleshooting
 
-**Services not starting?**
+**Address already in use?**
+Use the "Scorched Earth" utility to kill all zombie listeners:
 ```powershell
-# Clean restart
-.\scripts\run-all-local.ps1 -Action Stop
-Start-Sleep -Seconds 2
-.\scripts\run-all-local.ps1 shop-full
+.\scripts\local\Clear-Ports.ps1
 ```
 
-**Port conflicts?**
+**Services crashing immediately?**
+Run without `-Detached` to see the live console logs:
 ```powershell
-# Check what's using ports
-.\scripts\run-all-local.ps1 -Action Status
+.\scripts\local\Run-Local.ps1 all
 ```
 
-**Preview changes?**
+**First time setup?**
+Ensure your machine has the required SDKs and dependencies:
 ```powershell
-# Dry run shows what would start
-.\scripts\run-all-local.ps1 shop-full -DryRun
+.\scripts\local\Initialize-Env.ps1
 ```
