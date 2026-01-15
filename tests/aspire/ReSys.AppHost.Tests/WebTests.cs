@@ -24,7 +24,7 @@ public class WebTests
 
         // Act & Assert
         // We wait for all core resources to reach the Running state
-        string[] resources = ["postgres", "api", "gateway", "shop", "admin", "identity", "ml"];
+        string[] resources = ["postgres", "api", "gateway", "shop", "admin", "ml"];
         
         foreach (var resource in resources)
         {

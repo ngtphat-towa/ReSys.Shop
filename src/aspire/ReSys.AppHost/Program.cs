@@ -48,13 +48,6 @@ var api = builder.AddProject<Projects.ReSys_Api>(ServiceNames.Api)
     .WaitFor(db)
     .WaitFor(ml);
 
-// Identity Service (.NET)
-var identity = builder.AddProject<Projects.ReSys_Identity>(ServiceNames.Identity)
-    .WithReference(db)
-    .WithExternalHttpEndpoints()
-    .WithHttpHealthCheck("/health")
-    .WaitFor(db);
-
 // --- 3. Frontend Applications ---
 
 // Shop App (Vue) - Polyglot support via AddJavaScriptApp
@@ -79,14 +72,12 @@ var admin = builder.AddJavaScriptApp(ServiceNames.Admin, "../../apps/ReSys.Admin
 // YARP Gateway
 builder.AddProject<Projects.ReSys_Gateway>(ServiceNames.Gateway)
     .WithReference(api)
-    .WithReference(identity)
     .WithReference(ml)
     .WithReference(shop)
     .WithReference(admin)
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WaitFor(api)
-    .WaitFor(identity)
     .WaitFor(ml)
     .WaitFor(shop)
     .WaitFor(admin);

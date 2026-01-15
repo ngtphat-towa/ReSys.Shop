@@ -5,12 +5,12 @@
     Flexible script to start/stop/manage local development services.
     Supports multiple run modes: Target presets, individual flags, and interactive mode.
 .EXAMPLE
-    .\run-all-local.ps1                         # Start all services
-    .\run-all-local.ps1 shop-full               # Start preset combination
-    .\run-all-local.ps1 -Db -Api -Gateway       # Start specific services via flags
-    .\run-all-local.ps1 -Interactive            # Interactive menu selection
-    .\run-all-local.ps1 -Action Stop            # Stop all running services
-    .\run-all-local.ps1 -Action Status          # Check service status
+    .\Run-Local.ps1                         # Start all services
+    .\Run-Local.ps1 shop-full               # Start preset combination
+    .\Run-Local.ps1 -Db -Api -Gateway       # Start specific services via flags
+    .\Run-Local.ps1 -Interactive            # Interactive menu selection
+    .\Run-Local.ps1 -Action Stop            # Stop all running services
+    .\Run-Local.ps1 -Action Status          # Check service status
 #>
 
 [CmdletBinding(DefaultParameterSetName = 'Target')]
@@ -21,7 +21,7 @@ param(
         "all", "db", "ml", "api", "gateway", "apps", 
         "backend", "frontend", "services", "infrastructure", 
         "dev-api", "ui-test", "shop-full", "admin-full", 
-        "core-logic", "web-no-ml", "external-db", "identity"
+        "core-logic", "web-no-ml", "external-db"
     )]
     [string]$Target,
 
@@ -43,9 +43,6 @@ param(
     
     [Parameter(ParameterSetName = 'Flags')]
     [switch]$Admin,
-
-    [Parameter(ParameterSetName = 'Flags')]
-    [switch]$Identity,
 
     # --- Interactive Mode ---
     [Parameter(ParameterSetName = 'Interactive')]
@@ -102,19 +99,13 @@ $script:ServiceDefinitions = @{
         WindowTitle = "Admin App"
         Type        = "Node"
     }
-    "identity" = @{
-        Name        = "Identity Service (.NET)"
-        Color       = "Cyan"
-        WindowTitle = "Identity Service"
-        Type        = "DotNet"
-    }
 }
 
 # --- Preset Combinations ---
 $script:Presets = @{
-    "all"            = @("db", "ml", "api", "gateway", "shop", "admin", "identity")
-    "shop-full"      = @("db", "api", "gateway", "shop", "identity")
-    "admin-full"     = @("db", "ml", "api", "gateway", "admin", "identity")
+    "all"            = @("db", "ml", "api", "gateway", "shop", "admin")
+    "shop-full"      = @("db", "api", "gateway", "shop")
+    "admin-full"     = @("db", "ml", "api", "gateway", "admin")
     "core-logic"     = @("db", "ml", "api", "gateway")
     "web-no-ml"      = @("db", "api", "gateway", "shop", "admin")
     "external-db"    = @("ml", "api", "gateway", "shop", "admin")
@@ -176,9 +167,9 @@ function Write-ServiceStatus {
 function Show-Help {
     Write-Banner
     Write-Host "USAGE:" -ForegroundColor Yellow
-    Write-Host "  .\run-all-local.ps1 [Target] [Options]" -ForegroundColor White
-    Write-Host "  .\run-all-local.ps1 -Flags [Options]" -ForegroundColor White
-    Write-Host "  .\run-all-local.ps1 -Interactive" -ForegroundColor White
+    Write-Host "  .\Run-Local.ps1 [Target] [Options]" -ForegroundColor White
+    Write-Host "  .\Run-Local.ps1 -Flags [Options]" -ForegroundColor White
+    Write-Host "  .\Run-Local.ps1 -Interactive" -ForegroundColor White
     Write-Host ""
     
     Write-Host "PRESETS:" -ForegroundColor Yellow
@@ -218,11 +209,11 @@ function Show-Help {
     Write-Host ""
     
     Write-Host "EXAMPLES:" -ForegroundColor Yellow
-    Write-Host "  .\run-all-local.ps1                      # Start all" -ForegroundColor DarkGray
-    Write-Host "  .\run-all-local.ps1 shop-full            # Customer stack" -ForegroundColor DarkGray
-    Write-Host "  .\run-all-local.ps1 -Db -Api -Shop       # Specific services" -ForegroundColor DarkGray
-    Write-Host "  .\run-all-local.ps1 -Action Stop         # Stop all" -ForegroundColor DarkGray
-    Write-Host "  .\run-all-local.ps1 -Interactive         # Menu mode" -ForegroundColor DarkGray
+    Write-Host "  .\Run-Local.ps1                      # Start all" -ForegroundColor DarkGray
+    Write-Host "  .\Run-Local.ps1 shop-full            # Customer stack" -ForegroundColor DarkGray
+    Write-Host "  .\Run-Local.ps1 -Db -Api -Shop       # Specific services" -ForegroundColor DarkGray
+    Write-Host "  .\Run-Local.ps1 -Action Stop         # Stop all" -ForegroundColor DarkGray
+    Write-Host "  .\Run-Local.ps1 -Interactive         # Menu mode" -ForegroundColor DarkGray
     Write-Host ""
 }
 
@@ -337,7 +328,6 @@ function Start-ServiceByKey {
             # Service Endpoints for options
             $env:ServiceEndpoints__ApiUrl = "https://localhost:5001"
             $env:ServiceEndpoints__MlUrl = "http://localhost:8000"
-            $env:ServiceEndpoints__IdentityUrl = "https://localhost:7217"
             $env:ServiceEndpoints__ShopUrl = "http://localhost:5174"
             $env:ServiceEndpoints__AdminUrl = "http://localhost:5173"
             $env:ASPNETCORE_URLS = "https://localhost:7073;http://localhost:5129"
@@ -346,7 +336,6 @@ function Start-ServiceByKey {
             # Use HTTP for internal routing to avoid SSL handshake issues in local dev
             ${env:ReverseProxy__Clusters__api-cluster__Destinations__destination1__Address} = "http://localhost:5000"
             ${env:ReverseProxy__Clusters__ml-cluster__Destinations__destination1__Address} = "http://localhost:8000"
-            ${env:ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address} = "http://localhost:5074"
             ${env:ReverseProxy__Clusters__shop-cluster__Destinations__destination1__Address} = "http://localhost:5174"
             ${env:ReverseProxy__Clusters__admin-cluster__Destinations__destination1__Address} = "http://localhost:5173"
 
@@ -370,15 +359,6 @@ function Start-ServiceByKey {
                 Start-Process powershell -WindowStyle Hidden -ArgumentList "-Command", "cd src/apps/ReSys.Admin; npm run dev"
             } else {
                 Start-Process powershell -ArgumentList "-NoExit", "-Command", "`$Host.UI.RawUI.WindowTitle='$($def.WindowTitle)'; cd src/apps/ReSys.Admin; npm run dev"
-            }
-        }
-        "identity" {
-            $env:ConnectionStrings__shopdb = "Host=localhost;Database=shopdb;Username=postgres;Password=password"
-            $env:ASPNETCORE_URLS = "https://localhost:7217;http://localhost:5074"
-            if ($Detached) {
-                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Identity/ReSys.Identity.csproj --launch-profile https" -WindowStyle Hidden
-            } else {
-                Start-Process dotnet -ArgumentList "run --project src/services/ReSys.Identity/ReSys.Identity.csproj --launch-profile https"
             }
         }
     }
@@ -417,7 +397,7 @@ function Stop-AllServices {
     docker-compose -f infrastructure/database/docker-compose.db.yml down 2>$null
     
     # Kill processes by window title
-    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App", "Identity Service")
+    $windowTitles = @("ML Service", "Backend API", "Gateway", "Shop App", "Admin App")
     foreach ($title in $windowTitles) {
         $processes = Get-Process powershell -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq $title }
         if ($processes) {
@@ -427,7 +407,7 @@ function Stop-AllServices {
     }
     
     # Kill by port (fallback)
-    $ports = @(8000, 5001, 7073, 5174, 5173, 7217)
+    $ports = @(8000, 5001, 7073, 5174, 5173)
     foreach ($port in $ports) {
         $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
         if ($connection) {
@@ -465,7 +445,6 @@ function Get-ServiceStatus {
         "gateway" = 7073
         "shop"    = 5174
         "admin"   = 5173
-        "identity" = 7217
     }
     
     foreach ($svc in $portChecks.Keys) {
@@ -476,12 +455,6 @@ function Get-ServiceStatus {
         if (-not $connection -and $svc -eq "api") {
             $connection = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -First 1
             if ($connection) { $port = 5000 }
-        }
-
-        # Fallback for Identity port 5074 if 7217 is not found
-        if (-not $connection -and $svc -eq "identity") {
-            $connection = Get-NetTCPConnection -LocalPort 5074 -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($connection) { $port = 5074 }
         }
 
         if ($connection) {

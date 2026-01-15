@@ -30,7 +30,7 @@ When `Run-Local.ps1` starts a service, it injects environment variables that ove
 ### 🚀 `Run-Local.ps1`
 **Purpose**: The central orchestrator for starting and managing services.
 - **Argument Reference**:
-  - `[Target]`: Positional argument. Can be a **Preset** (`all`, `shop-full`, `admin-full`, `core-logic`, `backend`, `frontend`) or a **Service Name** (`db`, `ml`, `api`, `gateway`, `shop`, `admin`, `identity`).
+  - `[Target]`: Positional argument. Can be a **Preset** (`all`, `shop-full`, `admin-full`, `core-logic`, `backend`, `frontend`) or a **Service Name** (`db`, `ml`, `api`, `gateway`, `shop`, `admin`).
   - `-Action`: 
     - `Start`: Launches services.
     - `Stop`: Stops all project processes.
@@ -38,7 +38,7 @@ When `Run-Local.ps1` starts a service, it injects environment variables that ove
     - `Status`: Probes ports to verify health.
   - `-Detached`: Launches services in hidden windows. Logs are redirected internally (see `Debug-ServiceStartup.ps1`).
   - `-Interactive`: Launches a menu-driven selection mode.
-- **Internal Logic**: The script explicitly uses `--launch-profile https` for .NET services to ensure they bind to the correct ports (5001, 7217, 7073).
+- **Internal Logic**: The script explicitly uses `--launch-profile https` for .NET services to ensure they bind to the correct ports (5001, 7073).
 
 ### 🧹 `Clear-Ports.ps1`
 **Purpose**: Forceful cleanup of zombie processes.
@@ -57,11 +57,11 @@ When `Run-Local.ps1` starts a service, it injects environment variables that ove
 ### Standard Developer Loop
 1. **Reset Environment**: `.\scripts\local\Clear-Ports.ps1`
 2. **Start Services**: `.\scripts\local\Run-Local.ps1 all -Detached`
-3. **Verify Health**: `.\scripts\local\Run-Local.ps1 -Action Status` (Expect 7/7 services [OK]).
+3. **Verify Health**: `.\scripts\local\Run-Local.ps1 -Action Status` (Expect 6/6 services [OK]).
 
 ### Focused Feature Work
 If working only on the Shop frontend:
-1. `.\scripts\local\Run-Local.ps1 db,api,gateway,identity -Detached`
+1. `.\scripts\local\Run-Local.ps1 db,api,gateway -Detached`
 2. `.\scripts\local\Run-Local.ps1 shop` (Runs in foreground for Hot Module Replacement logs).
 
 ---
@@ -98,7 +98,6 @@ During the stabilization of this context, several complex issues were identified
 |---------|-------------|--------------|----------|
 | **PostgreSQL** | 5432 | - | TCP |
 | **Backend API** | 5000 | **5001** | HTTPS (Primary) |
-| **Identity Service** | 5074 | **7217** | HTTPS (Primary) |
 | **Gateway** | 5129 | **7073** | HTTPS (Primary) |
 | **ML Service** | 8000 | - | HTTP (FastAPI) |
 | **Shop App** | 5174 | - | Vite/Node |

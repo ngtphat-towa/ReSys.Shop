@@ -34,7 +34,4 @@ public sealed record ServiceEndpoints
 
     [Required, Url]
     public string AdminUrl { get; init; } = string.Empty;
-
-    [Required, Url]
-    public string IdentityUrl { get; init; } = string.Empty;
 }

@@ -56,7 +56,6 @@ Unlike traditional N-Tier architecture that groups code by technical role (Contr
 
 ### 2. The Backend (Logic)
 *   **ReSys.Api**: The engine of the project. Manages persistence, business rules, and external integrations.
-*   **ReSys.Identity**: A dedicated security service handling JWT issuance, Role-Based Access Control (RBAC), and user management.
 *   **ReSys.Gateway**: Powered by **Microsoft YARP**, it serves as the single point of entry, providing routing, SSL termination, and centralized health monitoring.
 
 ### 3. The AI Service (Intelligence)
@@ -75,7 +74,6 @@ Unlike traditional N-Tier architecture that groups code by technical role (Contr
 │   ├── services/               # Backend Microservices
 │   │   ├── ReSys.Api/          # Core Business API (.NET 10)
 │   │   ├── ReSys.Gateway/      # YARP Router & Entry Point
-│   │   ├── ReSys.Identity/     # Auth & Identity Authority
 │   │   └── ReSys.ML/           # Python AI Service
 │   ├── libs/                   # Shared Class Libraries
 │   │   ├── ReSys.Core/         # Business Logic (Common, Domain, Features)
@@ -98,11 +96,9 @@ Unlike traditional N-Tier architecture that groups code by technical role (Contr
 │   ├── libs/                   # Library Unit Tests
 │   │   ├── ReSys.Core.UnitTests # Logic & Behavior tests
 │   │   └── ReSys.Infrastructure.UnitTests # Client & DB tests
-│   ├── services/               # Microservice Tests
-│   │   ├── ReSys.Api.IntegrationTests # End-to-end API tests
-│   │   ├── ReSys.Api.UnitTests        # Controller & Middleware tests
-│   │   ├── ReSys.Identity.IntegrationTests
-│   │   └── ReSys.Identity.UnitTests
+    ├── services/               # Microservice Tests
+    │   ├── ReSys.Api.IntegrationTests # End-to-end API tests
+    │   └── ReSys.Api.UnitTests        # Controller & Middleware tests
 │   └── TestAssets/             # Mock files (images, data) for tests
 ├── docs/                       # Diagrams, guidelines & views
 └── ReSys.Shop.sln              # Solution Entry Point

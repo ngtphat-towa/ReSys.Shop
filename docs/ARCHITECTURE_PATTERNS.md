@@ -51,7 +51,7 @@ The current architecture follows the **API Orchestrator (BFF)** pattern. This wa
 
 ## 4. Why API Orchestrator is the Choice?
 
-1.  **Security:** .NET manages all Identity, JWT, and DB access. Python remains isolated.
+1.  **Security:** .NET manages all JWT and DB access. Python remains isolated.
 2.  **Observability:** Aspire/OpenTelemetry provides a single trace from Frontend to DB.
 3.  **Maintainability:** Changes in the PostgreSQL schema only affect the .NET layer.
 4.  **Stateless Python:** The ML service only cares about math (Embeddings), making it easy to replace or scale.

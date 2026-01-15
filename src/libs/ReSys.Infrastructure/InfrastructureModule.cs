@@ -25,15 +25,6 @@ public static class InfrastructureModule
         return services;
     }
 
-    /// <summary>
-    /// Adds only the infrastructure modules needed by the Identity service.
-    /// </summary>
-    public static IServiceCollection AddIdentityInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
-        return services
-            .AddNotifications(configuration);
-    }
-
     public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
     {
         Storage.StorageModule.AddStorage(services, configuration);
