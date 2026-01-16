@@ -19,8 +19,6 @@ using ReSys.Infrastructure.Notifications.Options;
 using ReSys.Infrastructure.Storage.Options;
 using ReSys.Infrastructure.Persistence;
 
-using EFCore.NamingConventions;
-
 using Npgsql;
 
 namespace ReSys.Api.IntegrationTests.TestInfrastructure;

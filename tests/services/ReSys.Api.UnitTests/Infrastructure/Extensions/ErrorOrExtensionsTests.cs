@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 using ReSys.Api.Infrastructure.Extensions;
 using ReSys.Shared.Models;
-using FluentAssertions;
-using Xunit;
 
 namespace ReSys.Api.UnitTests.Infrastructure.Extensions;
 
