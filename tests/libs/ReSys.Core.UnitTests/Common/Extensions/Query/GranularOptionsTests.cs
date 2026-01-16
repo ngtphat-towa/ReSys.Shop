@@ -1,8 +1,7 @@
-using ReSys.Core.Common.Data;
-using ReSys.Core.Common.Extensions;
 using ReSys.Shared.Models;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Domain.Testing.Examples;
+using ReSys.Core.Common.Extensions.Query;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

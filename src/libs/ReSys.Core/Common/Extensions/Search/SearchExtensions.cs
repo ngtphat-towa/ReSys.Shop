@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 
-namespace ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Query;
+
+namespace ReSys.Core.Common.Extensions.Search;
 
 /// <summary>
 /// Provides extension methods for global searching across multiple fields.

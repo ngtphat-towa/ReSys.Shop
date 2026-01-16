@@ -1,5 +1,7 @@
 using System.Reflection;
 
+using ReSys.Shared.Extensions;
+
 namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>

@@ -1,48 +1,36 @@
-using ErrorOr;
-
 using FluentValidation;
-
+using FluentValidation.Results;
 using MediatR;
-
-using ReSys.Shared.Helpers;
+using ErrorOr;
 
 namespace ReSys.Core.Common.Behaviors;
 
-public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
+public sealed class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null)
+    : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
     where TResponse : IErrorOr
 {
-    private readonly IEnumerable<IValidator<TRequest>> _validators = validators ?? Enumerable.Empty<IValidator<TRequest>>();
-
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
-        if (!_validators.Any())
+        if (validator is null)
         {
             return await next();
         }
 
-        var context = new ValidationContext<TRequest>(request);
+        ValidationResult validationResult = await validator.ValidateAsync(request, cancellationToken);
 
-        var validationResults = await Task.WhenAll(
-            _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
-
-        var failures = validationResults
-            .SelectMany(r => r.Errors)
-            .Where(f => f != null)
-            .ToList();
-
-        if (failures.Count == 0)
+        if (validationResult.IsValid)
         {
             return await next();
         }
 
-        var errors = failures
-            .ConvertAll(validationFailure => Error.Validation(
-                code: validationFailure.PropertyName.ToSnakeCase(),
-                description: validationFailure.ErrorMessage));
+        var errors = validationResult.Errors
+            .ConvertAll(error => Error.Validation(
+                code: error.PropertyName,
+                description: error.ErrorMessage));
 
         return (dynamic)errors;
     }

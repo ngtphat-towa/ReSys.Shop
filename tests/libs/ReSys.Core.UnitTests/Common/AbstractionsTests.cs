@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ReSys.Core.Domain.Common.Abstractions;
 
 namespace ReSys.Core.UnitTests.Common;

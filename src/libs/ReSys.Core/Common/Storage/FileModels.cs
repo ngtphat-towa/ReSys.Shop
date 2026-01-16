@@ -50,6 +50,6 @@ public sealed record FileUploadOptions(
     /// <summary>
     /// Gets the safely combined path string.
     /// </summary>
-    public string? GetPath() => 
+    public string? GetPath() =>
         Subdirectories?.Length > 0 ? string.Join("/", Subdirectories) : null;
 }

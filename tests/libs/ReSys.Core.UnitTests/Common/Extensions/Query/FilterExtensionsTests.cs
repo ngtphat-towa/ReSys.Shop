@@ -1,5 +1,5 @@
 using ReSys.Core.Domain.Testing.Examples;
-using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Filters;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

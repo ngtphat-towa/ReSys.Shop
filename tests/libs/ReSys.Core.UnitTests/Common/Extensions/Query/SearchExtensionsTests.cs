@@ -1,5 +1,5 @@
-using ReSys.Core.Common.Extensions;
 using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Search;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

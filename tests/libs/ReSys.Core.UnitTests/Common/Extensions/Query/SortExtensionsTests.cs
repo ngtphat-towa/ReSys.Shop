@@ -1,4 +1,4 @@
-using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Sort;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

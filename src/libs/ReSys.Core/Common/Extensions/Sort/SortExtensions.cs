@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 
-namespace ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Query;
+
+namespace ReSys.Core.Common.Extensions.Sort;
 
 /// <summary>
 /// Provides extension methods for dynamic sorting of IQueryable collections using property names.
@@ -17,19 +19,19 @@ public static class SortExtensions
         var param = Expression.Parameter(typeof(T), "x");
         Expression body = param;
         var type = typeof(T);
-        
+
         // Code Flow:
         // 1. Traverse property path (e.g., "Category.Name").
         // 2. Add null checks for navigation segments.
         // 3. Build the OrderBy or OrderByDescending call via Reflection.
-        
+
         foreach (var member in sortBy.Split('.'))
         {
             var property = QueryHelper.GetPropertyCaseInsensitive(type, member);
             if (property == null) return query;
 
             var nextBody = Expression.Property(body, property);
-            
+
             // Apply null-safe condition for navigation
             if (!type.IsValueType || Nullable.GetUnderlyingType(type) != null)
             {
@@ -43,7 +45,7 @@ public static class SortExtensions
             {
                 body = nextBody;
             }
-            
+
             type = property.PropertyType;
         }
 
@@ -85,7 +87,7 @@ public static class SortExtensions
             // 1. Detect direction
             var isDescending = trimmed.EndsWith(" desc", StringComparison.OrdinalIgnoreCase);
             var propertyName = isDescending ? trimmed.Substring(0, trimmed.Length - 5).Trim() : trimmed.Trim();
-            
+
             if (propertyName.EndsWith(" asc", StringComparison.OrdinalIgnoreCase))
             {
                 propertyName = propertyName.Substring(0, propertyName.Length - 4).Trim();
@@ -102,7 +104,7 @@ public static class SortExtensions
                 if (property == null) goto NextPart;
 
                 var nextBody = Expression.Property(body, property);
-                
+
                 if (!type.IsValueType || Nullable.GetUnderlyingType(type) != null)
                 {
                     var defaultVal = Expression.Constant(QueryHelper.GetDefault(property.PropertyType), property.PropertyType);
@@ -115,12 +117,12 @@ public static class SortExtensions
                 {
                     body = nextBody;
                 }
-                
+
                 type = property.PropertyType;
             }
 
             var lambda = Expression.Lambda(body, param);
-            
+
             // 3. Determine method (OrderBy vs ThenBy)
             string methodName;
             if (isFirst)
@@ -138,7 +140,7 @@ public static class SortExtensions
             orderedQuery = orderedQuery.Provider.CreateQuery<T>(resultExpression);
             isFirst = false;
 
-            NextPart:;
+        NextPart:;
         }
 
         return orderedQuery;

@@ -1,10 +1,9 @@
 using System.Linq.Expressions;
 using System.Text;
 
-using ReSys.Core.Common.Extensions.Query;
 using ReSys.Shared.Models;
 
-namespace ReSys.Core.Common.Data;
+namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>
 /// A fluent builder for constructing complex QueryOptions in a type-safe manner.
@@ -220,7 +219,7 @@ public class QueryBuilder<T>
     public bool IsValid(out List<string> errors)
     {
         errors = new List<string>();
-        
+
         // 1. Check Sort fields
         foreach (var sort in _sorts)
         {
@@ -338,7 +337,7 @@ public class QueryBuilder<T>
         if (value is bool b) return b.ToString().ToLower();
         if (value is DateTime dt) return dt.ToString("o");
         if (value is DateTimeOffset dto) return dto.ToString("o");
-        if (value is string s) return s; 
+        if (value is string s) return s;
         return value.ToString()!;
     }
 }

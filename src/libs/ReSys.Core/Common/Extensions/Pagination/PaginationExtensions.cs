@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using ReSys.Shared.Models;
 
-namespace ReSys.Core.Common.Extensions.Query;
+namespace ReSys.Core.Common.Extensions.Pagination;
 
 /// <summary>
 /// Provides extension methods for paginating IQueryable collections.

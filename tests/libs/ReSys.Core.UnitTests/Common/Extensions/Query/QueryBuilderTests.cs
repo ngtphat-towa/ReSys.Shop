@@ -1,5 +1,4 @@
-using ReSys.Core.Common.Data;
-using ReSys.Core.Common.Extensions;
+using ReSys.Core.Common.Extensions.Query;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.UnitTests.TestInfrastructure;
 

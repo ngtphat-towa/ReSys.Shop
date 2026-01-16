@@ -1,6 +1,8 @@
 using System.Linq.Expressions;
 
-namespace ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Query;
+
+namespace ReSys.Core.Common.Extensions.Filters;
 
 /// <summary>
 /// Provides extension methods for dynamic filtering of IQueryable collections using a string-based DSL.
@@ -27,7 +29,7 @@ public static class FilterExtensions
     {
         if (string.IsNullOrWhiteSpace(filterString)) return query;
 
-        try 
+        try
         {
             // Code Flow:
             // 1. Create a parameter 'x' representing the entity type T.
@@ -37,16 +39,16 @@ public static class FilterExtensions
             var param = Expression.Parameter(typeof(T), "x");
             var parser = new FilterParser<T>(filterString, param);
             var body = parser.Parse();
-            
+
             if (body == null) return query;
-            
+
             var lambda = Expression.Lambda<Func<T, bool>>(body, param);
             return query.Where(lambda);
         }
         catch (Exception)
         {
             // Silently fail and return original query if parsing fails to maintain system stability
-            return query; 
+            return query;
         }
     }
 
@@ -76,7 +78,7 @@ public static class FilterExtensions
                 if (left != null && right != null)
                     left = Expression.OrElse(left, right);
                 else
-                    left = left ?? right; 
+                    left = left ?? right;
             }
             return left;
         }
@@ -114,15 +116,15 @@ public static class FilterExtensions
         {
             SkipWhitespace();
             var start = _pos;
-            
+
             // Extract field name (supports nested paths like Category.Name)
             while (_pos < _input.Length && (char.IsLetterOrDigit(_input[_pos]) || _input[_pos] == '_' || _input[_pos] == '.')) _pos++;
             var field = _input.Substring(start, _pos - start);
-            
+
             if (string.IsNullOrEmpty(field)) return null;
 
             SkipWhitespace();
-            
+
             // Operator matching
             string? op = null;
             if (Match("!=")) op = "!=";
@@ -135,7 +137,7 @@ public static class FilterExtensions
             else if (Match("^")) op = "^";
             else if (Match("$")) op = "$";
             else if (Match("*")) op = "*";
-            
+
             if (op == null) return null;
 
             SkipWhitespace();
@@ -155,13 +157,13 @@ public static class FilterExtensions
                 }
                 else if (value.StartsWith("*"))
                 {
-                     op = "$";
-                     value = value.TrimStart('*');
+                    op = "$";
+                    value = value.TrimStart('*');
                 }
                 else if (value.EndsWith("*"))
                 {
-                     op = "^";
-                     value = value.TrimEnd('*');
+                    op = "^";
+                    value = value.TrimEnd('*');
                 }
             }
 
@@ -237,10 +239,10 @@ public static class FilterExtensions
                 var endsMethod = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
 
                 var propNotNull = Expression.NotEqual(expr, Expression.Constant(null, typeof(string)));
-                
+
                 var paramLower = Expression.Call(expr, toLowerMethod!);
                 var constLower = Expression.Constant(constExpr.Value?.ToString()?.ToLower(), typeof(string));
-                
+
                 Expression stringComp = null!;
                 switch (op)
                 {
@@ -252,7 +254,7 @@ public static class FilterExtensions
                     case "!=": stringComp = Expression.NotEqual(paramLower, constLower); break;
                     default: return null;
                 }
-                
+
                 comparison = Expression.AndAlso(propNotNull, stringComp);
             }
             else
@@ -275,7 +277,7 @@ public static class FilterExtensions
             {
                 return Expression.AndAlso(nullCheck, comparison);
             }
-            
+
             return comparison;
         }
 
@@ -285,29 +287,31 @@ public static class FilterExtensions
         /// </summary>
         private ConstantExpression? ParseConstant(string value, Type targetType)
         {
-             if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase))
-             {
-                 return Expression.Constant(null, targetType);
-             }
+            if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase))
+            {
+                return Expression.Constant(null, targetType);
+            }
 
-             var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-             try {
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+            try
+            {
                 if (underlyingType.IsEnum)
                 {
                     var val = Enum.Parse(underlyingType, value, true);
-                    return Expression.Constant(val, targetType); 
+                    return Expression.Constant(val, targetType);
                 }
-                if (underlyingType == typeof(DateTimeOffset)) 
+                if (underlyingType == typeof(DateTimeOffset))
                 {
                     var val = DateTimeOffset.Parse(value, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal);
                     return Expression.Constant(val, targetType);
                 }
-                if (underlyingType == typeof(Guid)) 
+                if (underlyingType == typeof(Guid))
                     return Expression.Constant(Guid.Parse(value), targetType);
 
                 var converted = Convert.ChangeType(value, underlyingType);
                 return Expression.Constant(converted, targetType);
-             } catch { return null; }
+            }
+            catch { return null; }
         }
     }
 }

@@ -1,9 +1,12 @@
 using System.Linq.Expressions;
 
-using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Filters;
+using ReSys.Core.Common.Extensions.Pagination;
+using ReSys.Core.Common.Extensions.Search;
+using ReSys.Core.Common.Extensions.Sort;
 using ReSys.Shared.Models;
 
-namespace ReSys.Core.Common.Extensions;
+namespace ReSys.Core.Common.Extensions.Query;
 
 /// <summary>
 /// Main entry point for applying QueryOptions and their granular components to IQueryable.
@@ -45,7 +48,7 @@ public static class QueryOptionExtensions
     /// Returns a PagedList result.
     /// </summary>
     public static async Task<PagedList<TDestination>> ApplyPagingAsync<TSource, TDestination>(
-        this IQueryable<TSource> query, 
+        this IQueryable<TSource> query,
         IPageOptions? options,
         Expression<Func<TSource, TDestination>> projection,
         CancellationToken cancellationToken = default)
@@ -93,7 +96,7 @@ public static class QueryOptionExtensions
         var result = query.ApplyQueryOptions(options);
         return await result.ToPagedListAsync(x => x, options.Page, options.PageSize, cancellationToken);
     }
-    
+
     /// <summary>
     /// Applies all QueryOptions (Filter, Search, Sort, Page) and executes asynchronously with projection.
     /// </summary>
@@ -104,8 +107,8 @@ public static class QueryOptionExtensions
         CancellationToken cancellationToken = default)
         where TSource : class
     {
-         if (options == null) return await query.ToPagedListAsync(projection, null, null, cancellationToken);
-         var result = query.ApplyQueryOptions(options);
-         return await result.ToPagedListAsync(projection, options.Page, options.PageSize, cancellationToken);
+        if (options == null) return await query.ToPagedListAsync(projection, null, null, cancellationToken);
+        var result = query.ApplyQueryOptions(options);
+        return await result.ToPagedListAsync(projection, options.Page, options.PageSize, cancellationToken);
     }
 }

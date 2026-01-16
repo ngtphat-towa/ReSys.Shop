@@ -1,4 +1,4 @@
-using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Common.Extensions.Pagination;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
