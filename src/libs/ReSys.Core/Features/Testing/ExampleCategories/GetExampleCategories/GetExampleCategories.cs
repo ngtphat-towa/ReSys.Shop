@@ -3,10 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Data;
-using ReSys.Core.Common.Extensions;
 using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Domain.Testing.ExampleCategories;
+using ReSys.Core.Common.Extensions.Query;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 

@@ -1,10 +1,10 @@
+using ReSys.Core.Domain.Common.Abstractions;
 using ReSys.Core.Domain.Testing.Examples;
 
 namespace ReSys.Core.Domain.Testing.ExampleCategories;
 
-public class ExampleCategory
+public class ExampleCategory : Entity
 {
-    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
 
