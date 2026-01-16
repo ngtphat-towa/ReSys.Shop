@@ -40,6 +40,9 @@ public static class CoreModule
             {
                 s.AddValidatorsFromAssembly(assembly);
             }
+
+            s.AddHttpContextAccessor();
+            s.AddScoped<ReSys.Shared.Models.Auth.IUserContext, ReSys.Core.Common.Services.Auth.UserContext>();
         });
 
         return services;

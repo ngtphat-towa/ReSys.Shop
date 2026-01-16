@@ -489,3 +489,6 @@ $RECYCLE.BIN/
 
 # Certificates
 *.pem
+
+# Migration temp files
+temp/

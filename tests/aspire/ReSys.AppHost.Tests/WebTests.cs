@@ -1,10 +1,9 @@
 using System.Net;
-using Aspire.Hosting;
+
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
+
 using Microsoft.Extensions.DependencyInjection;
-using FluentAssertions;
-using Xunit;
 
 namespace ReSys.AppHost.Tests;
 
