@@ -46,7 +46,7 @@ public static class PersistenceModule
         {
             var connectionString = configuration.GetConnectionString(connectionStringName);
 
-            s.TryAddSingleton<AuditableEntityInterceptor>();
+            s.TryAddScoped<AuditableEntityInterceptor>();
 
             s.AddDbContextPool<TDbContext>((sp, options) =>
             {

@@ -18,7 +18,9 @@
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.Extensions.WebEncoders" />
+    <PackageReference Include="Slugify.Core" />
   </ItemGroup>
 
 </Project>

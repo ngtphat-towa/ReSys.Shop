@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-
-using ReSys.Core.Domain.Common.Abtractions;
+using ReSys.Core.Domain.Common.Abstractions;
+using ReSys.Shared.Models.Auth;
 
 namespace ReSys.Infrastructure.Persistence.Interceptors;
 
-public class AuditableEntityInterceptor : SaveChangesInterceptor
+public class AuditableEntityInterceptor(IUserContext userContext) : SaveChangesInterceptor
 {
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
@@ -19,19 +19,35 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private static void UpdateEntities(DbContext? context)
+    private void UpdateEntities(DbContext? context)
     {
         if (context == null) return;
+
+        var now = DateTimeOffset.UtcNow;
+        var userId = userContext.UserId?.ToString() ?? "System";
 
         foreach (var entry in context.ChangeTracker.Entries<IAuditable>())
         {
             if (entry.State == EntityState.Added)
             {
-                if (entry.Property(nameof(IAuditable.CreatedAt)).CurrentValue == default)
-                {
-                    entry.Property(nameof(IAuditable.CreatedAt)).CurrentValue = DateTimeOffset.UtcNow;
-                }
+                entry.Entity.CreatedAt = now;
+                entry.Entity.CreatedBy = userId;
+            }
+
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.HasChangedOwnedEntities())
+            {
+                entry.Entity.UpdatedAt = now;
+                entry.Entity.UpdatedBy = userId;
             }
         }
     }
+}
+
+public static class Extensions
+{
+    public static bool HasChangedOwnedEntities(this Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry) =>
+        entry.References.Any(r => 
+            r.TargetEntry != null && 
+            r.TargetEntry.Metadata.IsOwned() && 
+            (r.TargetEntry.State == EntityState.Added || r.TargetEntry.State == EntityState.Modified));
 }
