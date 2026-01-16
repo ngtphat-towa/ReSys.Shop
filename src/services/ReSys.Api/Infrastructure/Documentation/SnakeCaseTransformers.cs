@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-using ReSys.Shared.Helpers;
+using ReSys.Shared.Extensions;
 
 namespace ReSys.Api.Infrastructure.Documentation;
 
@@ -21,7 +21,7 @@ public sealed class SnakeCaseOperationTransformer : IOpenApiOperationTransformer
                 // Name might be null
                 if (!string.IsNullOrEmpty(concreteParam.Name) && concreteParam.Name.Any(char.IsUpper))
                 {
-                    concreteParam.Name = NamingHelper.ToSnakeCase(concreteParam.Name);
+                    concreteParam.Name = concreteParam.Name.ToSnakeCase();
                 }
             }
         }
@@ -44,7 +44,7 @@ public sealed class SnakeCaseSchemaTransformer : IOpenApiSchemaTransformer
 
         foreach (var property in schema.Properties)
         {
-            var snakeCaseKey = NamingHelper.ToSnakeCase(property.Key);
+            var snakeCaseKey = property.Key.ToSnakeCase();
             snakeCaseProperties[snakeCaseKey] = property.Value;
         }
 

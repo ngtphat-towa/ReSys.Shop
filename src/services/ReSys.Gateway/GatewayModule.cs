@@ -1,8 +1,5 @@
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
-
-using ReSys.Core;
 using ReSys.Shared.Telemetry;
 
 using Serilog;

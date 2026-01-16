@@ -1,6 +1,5 @@
 using ErrorOr;
-
-using ReSys.Core.Common.Extensions;
+using ReSys.Shared.Extensions;
 using ReSys.Shared.Models;
 
 namespace ReSys.Api.Infrastructure.Extensions;

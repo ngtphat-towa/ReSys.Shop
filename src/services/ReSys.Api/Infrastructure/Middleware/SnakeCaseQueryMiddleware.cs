@@ -1,12 +1,14 @@
 using Microsoft.Extensions.Primitives;
-using ReSys.Shared.Helpers;
+
+using ReSys.Shared.Extensions;
 
 namespace ReSys.Api.Infrastructure.Middleware;
 
 /// <summary>
-/// Middleware to normalize query parameters from snake_case (e.g., page_size) 
-/// or lowercase (e.g., search) to PascalCase (e.g., PageSize, Search).
-/// This ensures ASP.NET Core's [AsParameters] binding works correctly with consistent naming.
+/// Middleware to convert all query string keys to snake_case.
+/// This allows frontend to use snake_case (e.g. ?user_id=1) and backend to potentially map it if needed,
+/// though strictly speaking .NET binds to PascalCase properties from snake_case query params automatically in newer versions or via attributes.
+/// However, if we want to normalize incoming query keys:
 /// </summary>
 public class SnakeCaseQueryMiddleware(RequestDelegate next)
 {
@@ -14,33 +16,15 @@ public class SnakeCaseQueryMiddleware(RequestDelegate next)
     {
         if (context.Request.Query.Count > 0)
         {
-            // 1. FAST SCAN: Check if any keys actually need normalization
-            // This avoids allocating a Dictionary for the happy path (already PascalCase keys)
-            bool needsNormalization = false;
+            var newQuery = new Dictionary<string, StringValues>();
             foreach (var key in context.Request.Query.Keys)
             {
-                // ToPascalCase is optimized to return the original string reference 
-                // if it's already PascalCase, so this check is very cheap (reference equality).
-                if (!ReferenceEquals(key, NamingHelper.ToPascalCase(key)))
-                {
-                    needsNormalization = true;
-                    break;
-                }
+                var newKey = key.ToSnakeCase();
+                newQuery[newKey] = context.Request.Query[key];
             }
 
-            // 2. SLOW PATH: Only allocate if we found something to fix
-            if (needsNormalization)
-            {
-                var normalizedQuery = new Dictionary<string, StringValues>(context.Request.Query.Count, StringComparer.Ordinal);
-                
-                foreach (var kvp in context.Request.Query)
-                {
-                    var pascalKey = NamingHelper.ToPascalCase(kvp.Key);
-                    normalizedQuery[pascalKey] = kvp.Value;
-                }
-                
-                context.Request.Query = new QueryCollection(normalizedQuery);
-            }
+            // Replace the query collection with the snake_cased one
+            context.Request.Query = new QueryCollection(newQuery);
         }
 
         await next(context);
