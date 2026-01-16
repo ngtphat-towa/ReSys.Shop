@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using EFCore.NamingConventions;
 
 using ReSys.Core.Common.Data;
 using ReSys.Shared.Telemetry;
@@ -48,7 +47,7 @@ public static class PersistenceModule
 
             s.TryAddScoped<AuditableEntityInterceptor>();
 
-            s.AddDbContextPool<TDbContext>((sp, options) =>
+            s.AddDbContext<TDbContext>((sp, options) =>
             {
                 var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
 
