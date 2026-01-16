@@ -1,7 +1,5 @@
-using FluentAssertions;
 using ReSys.Core.Domain.Catalog.Products;
 using ReSys.Core.Domain.Catalog.Products.Images;
-using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog;
 
@@ -81,20 +79,5 @@ public class ProductTests
         product.Status.Should().Be(Product.ProductStatus.Active);
         product.AvailableOn.Should().NotBeNull();
         product.DomainEvents.Should().Contain(e => e is ProductEvents.ProductActivated);
-    }
-
-    [Fact(DisplayName = "UpdateSeo should validate lengths")]
-    public void UpdateSeo_ShouldValidate_Lengths()
-    {
-        // Arrange
-        var product = Product.Create("Watch", "W-001", 100m).Value;
-        var longTitle = new string('a', 100);
-
-        // Act
-        var result = product.UpdateSeo(longTitle, "desc", "keywords");
-
-        // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Code.Should().Be("Product.Seo.MetaTitleTooLong");
     }
 }

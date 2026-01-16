@@ -41,7 +41,7 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
 
     public Variant? MasterVariant => Variants.FirstOrDefault(v => v.IsMaster);
 
-    private Product() { }
+    public Product() { }
 
     public static ErrorOr<Product> Create(
         string name, 
@@ -56,6 +56,7 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
 
         var product = new Product
         {
+            Id = Guid.NewGuid(),
             Name = name.Trim(),
             Presentation = name.Trim(),
             Slug = string.IsNullOrWhiteSpace(slug) ? name.ToSlug() : slug.ToSlug(),
@@ -73,9 +74,44 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
         return product;
     }
 
+    public ErrorOr<Success> UpdateDetails(string name, string? description)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return ProductErrors.NameRequired;
+        if (name.Length > ProductConstraints.NameMaxLength) return ProductErrors.NameTooLong;
+
+        Name = name.Trim();
+        Presentation = name.Trim();
+        Description = description?.Trim();
+        
+        RaiseDomainEvent(new ProductEvents.ProductUpdated(this));
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> UpdateSeo(string? metaTitle, string? metaDescription, string? metaKeywords)
+    {
+        if (metaTitle?.Length > ProductConstraints.Seo.MetaTitleMaxLength) 
+            return ProductErrors.Seo.MetaTitleTooLong;
+        
+        if (metaDescription?.Length > ProductConstraints.Seo.MetaDescriptionMaxLength) 
+            return ProductErrors.Seo.MetaDescriptionTooLong;
+
+        MetaTitle = metaTitle?.Trim();
+        MetaDescription = metaDescription?.Trim();
+        MetaKeywords = metaKeywords?.Trim();
+
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> SetSlug(string slug)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) return ProductErrors.InvalidSlug;
+        
+        Slug = slug.ToSlug();
+        return Result.Success;
+    }
+
     public ErrorOr<Success> SetPropertyValue(PropertyType propertyType, string value)
     {
-        // Business Rule: Ensure the property type is compatible or at least registered
         var existing = ProductProperties.FirstOrDefault(p => p.PropertyTypeId == propertyType.Id);
         if (existing != null)
         {
@@ -103,6 +139,28 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
         Status = ProductStatus.Active;
         AvailableOn ??= DateTimeOffset.UtcNow;
         RaiseDomainEvent(new ProductEvents.ProductActivated(this));
+    }
+
+    public void Archive()
+    {
+        if (Status == ProductStatus.Archived) return;
+        Status = ProductStatus.Archived;
+        RaiseDomainEvent(new ProductEvents.ProductArchived(this));
+    }
+
+    public void Delete()
+    {
+        if (IsDeleted) return;
+        IsDeleted = true;
+        DeletedAt = DateTimeOffset.UtcNow;
+        RaiseDomainEvent(new ProductEvents.ProductDeleted(this));
+    }
+
+    public void Restore()
+    {
+        if (!IsDeleted) return;
+        IsDeleted = false;
+        DeletedAt = null;
     }
 
     public ErrorOr<Variant> AddVariant(string sku, decimal price)

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 
@@ -43,7 +42,7 @@ public class TaxonomyTests
         // Arrange
         var taxonomy = Taxonomy.Create("Clothing").Value;
         var rootTaxon = taxonomy.AddTaxon("Men").Value;
-        var subTaxon = Taxon.CreateInternal(taxonomy.Id, "Shoes", parentId: rootTaxon.Id).Value;
+        var subTaxon = Taxon.Create(taxonomy.Id, "Shoes", parentId: rootTaxon.Id).Value;
         
         // Simulating the hierarchy for testing
         subTaxon.Parent = rootTaxon;

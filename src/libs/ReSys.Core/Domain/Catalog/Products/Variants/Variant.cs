@@ -80,4 +80,13 @@ public sealed class Variant : Entity, IHasMetadata
             OptionValues.Add(value);
         }
     }
+
+    public void RemoveOptionValue(Guid valueId)
+    {
+        var value = OptionValues.FirstOrDefault(ov => ov.Id == valueId);
+        if (value != null)
+        {
+            OptionValues.Remove(value);
+        }
+    }
 }

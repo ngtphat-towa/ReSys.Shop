@@ -1,4 +1,3 @@
-using FluentAssertions;
 using ReSys.Core.Domain.Catalog.Products.Variants;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog;

@@ -1,6 +1,6 @@
 using ReSys.Core.Domain.Common.Abstractions;
+
 using ErrorOr;
-using ReSys.Core.Domain.Catalog.OptionTypes;
 
 namespace ReSys.Core.Domain.Catalog.OptionTypes;
 
@@ -41,7 +41,7 @@ public sealed class OptionType : Aggregate, IHasMetadata
             return OptionValueErrors.NameAlreadyExists(name);
 
         var nextPosition = OptionValues.Any() ? OptionValues.Max(v => v.Position) + 1 : 0;
-        
+
         var valueResult = OptionValue.Create(Id, name, presentation, nextPosition);
         if (valueResult.IsError) return valueResult.Errors;
 

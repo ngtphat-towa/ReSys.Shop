@@ -10,6 +10,7 @@ public static class ProductEvents
     public record VariantAdded(Product Product, Variants.Variant Variant) : IDomainEvent;
     public record ProductActivated(Product Product) : IDomainEvent;
     public record ProductArchived(Product Product) : IDomainEvent;
+    public record ProductDeleted(Product Product) : IDomainEvent;
     
     // ML Triggering Event
     public record ImageAdded(Product Product, ProductImage Image) : IDomainEvent;
