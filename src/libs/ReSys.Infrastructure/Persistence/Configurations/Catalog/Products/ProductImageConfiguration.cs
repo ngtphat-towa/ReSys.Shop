@@ -27,15 +27,11 @@ public class ProductImageConfiguration : IEntityTypeConfiguration<ProductImage>
         builder.Property(x => x.Status)
             .HasConversion<string>();
 
-        // Embeddings - 1:N
-        builder.OwnsMany(x => x.Embeddings, e =>
-        {
-            e.ToTable(DatabaseTables.ProductImageEmbeddings, DatabaseSchemas.Catalog);
-            e.WithOwner().HasForeignKey(x => x.ProductImageId);
-            e.HasKey(x => x.Id);
-            
-            e.Property(x => x.Vector)
-                .HasColumnType("vector"); 
-        });
+        // Relationship: 0..N (An Image can have zero or more embeddings)
+        builder.HasMany(x => x.Embeddings)
+            .WithOne(x => x.ProductImage)
+            .HasForeignKey(x => x.ProductImageId)
+            .IsRequired(false) // Ensures 0..N mapping
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

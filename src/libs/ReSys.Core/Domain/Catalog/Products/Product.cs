@@ -6,6 +6,7 @@ using ReSys.Core.Domain.Catalog.Products.Images;
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Catalog.PropertyTypes;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
+using ReSys.Core.Domain.Catalog.Products.Properties;
 
 namespace ReSys.Core.Domain.Catalog.Products;
 
@@ -18,6 +19,7 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
     public DateTimeOffset? AvailableOn { get; set; }
     public ProductStatus Status { get; set; } = ProductStatus.Draft;
     public bool IsDigital { get; set; }
+    public bool MarkedForRegenerateTaxonProducts { get; set; }
     
     // SEO
     public string? MetaTitle { get; set; }
@@ -37,7 +39,7 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
     public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
     public ICollection<OptionType> OptionTypes { get; set; } = new List<OptionType>();
     public ICollection<ProductProperty> ProductProperties { get; set; } = new List<ProductProperty>();
-    public ICollection<Taxon> Taxons { get; set; } = new List<Taxon>();
+    public ICollection<Classification> Classifications { get; set; } = new List<Classification>();
 
     public Variant? MasterVariant => Variants.FirstOrDefault(v => v.IsMaster);
 
@@ -203,7 +205,7 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
     private void DemoteExistingRole(ProductImage.ProductImageType roleToDemote)
     {
         var existing = Images.FirstOrDefault(i => i.Role == roleToDemote);
-        if (existing != null) existing.Role = ProductImage.ProductImageType.Gallery;
+        if (existing != null) existing.SetRole(ProductImage.ProductImageType.Gallery);
     }
 
     public enum ProductStatus { Draft, Active, Archived }

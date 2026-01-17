@@ -1,7 +1,7 @@
 using ReSys.Core.Domain.Common.Abstractions;
 using ReSys.Core.Domain.Catalog.PropertyTypes;
 
-namespace ReSys.Core.Domain.Catalog.Products;
+namespace ReSys.Core.Domain.Catalog.Products.Properties;
 
 public sealed class ProductProperty : Entity
 {

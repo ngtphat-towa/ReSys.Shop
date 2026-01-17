@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using ReSys.Core.Domain.Catalog.Products;
+using ReSys.Core.Domain.Catalog.Products.Properties;
 using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations.Catalog.Products;

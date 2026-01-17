@@ -1,7 +1,7 @@
 using ReSys.Core.Domain.Common.Abstractions;
 using ErrorOr;
-using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Inventories.Stocks;
+using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 
 namespace ReSys.Core.Domain.Catalog.Products.Variants;
 

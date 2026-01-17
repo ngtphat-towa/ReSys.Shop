@@ -23,7 +23,7 @@ public class ProductImageTests
         image.Status.Should().Be(ProductImage.ImageProcessingStatus.Processed);
         
         var clip = image.Embeddings.First(e => e.ModelName == "fashion-clip");
-        clip.Vector.Should().BeEquivalentTo(clipVector);
+        clip.Vector.ToArray().Should().BeEquivalentTo(clipVector);
         clip.Dimensions.Should().Be(2);
     }
 
