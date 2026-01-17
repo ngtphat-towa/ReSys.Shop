@@ -4,10 +4,10 @@ using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Features.Testing.Examples.Common;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
-using ReSys.Shared.Models;
 using Microsoft.Extensions.DependencyInjection;
 using ReSys.Core.Common.Storage;
 using ReSys.Core.Domain.Testing.Examples;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.Examples;
 

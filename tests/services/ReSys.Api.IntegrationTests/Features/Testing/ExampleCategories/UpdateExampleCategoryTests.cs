@@ -6,10 +6,10 @@ using Newtonsoft.Json;
 
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Features.Testing.ExampleCategories.CreateExampleCategory;
 using ReSys.Core.Features.Testing.ExampleCategories.UpdateExampleCategory;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Testing.ExampleCategories;
 

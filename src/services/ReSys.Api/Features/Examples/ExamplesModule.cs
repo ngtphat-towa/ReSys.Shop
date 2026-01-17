@@ -11,9 +11,9 @@ using ReSys.Core.Features.Testing.Examples.GetExampleById;
 using ReSys.Core.Features.Testing.Examples.UpdateExample;
 using ReSys.Core.Features.Testing.Examples.DeleteExample;
 using ReSys.Core.Features.Testing.Examples.UpdateExampleImage;
-using ReSys.Shared.Models;
 using ReSys.Shared.Constants;
 using ReSys.Api.Infrastructure.Extensions;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.Features.Examples;
 

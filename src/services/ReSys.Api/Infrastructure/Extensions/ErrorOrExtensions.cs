@@ -1,6 +1,7 @@
 using ErrorOr;
+
 using ReSys.Shared.Extensions;
-using ReSys.Shared.Models;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.Infrastructure.Extensions;
 

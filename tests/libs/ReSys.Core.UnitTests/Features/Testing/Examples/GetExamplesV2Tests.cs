@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 
-using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.Examples.GetExamples;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using ReSys.Core.Domain.Testing.Examples;
-using ReSys.Core.Domain.Testing.ExampleCategories;
+using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Extensions.Query;
+using ReSys.Core.Domain.Testing.ExampleCategories;
+using ReSys.Core.Domain.Testing.Examples;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Pages;
+using ReSys.Shared.Models.Query;
 
 namespace ReSys.Core.UnitTests.Features.Testing.Examples;
 

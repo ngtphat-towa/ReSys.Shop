@@ -9,8 +9,8 @@ using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 using ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategoryById;
 using ReSys.Core.Features.Testing.ExampleCategories.UpdateExampleCategory;
 using ReSys.Core.Features.Testing.ExampleCategories.DeleteExampleCategory;
-using ReSys.Shared.Models;
 using ReSys.Api.Infrastructure.Extensions;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.Features.ExampleCategories;
 

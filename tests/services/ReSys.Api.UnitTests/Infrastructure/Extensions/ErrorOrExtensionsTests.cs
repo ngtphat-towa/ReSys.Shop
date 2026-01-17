@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Shared.Models;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.UnitTests.Infrastructure.Extensions;
 

@@ -4,9 +4,9 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Shared.Models;
 using ReSys.Core.Common.Storage;
 using ReSys.Api.Features.Files;
+using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Files;
 
