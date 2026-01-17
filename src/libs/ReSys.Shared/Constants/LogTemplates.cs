@@ -16,6 +16,9 @@ public static class LogTemplates
 
         public const string FeatureDisabled = "[FEATURE] Feature disabled: {Feature}";
         public const string ServiceRegistered = "[DI] Service registered: {Service} ({Lifetime})";
+
+        public const string ConfigLoaded = "[CONFIG] {Service} configuration loaded from {Source} ({Count} rules) in {Elapsed:0.00}ms";
+        public const string ConfigFailed = "[CONFIG] Failed to load {Service} configuration after {Elapsed:0.00}ms: {Error}";
     }
 
     // 2. Security & Compliance

@@ -1,4 +1,4 @@
-namespace ReSys.Shared.Models.Auth;
+namespace ReSys.Core.Common.Security.Authentication.Contexts;
 
 public interface IUserContext
 {

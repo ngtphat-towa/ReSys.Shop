@@ -5,6 +5,10 @@ using ReSys.Core.Common.Extensions.Pagination;
 using ReSys.Core.Common.Extensions.Search;
 using ReSys.Core.Common.Extensions.Sort;
 using ReSys.Shared.Models;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Pages;
+using ReSys.Shared.Models.Query;
+using ReSys.Shared.Models.Search;
 
 namespace ReSys.Core.Common.Extensions.Query;
 

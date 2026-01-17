@@ -3,6 +3,7 @@ using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Common.Extensions.Query;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Common.Extensions.Filters;
+using ReSys.Shared.Models.Query;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 

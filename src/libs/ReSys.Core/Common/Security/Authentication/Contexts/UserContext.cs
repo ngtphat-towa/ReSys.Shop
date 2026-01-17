@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Http;
-using ReSys.Shared.Models.Auth;
+
 using ReSys.Shared.Extensions;
+
 using System.Security.Claims;
 
-namespace ReSys.Core.Common.Services.Auth;
+namespace ReSys.Core.Common.Security.Authentication.Contexts;
 
 public class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContext
 {

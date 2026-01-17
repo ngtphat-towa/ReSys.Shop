@@ -31,6 +31,8 @@ public static class DatabaseTables
     public const string PropertyTypes = "property_types";
     public const string Taxonomies = "taxonomies";
     public const string Taxa = "taxa";
+    public const string TaxonRules = "taxon_rules";
+    public const string Classifications = "classifications";
 
     // Testing
     public const string Examples = "examples";

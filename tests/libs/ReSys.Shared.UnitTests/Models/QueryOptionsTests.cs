@@ -1,4 +1,8 @@
 using ReSys.Shared.Models;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Pages;
+using ReSys.Shared.Models.Query;
+using ReSys.Shared.Models.Search;
 
 namespace ReSys.Shared.UnitTests.Models;
 
@@ -23,10 +27,10 @@ public class QueryOptionsTests
     [Fact(DisplayName = "SearchOptions: Should store search text and fields correctly")]
     public void SearchOptions_ShouldStoreSearchTextAndFields()
     {
-        var options = new SearchOptions 
-        { 
-            Search = "test", 
-            SearchField = new[] { "Name", "Description" } 
+        var options = new SearchOptions
+        {
+            Search = "test",
+            SearchField = new[] { "Name", "Description" }
         };
         options.Search.Should().Be("test");
         options.SearchField.Should().HaveCount(2).And.Contain("Name").And.Contain("Description");
@@ -57,7 +61,7 @@ public class QueryOptionsTests
         options.Should().BeAssignableTo<ISortOptions>();
         options.Should().BeAssignableTo<ISearchOptions>();
         options.Should().BeAssignableTo<IPageOptions>();
-        
+
         options.Filter.Should().Be("Name=Test");
         options.Sort.Should().Be("Name");
         options.Search.Should().Be("test");

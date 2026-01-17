@@ -1,4 +1,4 @@
-namespace ReSys.Shared.Models;
+namespace ReSys.Shared.Models.Pages;
 
 public interface IPageOptions
 {

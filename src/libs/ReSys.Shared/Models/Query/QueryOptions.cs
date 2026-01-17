@@ -1,4 +1,8 @@
-namespace ReSys.Shared.Models;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Pages;
+using ReSys.Shared.Models.Search;
+
+namespace ReSys.Shared.Models.Query;
 
 public record QueryOptions : IFilterOptions, ISortOptions, ISearchOptions, IPageOptions
 {

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-
 using System.Text.Json.Serialization;
-
 
 using ErrorOr;
 
-namespace ReSys.Shared.Models;
+
+using ReSys.Shared.Models.Pages;
+
+namespace ReSys.Shared.Models.Wrappers;
 
 /// <summary>
 /// Unified API Response wrapper inheriting from RFC 7807 ProblemDetails.
@@ -95,28 +96,6 @@ public class ApiResponse : ApiResponse<object>
             Detail = "One or more validation errors occurred.",
             Errors = errors
         };
-    }
-}
-
-public class PaginationMeta
-{
-    public int Page { get; set; }
-    public int PageSize { get; set; }
-    public int TotalCount { get; set; }
-    public int TotalPages { get; set; }
-    public bool HasNextPage { get; set; }
-    public bool HasPreviousPage { get; set; }
-
-    public PaginationMeta() { }
-
-    public PaginationMeta(int page, int pageSize, int totalCount)
-    {
-        Page = page;
-        PageSize = pageSize;
-        TotalCount = totalCount;
-        TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        HasNextPage = Page < TotalPages;
-        HasPreviousPage = Page > 1;
     }
 }
 

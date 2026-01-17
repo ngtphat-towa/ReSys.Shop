@@ -1,4 +1,4 @@
-namespace ReSys.Shared.Models;
+namespace ReSys.Shared.Models.Filters;
 
 public interface IFilterOptions
 {

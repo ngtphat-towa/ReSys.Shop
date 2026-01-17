@@ -2,6 +2,9 @@ using ReSys.Shared.Models;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Common.Extensions.Query;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Search;
+using ReSys.Shared.Models.Pages;
 
 namespace ReSys.Core.UnitTests.Common.Extensions.Query;
 
