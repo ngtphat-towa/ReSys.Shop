@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-
 using ReSys.Core.Domain.Identity.Roles;
 using ReSys.Shared.Constants;
 

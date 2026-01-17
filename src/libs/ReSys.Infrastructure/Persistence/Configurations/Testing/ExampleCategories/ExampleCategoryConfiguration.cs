@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using ReSys.Core.Domain.Testing.ExampleCategories;
+using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations.Testing.ExampleCategories;
 
@@ -9,6 +10,7 @@ public class ExampleCategoryConfiguration : IEntityTypeConfiguration<ExampleCate
 {
     public void Configure(EntityTypeBuilder<ExampleCategory> builder)
     {
+        builder.ToTable(DatabaseTables.ExampleCategories, DatabaseSchemas.Testing);
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Name)

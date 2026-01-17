@@ -19,7 +19,7 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
         
         builder.HasIndex(x => x.Sku)
             .IsUnique()
-            .HasFilter("\"Sku\" IS NOT NULL"); // Only enforce uniqueness for non-null SKUs
+            .HasFilter("sku IS NOT NULL"); // Only enforce uniqueness for non-null SKUs
 
         builder.Property(x => x.Barcode)
             .HasMaxLength(VariantConstraints.BarcodeMaxLength);

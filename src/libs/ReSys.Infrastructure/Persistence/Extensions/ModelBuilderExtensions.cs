@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReSys.Core.Domain.Common.Abstractions;
 
 using System.Text.Json;
+
 using Pgvector;
 
 namespace ReSys.Infrastructure.Persistence.Extensions;

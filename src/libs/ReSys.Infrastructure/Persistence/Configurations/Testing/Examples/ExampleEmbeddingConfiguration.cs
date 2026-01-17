@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using ReSys.Core.Domain.Testing.Examples;
+using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations.Testing.Examples;
 
@@ -9,6 +10,8 @@ public class ExampleEmbeddingConfiguration : IEntityTypeConfiguration<ExampleEmb
 {
     public void Configure(EntityTypeBuilder<ExampleEmbedding> builder)
     {
+        builder.ToTable(DatabaseTables.ExampleEmbeddings, DatabaseSchemas.Testing);
+
         builder.HasKey(e => e.ExampleId);
         builder.Property(e => e.Embedding).HasColumnType("vector(384)");
         

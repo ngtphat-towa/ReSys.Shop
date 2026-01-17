@@ -37,4 +37,5 @@ public static class DatabaseTables
     // Testing
     public const string Examples = "examples";
     public const string ExampleCategories = "example_categories";
+    public const string ExampleEmbeddings = "example_embeddings";
 }
