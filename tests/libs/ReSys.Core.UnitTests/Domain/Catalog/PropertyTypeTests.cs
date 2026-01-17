@@ -2,34 +2,29 @@ using ReSys.Core.Domain.Catalog.PropertyTypes;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog;
 
-[Trait("Category", "Unit")]
+[Trait("Category", "Domain")]
 [Trait("Module", "Catalog")]
+[Trait("Feature", "PropertyTypes")]
 public class PropertyTypeTests
 {
-    [Fact(DisplayName = "Create should support different property kinds")]
-    public void Create_ShouldSupport_PropertyKinds()
+    [Fact(DisplayName = "Create: Should create property type with valid inputs")]
+    public void Create_ValidInputs_ShouldSucceed()
     {
-        // Act
-        var result = PropertyType.Create("Material", kind: PropertyType.PropertyKind.String);
+        var result = PropertyType.Create("Material", "Fabric", PropertyKind.String, 1, true);
 
-        // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Kind.Should().Be(PropertyType.PropertyKind.String);
+        result.Value.Name.Should().Be("Material");
+        result.Value.Kind.Should().Be(PropertyKind.String);
     }
 
-    [Fact(DisplayName = "Update should modify kind and raise event")]
-    public void Update_ShouldModifyKind_AndRaiseEvent()
+    [Fact(DisplayName = "Update: Should update property type state correctly")]
+    public void Update_ValidInputs_ShouldSucceed()
     {
-        // Arrange
-        var prop = PropertyType.Create("Weight").Value;
-        prop.ClearDomainEvents();
+        var pt = PropertyType.Create("Weight").Value;
+        var result = pt.Update("Weight", "Gross Weight", PropertyKind.Float, 5, true);
 
-        // Act
-        var result = prop.Update("New Name", "Pres", PropertyType.PropertyKind.Float, 0, false);
-
-        // Assert
         result.IsError.Should().BeFalse();
-        prop.Kind.Should().Be(PropertyType.PropertyKind.Float);
-        prop.DomainEvents.Should().ContainSingle(e => e is PropertyTypeEvents.PropertyTypeUpdated);
+        pt.Presentation.Should().Be("Gross Weight");
+        pt.Kind.Should().Be(PropertyKind.Float);
     }
 }

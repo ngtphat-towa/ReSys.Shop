@@ -1,7 +1,24 @@
+using System.ComponentModel;
 using ReSys.Core.Domain.Common.Abstractions;
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Catalog.PropertyTypes;
+
+public enum PropertyKind
+{
+    [Description("String")]
+    String,
+    [Description("Integer")]
+    Integer,
+    [Description("Float")]
+    Float,
+    [Description("Boolean")]
+    Boolean,
+    [Description("Date")]
+    Date,
+    [Description("HTML")]
+    Html
+}
 
 public sealed class PropertyType : Aggregate, IHasMetadata
 {
@@ -25,11 +42,15 @@ public sealed class PropertyType : Aggregate, IHasMetadata
         bool filterable = false)
     {
         if (string.IsNullOrWhiteSpace(name)) return PropertyTypeErrors.NameRequired;
+        if (name.Length > PropertyTypeConstraints.NameMaxLength) return PropertyTypeErrors.NameTooLong;
+
+        var finalPresentation = presentation?.Trim() ?? name.Trim();
+        if (finalPresentation.Length > PropertyTypeConstraints.PresentationMaxLength) return PropertyTypeErrors.PresentationTooLong;
 
         var propertyType = new PropertyType
         {
             Name = name.Trim(),
-            Presentation = presentation?.Trim() ?? name.Trim(),
+            Presentation = finalPresentation,
             Kind = kind,
             Position = position,
             Filterable = filterable
@@ -39,9 +60,18 @@ public sealed class PropertyType : Aggregate, IHasMetadata
         return propertyType;
     }
 
-    public ErrorOr<Success> Update(string name, string presentation, PropertyKind kind, int position, bool filterable)
+    public ErrorOr<Success> Update(
+        string name, 
+        string presentation, 
+        PropertyKind kind, 
+        int position, 
+        bool filterable)
     {
         if (string.IsNullOrWhiteSpace(name)) return PropertyTypeErrors.NameRequired;
+        if (name.Length > PropertyTypeConstraints.NameMaxLength) return PropertyTypeErrors.NameTooLong;
+
+        if (string.IsNullOrWhiteSpace(presentation)) return PropertyTypeErrors.PresentationRequired;
+        if (presentation.Length > PropertyTypeConstraints.PresentationMaxLength) return PropertyTypeErrors.PresentationTooLong;
 
         Name = name.Trim();
         Presentation = presentation.Trim();
@@ -53,13 +83,9 @@ public sealed class PropertyType : Aggregate, IHasMetadata
         return Result.Success;
     }
 
-    public enum PropertyKind
+    public ErrorOr<Deleted> Delete()
     {
-        String,
-        Integer,
-        Float,
-        Boolean,
-        Date,
-        Html
+        RaiseDomainEvent(new PropertyTypeEvents.PropertyTypeDeleted(this));
+        return Result.Deleted;
     }
 }
