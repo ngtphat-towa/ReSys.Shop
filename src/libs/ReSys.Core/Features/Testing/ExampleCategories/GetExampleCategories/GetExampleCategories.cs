@@ -2,6 +2,8 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Mvc;
+
 using ReSys.Core.Common.Data;
 using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
@@ -38,9 +40,12 @@ public static class GetExampleCategories
                 .ApplyFilter(request)
                 .ApplySearch(request);
 
-            // Apply dynamic sort; if it returns the same query (meaning no valid sort was applied), fallback to default Name sort
+            // Apply dynamic sort
             var sortedQuery = dbQuery.ApplySort(request);
-            if (ReferenceEquals(sortedQuery, dbQuery))
+            
+            // If sort string was empty, ApplySort returns original query.
+            // We only apply default sort if no sort was provided.
+            if (string.IsNullOrWhiteSpace(request.Sort))
             {
                 sortedQuery = dbQuery.OrderBy(x => x.Name);
             }

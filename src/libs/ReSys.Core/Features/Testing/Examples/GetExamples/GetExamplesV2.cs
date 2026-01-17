@@ -29,9 +29,10 @@ public static class GetExamplesV2
                 .ApplyFilter(request)
                 .ApplySearch(request);
 
-            // Apply dynamic sort; if it returns the same query (meaning no valid sort was applied), fallback to default Name sort
+            // Apply dynamic sort
             var sortedQuery = dbQuery.ApplySort(request);
-            if (ReferenceEquals(sortedQuery, dbQuery))
+            
+            if (string.IsNullOrWhiteSpace(request.Sort))
             {
                 sortedQuery = dbQuery.OrderBy(x => x.Name);
             }
