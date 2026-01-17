@@ -3,9 +3,9 @@ using ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.Common;
 
-public class TaxonRuleValidator<T> : AbstractValidator<T> where T : TaxonRuleParameters
+public abstract class TaxonRuleValidator<T> : AbstractValidator<T> where T : TaxonRuleParameters
 {
-    public TaxonRuleValidator()
+    protected TaxonRuleValidator()
     {
         RuleFor(x => x.Type)
             .NotEmpty()
