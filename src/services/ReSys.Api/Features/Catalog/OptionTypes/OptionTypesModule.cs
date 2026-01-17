@@ -1,6 +1,9 @@
 using Carter;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using ReSys.Api.Infrastructure.Extensions;
 using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
 using ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType;
@@ -10,6 +13,7 @@ using ReSys.Core.Features.Catalog.OptionTypes.GetOptionTypesPagedList;
 using ReSys.Core.Features.Catalog.OptionTypes.UpdateOptionType;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.DeleteOptionValue;
+using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.GetOptionValuesPagedList;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
 using ReSys.Shared.Constants;
@@ -70,6 +74,13 @@ public class OptionTypesModule : ICarterModule
         #endregion
 
         #region Option Values
+        group.MapGet("/{optionTypeId}/values", async (Guid optionTypeId, [AsParameters] GetOptionValuesPagedList.Request request, ISender sender) =>
+        {
+            var result = await sender.Send(new GetOptionValuesPagedList.Query(optionTypeId, request));
+            return Results.Ok(ApiResponse.Paginated(result));
+        })
+        .WithName("GetOptionValues");
+
         group.MapPost("/{optionTypeId}/values", async (Guid optionTypeId, [FromBody] CreateOptionValue.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new CreateOptionValue.Command(optionTypeId, request), ct);
