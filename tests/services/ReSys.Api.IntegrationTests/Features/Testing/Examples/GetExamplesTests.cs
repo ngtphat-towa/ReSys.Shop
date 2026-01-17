@@ -126,7 +126,7 @@ public class GetExamplesTests(IntegrationTestWebAppFactory factory, ITestOutputH
         await Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Query string: Example_id=id1&Example_id=id2
-        var response = await Client.GetAsync($"/api/testing/examples?Example_id={id1}&Example_id={id2}", TestContext.Current.CancellationToken);
+        var response = await Client.GetAsync($"/api/testing/examples?Example_id={id1}&Example_id={id2}&search={uniquePrefix}", TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);

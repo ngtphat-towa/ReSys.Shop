@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+
 using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
-using ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.DeleteOptionType;
@@ -18,7 +18,7 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
         // Arrange
         var optionType = OptionType.Create("Material").Value;
         optionType.AddValue("Cotton");
-        
+
         fixture.Context.Set<OptionType>().Add(optionType);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -31,7 +31,7 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(OptionTypeErrors.CannotDeleteWithValues);
-        
+
         // Verify it still exists in DB
         var exists = await fixture.Context.Set<OptionType>().AnyAsync(x => x.Id == optionType.Id, TestContext.Current.CancellationToken);
         exists.Should().BeTrue();
@@ -42,7 +42,7 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
     {
         // Arrange
         var optionType = OptionType.Create("Size").Value;
-        
+
         fixture.Context.Set<OptionType>().Add(optionType);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -55,7 +55,7 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Deleted);
-        
+
         // Verify it's gone from DB
         var exists = await fixture.Context.Set<OptionType>().AnyAsync(x => x.Id == optionType.Id, TestContext.Current.CancellationToken);
         exists.Should().BeFalse();

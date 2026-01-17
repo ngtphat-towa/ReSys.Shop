@@ -24,7 +24,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(1);
         apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_Mid");
     }
@@ -35,7 +35,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         var uniquePrefix = $"V2Group_{Guid.NewGuid()}";
         await SeedExampleAsync($"{uniquePrefix}_A", 10);
         await SeedExampleAsync($"{uniquePrefix}_B", 100);
-        await SeedExampleAsync("Other", 1000); 
+        await SeedExampleAsync("Other", 1000);
 
         var filter = $"Name*{uniquePrefix},(Price<20|Price>500)";
         var response = await Client.GetAsync($"/api/testing/examples/v2?filter={filter}", TestContext.Current.CancellationToken);
@@ -43,7 +43,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(1);
         apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_A");
     }
@@ -61,7 +61,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(3);
         apiResponse.Data![0].Name.Should().Be($"{uniquePrefix}_A");
         apiResponse.Data![1].Name.Should().Be($"{uniquePrefix}_Z");
@@ -81,7 +81,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(1);
         apiResponse.Data!.First().Name.Should().Be($"{uniquePrefix}_Match");
     }
@@ -100,7 +100,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().Contain(x => x.Name == $"{uniquePrefix}_Item");
     }
 
@@ -108,14 +108,14 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
     public async Task Get_WithPagination_ReturnsCorrectMetadata()
     {
         var uniquePrefix = $"V2Pager_{Guid.NewGuid()}";
-        for(int i=1; i<=15; i++) await SeedExampleAsync($"{uniquePrefix}_{i:D2}", i);
+        for (int i = 1; i <= 15; i++) await SeedExampleAsync($"{uniquePrefix}_{i:D2}", i);
 
         var response = await Client.GetAsync($"/api/testing/examples/v2?filter=Name*{uniquePrefix}&page=2&page_size=5&sort=Name", TestContext.Current.CancellationToken);
 
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(5);
         apiResponse.Meta!.TotalCount.Should().Be(15);
         apiResponse.Meta.Page.Should().Be(2);
@@ -135,7 +135,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().Contain(x => x.Name == $"{uniquePrefix}_1");
     }
 
@@ -152,7 +152,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
 
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(3);
         apiResponse.Data![0].Name.Should().Be($"{uniquePrefix}_C");
         apiResponse.Data[1].Name.Should().Be($"{uniquePrefix}_A");
@@ -169,7 +169,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
 
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Meta!.Page.Should().Be(1);
         apiResponse.Data.Should().NotBeEmpty();
     }
@@ -177,13 +177,14 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
     [Fact(DisplayName = "GET /api/testing/examples/v2: Should filter by nested category name")]
     public async Task Get_NestedCategoryFilter_ReturnsCorrectItems()
     {
-        var categoryName = $"NestedCat_{Guid.NewGuid()}";
+        var uniquePrefix = Guid.NewGuid().ToString();
+        var categoryName = $"NestedCat_{uniquePrefix}";
         var cat = new ExampleCategory { Id = Guid.NewGuid(), Name = categoryName };
         Context.Set<ExampleCategory>().Add(cat);
-        
-        var exampleName = $"NestedItem_{Guid.NewGuid()}";
+
+        var exampleName = $"NestedItem_{uniquePrefix}";
         await SeedExampleWithCategoryAsync(exampleName, 10, cat.Id);
-        await SeedExampleAsync($"Other_{Guid.NewGuid()}", 20);
+        await SeedExampleAsync($"Other_{uniquePrefix}", 20);
 
         // Filter: Category.Name=...
         var response = await Client.GetAsync($"/api/testing/examples/v2?filter=Category.Name={categoryName}", TestContext.Current.CancellationToken);
@@ -191,7 +192,7 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(1);
         apiResponse.Data![0].Name.Should().Be(exampleName);
         apiResponse.Data[0].CategoryName.Should().Be(categoryName);
@@ -200,11 +201,12 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
     [Fact(DisplayName = "GET /api/testing/examples/v2: Should filter by nested category name using snake_case")]
     public async Task Get_NestedSnakeCategoryFilter_ReturnsCorrectItems()
     {
-        var categoryName = $"SnakeCat_{Guid.NewGuid()}";
+        var uniquePrefix = Guid.NewGuid().ToString();
+        var categoryName = $"SnakeCat_{uniquePrefix}";
         var cat = new ExampleCategory { Id = Guid.NewGuid(), Name = categoryName };
         Context.Set<ExampleCategory>().Add(cat);
-        
-        var exampleName = $"SnakeNestedItem_{Guid.NewGuid()}";
+
+        var exampleName = $"SnakeNestedItem_{uniquePrefix}";
         await SeedExampleWithCategoryAsync(exampleName, 10, cat.Id);
 
         // Filter: category.name=...
@@ -213,18 +215,18 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().Contain(x => x.Name == exampleName);
     }
 
     [Fact(DisplayName = "GET /api/testing/examples/v2: Should sort by nested category name")]
     public async Task Get_NestedCategorySort_ReturnsCorrectOrder()
     {
-        var catA = new ExampleCategory { Id = Guid.NewGuid(), Name = "A_IntegrationCat" };
-        var catB = new ExampleCategory { Id = Guid.NewGuid(), Name = "B_IntegrationCat" };
+        var uniquePrefix = Guid.NewGuid().ToString();
+        var catA = new ExampleCategory { Id = Guid.NewGuid(), Name = $"A_{uniquePrefix}" };
+        var catB = new ExampleCategory { Id = Guid.NewGuid(), Name = $"B_{uniquePrefix}" };
         Context.Set<ExampleCategory>().AddRange(catA, catB);
-        
-        var uniquePrefix = $"NestedSort_{Guid.NewGuid()}";
+
         await SeedExampleWithCategoryAsync($"{uniquePrefix}_1", 10, catB.Id);
         await SeedExampleWithCategoryAsync($"{uniquePrefix}_2", 10, catA.Id);
 
@@ -233,21 +235,21 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<List<ExampleListItem>>>(content, JsonSettings);
-        
+
         apiResponse!.Data.Should().HaveCount(2);
-        apiResponse.Data![0].CategoryName.Should().Be("A_IntegrationCat");
-        apiResponse.Data[1].CategoryName.Should().Be("B_IntegrationCat");
+        apiResponse.Data![0].CategoryName.Should().Be($"A_{uniquePrefix}");
+        apiResponse.Data[1].CategoryName.Should().Be($"B_{uniquePrefix}");
     }
 
     private async Task SeedExampleWithCategoryAsync(string name, decimal price, Guid categoryId)
     {
-        Context.Set<Example>().Add(new Example 
-        { 
-            Id = Guid.NewGuid(), 
-            Name = name, 
-            Description = "D", 
-            Price = price, 
-            CreatedAt = DateTimeOffset.UtcNow, 
+        Context.Set<Example>().Add(new Example
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Description = "D",
+            Price = price,
+            CreatedAt = DateTimeOffset.UtcNow,
             ImageUrl = "",
             CategoryId = categoryId
         });
@@ -256,14 +258,14 @@ public class GetExamplesV2Tests(IntegrationTestWebAppFactory factory, ITestOutpu
 
     private async Task SeedExampleWithDateAsync(string name, decimal price, DateTimeOffset createdAt)
     {
-        Context.Set<Example>().Add(new Example 
-        { 
-            Id = Guid.NewGuid(), 
-            Name = name, 
-            Description = "D", 
+        Context.Set<Example>().Add(new Example
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            Description = "D",
             Price = price,
             CreatedAt = createdAt,
-            ImageUrl = "" 
+            ImageUrl = ""
         });
         await Context.SaveChangesAsync(TestContext.Current.CancellationToken);
     }

@@ -147,7 +147,9 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"]
+            SchemasToInclude = ["public", "identity", "location", "catalog", "ordering", "system", "testing"],
+            TablesToIgnore = ["spatial_ref_sys", "__EFMigrationsHistory"],
+            WithReseed = true
         });
     }
 
@@ -157,6 +159,12 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
+    }
+
+    public AppDbContext GetDbContext()
+    {
+        var scope = Services.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<AppDbContext>();
     }
 
     public override async ValueTask DisposeAsync()

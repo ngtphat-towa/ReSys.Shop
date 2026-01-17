@@ -17,7 +17,7 @@ public class DeleteExampleTests(IntegrationTestWebAppFactory factory, ITestOutpu
         var response = await Client.DeleteAsync($"/api/testing/examples/{id}", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        
+
         var getResponse = await Client.GetAsync($"/api/testing/examples/{id}", TestContext.Current.CancellationToken);
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }

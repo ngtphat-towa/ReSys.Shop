@@ -21,7 +21,7 @@ public class GetExampleByIdTests(IntegrationTestWebAppFactory factory, ITestOutp
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var apiResponse = JsonConvert.DeserializeObject<ApiResponse<ExampleDetail>>(content, JsonSettings);
         var Example = apiResponse!.Data;
-        
+
         Example!.Id.Should().Be(ExampleId);
         Example.Name.Should().Be("ByIdTest");
         Example.Status.Should().Be(ExampleStatus.Draft);
