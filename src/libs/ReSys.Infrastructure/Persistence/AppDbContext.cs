@@ -20,12 +20,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     {
         base.OnModelCreating(modelBuilder); // Essential for Identity
 
-        modelBuilder.HasPostgresExtension("vector");
-        modelBuilder.HasPostgresEnum<ExampleStatus>();
+        if (Database.IsNpgsql())
+        {
+            modelBuilder.HasPostgresExtension("vector");
+            modelBuilder.HasPostgresEnum<ExampleStatus>();
+        }
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         // Global Configurations via Reflection
+        modelBuilder.ApplyPostgresConfiguration(Database.ProviderName);
         modelBuilder.ApplyAuditableConfiguration();
         modelBuilder.ApplyMetadataConfiguration();
     }

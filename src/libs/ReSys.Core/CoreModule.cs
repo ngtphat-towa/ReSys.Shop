@@ -8,6 +8,8 @@ using ReSys.Core.Common.Behaviors;
 using ReSys.Shared.Telemetry;
 
 using ReSys.Shared.Constants;
+using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Mappings;
 
 namespace ReSys.Core;
 
@@ -24,6 +26,8 @@ public static class CoreModule
     {
         services.RegisterModule(ModuleNames.Core, "Common", s =>
         {
+            s.AddMappings(assemblies);
+
             s.AddMediatR(config =>
             {
                 foreach (var assembly in assemblies)
@@ -42,7 +46,11 @@ public static class CoreModule
             }
 
             s.AddHttpContextAccessor();
-            s.AddScoped<ReSys.Shared.Models.Auth.IUserContext, ReSys.Core.Common.Services.Auth.UserContext>();
+            s.AddScoped<IUserContext, UserContext>();
+            
+            // Taxonomy Services
+            s.AddScoped<Features.Catalog.Taxonomies.Services.ITaxonHierarchyService, Features.Catalog.Taxonomies.Services.TaxonHierarchyService>();
+            s.AddScoped<Features.Catalog.Taxonomies.Services.ITaxonRegenerationService, Features.Catalog.Taxonomies.Services.TaxonRegenerationService>();
         });
 
         return services;
@@ -52,6 +60,9 @@ public static class CoreModule
     {
         services.RegisterModule(ModuleNames.Core, "Features", s =>
         {
+            // Scan Core assembly for features
+            s.AddMappings(typeof(CoreModule).Assembly);
+
             s.AddMediatR(config =>
             {
                 config.RegisterServicesFromAssembly(typeof(CoreModule).Assembly);

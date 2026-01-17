@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
+using ReSys.Core.Common.Security.Authentication.Contexts;
+
 using ReSys.Core.Domain.Common.Abstractions;
-using ReSys.Shared.Models.Auth;
 
 namespace ReSys.Infrastructure.Persistence.Interceptors;
 

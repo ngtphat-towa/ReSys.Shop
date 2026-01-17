@@ -5,11 +5,38 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ReSys.Core.Domain.Common.Abstractions;
 
 using System.Text.Json;
+using Pgvector;
 
 namespace ReSys.Infrastructure.Persistence.Extensions;
 
 public static class ModelBuilderExtensions
 {
+    /// <summary>
+    /// Applies PostgreSQL-specific global configurations.
+    /// Handles ignoring specific types like Pgvector.Vector when not using Npgsql.
+    /// </summary>
+    public static ModelBuilder ApplyPostgresConfiguration(this ModelBuilder modelBuilder, string? providerName)
+    {
+        if (providerName == "Microsoft.EntityFrameworkCore.PostgreSQL")
+        {
+            return modelBuilder;
+        }
+
+        // Global Ignore for Vector types on non-Postgres providers (In-Memory)
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var vectorProperties = entityType.ClrType.GetProperties()
+                .Where(p => p.PropertyType == typeof(Vector) || p.PropertyType == typeof(Vector[]));
+
+            foreach (var property in vectorProperties)
+            {
+                modelBuilder.Entity(entityType.ClrType).Ignore(property.Name);
+            }
+        }
+
+        return modelBuilder;
+    }
+
     /// <summary>
     /// Applies configuration for all entities implementing IAuditable.
     /// </summary>
@@ -21,7 +48,7 @@ public static class ModelBuilderExtensions
             {
                 // Use Metadata API to avoid re-configuring Owned Types as non-owned
                 var createdAt = entityType.FindProperty(nameof(IAuditable.CreatedAt))
-                                ?? entityType.AddProperty(nameof(IAuditable.CreatedAt), typeof(DateTime));
+                                ?? entityType.AddProperty(nameof(IAuditable.CreatedAt), typeof(DateTimeOffset));
                 createdAt.IsNullable = false;
 
                 // Ensure CreatedBy exists
@@ -33,7 +60,7 @@ public static class ModelBuilderExtensions
                 // Ensure UpdatedAt exists
                 if (entityType.FindProperty(nameof(IAuditable.UpdatedAt)) == null)
                 {
-                    entityType.AddProperty(nameof(IAuditable.UpdatedAt), typeof(DateTime?));
+                    entityType.AddProperty(nameof(IAuditable.UpdatedAt), typeof(DateTimeOffset?));
                 }
 
                 // Ensure UpdatedBy exists
