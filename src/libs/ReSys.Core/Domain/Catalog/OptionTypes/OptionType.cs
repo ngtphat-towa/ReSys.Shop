@@ -1,6 +1,7 @@
 using ReSys.Core.Domain.Common.Abstractions;
 
 using ErrorOr;
+using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 
 namespace ReSys.Core.Domain.Catalog.OptionTypes;
 
@@ -19,7 +20,11 @@ public sealed class OptionType : Aggregate, IHasMetadata
 
     private OptionType() { }
 
-    public static ErrorOr<OptionType> Create(string name, string? presentation = null, int position = 0, bool filterable = false)
+    public static ErrorOr<OptionType> Create(
+        string name,
+        string? presentation = null,
+        int position = 0,
+        bool filterable = false)
     {
         if (string.IsNullOrWhiteSpace(name)) return OptionTypeErrors.NameRequired;
 
@@ -35,6 +40,39 @@ public sealed class OptionType : Aggregate, IHasMetadata
         return optionType;
     }
 
+    public ErrorOr<Success> Update(
+        string name,
+        string presentation,
+        int position,
+        bool filterable)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return OptionTypeErrors.NameRequired;
+
+        Name = name.Trim();
+        Presentation = presentation.Trim();
+        Position = position;
+        Filterable = filterable;
+
+        RaiseDomainEvent(new OptionTypeEvents.OptionTypeUpdated(this));
+        return Result.Success;
+    }
+
+    public ErrorOr<Deleted> Delete()
+    {
+        if (OptionValues.Any())
+        {
+            return OptionTypeErrors.CannotDeleteWithValues;
+        }
+
+        RaiseDomainEvent(new OptionTypeEvents.OptionTypeDeleted(this));
+        return Result.Deleted;
+    }
+
+    #region Option Value Management
+
+    /// <summary>
+    /// Factory method to add a new value while enforcing uniqueness within the aggregate.
+    /// </summary>
     public ErrorOr<OptionValue> AddValue(string name, string? presentation = null)
     {
         if (OptionValues.Any(v => v.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
@@ -45,16 +83,31 @@ public sealed class OptionType : Aggregate, IHasMetadata
         var valueResult = OptionValue.Create(Id, name, presentation, nextPosition);
         if (valueResult.IsError) return valueResult.Errors;
 
-        OptionValues.Add(valueResult.Value);
-        return valueResult.Value;
+        var value = valueResult.Value;
+        OptionValues.Add(value);
+        
+        // Root publishes the creation event
+        RaiseDomainEvent(new OptionValueEvents.OptionValueCreated(value));
+        return value;
     }
 
-    public void RemoveValue(Guid valueId)
+    /// <summary>
+    /// Manages the collection-level invariant of ordering.
+    /// </summary>
+    public ErrorOr<Success> ReorderValues(IEnumerable<(Guid Id, int Position)> newPositions)
     {
-        var value = OptionValues.FirstOrDefault(v => v.Id == valueId);
-        if (value != null)
+        foreach (var pos in newPositions)
         {
-            OptionValues.Remove(value);
+            var value = OptionValues.FirstOrDefault(v => v.Id == pos.Id);
+            if (value != null)
+            {
+                value.Position = pos.Position;
+            }
         }
+
+        RaiseDomainEvent(new OptionTypeEvents.OptionTypeUpdated(this));
+        return Result.Success;
     }
+
+    #endregion
 }

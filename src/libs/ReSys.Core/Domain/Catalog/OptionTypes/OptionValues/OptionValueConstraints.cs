@@ -1,4 +1,4 @@
-namespace ReSys.Core.Domain.Catalog.OptionTypes;
+namespace ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 
 public static class OptionValueConstraints
 {

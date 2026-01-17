@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using ReSys.Core.Domain.Catalog.OptionTypes;
+
+using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations.Catalog.OptionTypes;

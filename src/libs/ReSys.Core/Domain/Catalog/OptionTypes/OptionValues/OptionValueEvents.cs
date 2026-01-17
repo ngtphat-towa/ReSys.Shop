@@ -1,6 +1,6 @@
 using ReSys.Core.Domain.Common.Abstractions;
 
-namespace ReSys.Core.Domain.Catalog.OptionTypes;
+namespace ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 
 public static class OptionValueEvents
 {
