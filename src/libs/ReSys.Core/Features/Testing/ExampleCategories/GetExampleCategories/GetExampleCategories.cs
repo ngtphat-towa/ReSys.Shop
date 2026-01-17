@@ -7,6 +7,9 @@ using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.ExampleCategories.Common;
 using ReSys.Core.Domain.Testing.ExampleCategories;
 using ReSys.Core.Common.Extensions.Query;
+using ReSys.Shared.Models.Search;
+using ReSys.Shared.Models.Filters;
+using ReSys.Shared.Models.Pages;
 
 namespace ReSys.Core.Features.Testing.ExampleCategories.GetExampleCategories;
 

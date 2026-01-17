@@ -3,37 +3,17 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Data;
-using ReSys.Shared.Models;
 using ReSys.Core.Features.Testing.Examples.Common;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Common.Extensions.Query;
+using ReSys.Shared.Models.Query;
+using ReSys.Shared.Models.Pages;
 
 namespace ReSys.Core.Features.Testing.Examples.GetExamples;
 
 public static class GetExamplesV2
 {
-    public record Request : IFilterOptions, ISortOptions, ISearchOptions, IPageOptions
-    {
-        public string? Filter { get; set; }
-        public string? Sort { get; set; }
-        public string? Search { get; set; }
-        public string[]? SearchField { get; set; }
-        public int? Page { get; set; }
-        public int? PageSize { get; set; }
-
-        // Explicit interface implementation mapping if names differ
-        string[]? ISearchOptions.SearchField => SearchField;
-
-        public static implicit operator QueryOptions(Request r) => new()
-        {
-            Filter = r.Filter,
-            Sort = r.Sort,
-            Search = r.Search,
-            SearchField = r.SearchField,
-            Page = r.Page,
-            PageSize = r.PageSize
-        };
-    }
+    public record Request : QueryOptions;
 
     public record Query(Request Request) : IRequest<PagedList<ExampleListItem>>;
 
