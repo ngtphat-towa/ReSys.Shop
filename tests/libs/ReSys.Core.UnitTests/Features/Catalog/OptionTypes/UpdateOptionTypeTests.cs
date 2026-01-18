@@ -19,6 +19,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
     static UpdateOptionTypeTests()
     {
         new OptionTypeMappings().Register(TypeAdapterConfig.GlobalSettings);
+        new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common.OptionValueMappings().Register(TypeAdapterConfig.GlobalSettings);
     }
 
     public UpdateOptionTypeTests(TestDatabaseFixture fixture)
@@ -92,5 +93,26 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(OptionTypeErrors.DuplicateName);
+    }
+
+    [Fact(DisplayName = "Handle: Should allow updating with same name (no conflict)")]
+    public async Task Handle_SameName_ShouldNotReturnError()
+    {
+        // Arrange
+        var name = $"SameName_{Guid.NewGuid()}";
+        var ot = OptionType.Create(name).Value;
+        _fixture.Context.Set<OptionType>().Add(ot);
+        await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var handler = new Core.Features.Catalog.OptionTypes.UpdateOptionType.UpdateOptionType.Handler(_fixture.Context);
+        var request = new UpdateOptionType.Request { Name = name, Presentation = "Same" };
+        var command = new UpdateOptionType.Command(ot.Id, request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.Name.Should().Be(name);
     }
 }

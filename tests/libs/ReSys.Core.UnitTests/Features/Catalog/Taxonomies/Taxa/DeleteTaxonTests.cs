@@ -1,6 +1,4 @@
-using NSubstitute;
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.DeleteTaxon;
 using ReSys.Core.UnitTests.TestInfrastructure;
 

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 
-
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
@@ -45,5 +44,22 @@ public class UpdateOptionValuePositionsTests(TestDatabaseFixture fixture) : ICla
 
         updatedOv1.Position.Should().Be(10);
         updatedOv2.Position.Should().Be(20);
+    }
+
+    [Fact(DisplayName = "Handle: Should return NotFound when parent option type does not exist")]
+    public async Task Handle_ParentNotFound_ShouldReturnNotFound()
+    {
+        // Arrange
+        var handler = new UpdateOptionValuePositions.Handler(fixture.Context);
+        var request = new UpdateOptionValuePositions.Request(
+            new[] { new UpdateOptionValuePositions.ValuePosition(Guid.NewGuid(), 1) });
+        var command = new UpdateOptionValuePositions.Command(Guid.NewGuid(), request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorOr.ErrorType.NotFound);
     }
 }

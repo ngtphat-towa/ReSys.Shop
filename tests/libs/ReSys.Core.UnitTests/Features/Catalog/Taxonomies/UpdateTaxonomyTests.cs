@@ -1,12 +1,16 @@
 using Microsoft.EntityFrameworkCore;
+
+
 using NSubstitute;
+
+
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.UpdateTaxonomy;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
-namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.UpdateTaxonomyTests;
+namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -43,5 +47,44 @@ public class UpdateTaxonomyTests(TestDatabaseFixture fixture) : IClassFixture<Te
         
         rootTaxon!.Name.Should().Be(request.Name);
         rootTaxon.Permalink.Should().Be(request.Name.ToLower().Replace(" ", "-"));
+    }
+
+    [Fact(DisplayName = "Handle: Should return error when name is duplicate")]
+    public async Task Handle_DuplicateName_ShouldReturnError()
+    {
+        // Arrange
+        var name1 = $"Tax1_{Guid.NewGuid()}";
+        var name2 = $"Tax2_{Guid.NewGuid()}";
+        var t1 = Taxonomy.Create(name1).Value;
+        var t2 = Taxonomy.Create(name2).Value;
+        fixture.Context.Set<Taxonomy>().AddRange(t1, t2);
+        await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var handler = new UpdateTaxonomy.Handler(fixture.Context);
+        var request = new UpdateTaxonomy.Request { Name = name2, Presentation = "P" };
+        var command = new UpdateTaxonomy.Command(t1.Id, request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(TaxonomyErrors.DuplicateName);
+    }
+
+    [Fact(DisplayName = "Handle: Should return NotFound when taxonomy does not exist")]
+    public async Task Handle_NonExistent_ShouldReturnNotFound()
+    {
+        // Arrange
+        var handler = new UpdateTaxonomy.Handler(fixture.Context);
+        var request = new UpdateTaxonomy.Request { Name = "Valid", Presentation = "P" };
+        var command = new UpdateTaxonomy.Command(Guid.NewGuid(), request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorOr.ErrorType.NotFound);
     }
 }

@@ -1,14 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 using Mapster;
+
 using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
+using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
 
-namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
+namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.OptionValues;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -32,14 +32,14 @@ public class UpdateOptionValueTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(ot);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Handler(_fixture.Context);
-        var request = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Request 
-        { 
+        var handler = new UpdateOptionValue.Handler(_fixture.Context);
+        var request = new UpdateOptionValue.Request
+        {
             Name = "DarkBlue",
             Presentation = "Dark Blue",
             Position = 5
         };
-        var command = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Command(ot.Id, ov.Id, request);
+        var command = new UpdateOptionValue.Command(ot.Id, ov.Id, request);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -59,9 +59,9 @@ public class UpdateOptionValueTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(ot);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Handler(_fixture.Context);
-        var request = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Request { Name = "Medium" };
-        var command = new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue.UpdateOptionValue.Command(ot.Id, ov1.Id, request);
+        var handler = new UpdateOptionValue.Handler(_fixture.Context);
+        var request = new UpdateOptionValue.Request { Name = "Medium" };
+        var command = new UpdateOptionValue.Command(ot.Id, ov1.Id, request);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -69,5 +69,21 @@ public class UpdateOptionValueTests : IClassFixture<TestDatabaseFixture>
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(OptionValueErrors.NameAlreadyExists("Medium"));
+    }
+
+    [Fact(DisplayName = "Handle: Should return NotFound when value does not exist")]
+    public async Task Handle_NonExistent_ShouldReturnNotFound()
+    {
+        // Arrange
+        var handler = new UpdateOptionValue.Handler(_fixture.Context);
+        var request = new UpdateOptionValue.Request { Name = "Valid" };
+        var command = new UpdateOptionValue.Command(Guid.NewGuid(), Guid.NewGuid(), request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.NotFound);
     }
 }

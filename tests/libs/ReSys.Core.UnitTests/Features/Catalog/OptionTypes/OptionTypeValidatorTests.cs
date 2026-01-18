@@ -54,6 +54,15 @@ public class OptionTypeValidatorTests
             .WithErrorCode(OptionTypeErrors.PresentationTooLong.Code);
     }
 
+    [Fact(DisplayName = "Validator: Should fail when position is negative")]
+    public void Validator_NegativePosition_ShouldHaveError()
+    {
+        var model = new OptionTypeInput { Name = "Valid", Position = -1 };
+        var result = _validator.TestValidate(model);
+        result.ShouldHaveValidationErrorFor(x => x.Position)
+            .WithErrorCode(OptionTypeErrors.InvalidPosition.Code);
+    }
+
     [Fact(DisplayName = "Validator: Should fail when public metadata has too many items")]
     public void Validator_TooManyPublicMetadataItems_ShouldHaveError()
     {

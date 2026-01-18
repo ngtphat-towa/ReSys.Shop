@@ -18,6 +18,7 @@ public class CreateOptionTypeTests : IClassFixture<TestDatabaseFixture>
     static CreateOptionTypeTests()
     {
         new OptionTypeMappings().Register(TypeAdapterConfig.GlobalSettings);
+        new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common.OptionValueMappings().Register(TypeAdapterConfig.GlobalSettings);
     }
 
     public CreateOptionTypeTests(TestDatabaseFixture fixture)

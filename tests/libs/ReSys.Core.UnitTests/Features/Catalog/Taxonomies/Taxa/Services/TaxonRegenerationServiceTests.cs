@@ -59,8 +59,8 @@ public class TaxonRegenerationServiceTests(TestDatabaseFixture fixture) : IClass
         var p2 = Product.Create("Laptop", "LAP", 1000).Value; // Doesn't match
         p2.Activate();
 
-        // Manually add an incorrect classification to test if it gets removed
-        var oldClass = Classification.Create(p2.Id, taxon.Id).Value;
+        // Manually add an incorrect automatic classification to test if it gets removed
+        var oldClass = Classification.Create(p2.Id, taxon.Id, isAutomatic: true).Value;
 
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         fixture.Context.Set<Product>().AddRange(p1, p2);

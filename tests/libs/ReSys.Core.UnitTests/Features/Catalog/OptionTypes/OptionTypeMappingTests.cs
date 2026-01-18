@@ -5,8 +5,9 @@ using Mapster;
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
+using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
 
-namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.Common;
+namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -14,40 +15,45 @@ namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.Common;
 public class OptionTypeMappingTests : IClassFixture<TestDatabaseFixture>
 {
     private readonly TestDatabaseFixture _fixture;
+    private readonly TypeAdapterConfig _config;
 
     public OptionTypeMappingTests(TestDatabaseFixture fixture)
     {
         _fixture = fixture;
+        _config = new TypeAdapterConfig();
 
         // Initialize Mapster for tests using the registration class we created
-        new OptionTypeMappings().Register(TypeAdapterConfig.GlobalSettings);
+        new OptionTypeMappings().Register(_config);
+        new OptionValueMappings().Register(_config);
     }
 
     [Fact(DisplayName = "Projection: OptionTypeSelectListItem should map correctly")]
     public async Task Projection_OptionTypeSelectListItem_ShouldMapCorrectly()
     {
         // Arrange
-        var optionType = OptionType.Create("Color", "Select Color").Value;
+        var name = $"Color_{Guid.NewGuid()}";
+        var optionType = OptionType.Create(name, "Select Color").Value;
         _fixture.Context.Set<OptionType>().Add(optionType);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         var result = await _fixture.Context.Set<OptionType>()
             .Where(x => x.Id == optionType.Id)
-            .ProjectToType<OptionTypeSelectListItem>()
+            .ProjectToType<OptionTypeSelectListItem>(_config)
             .FirstOrDefaultAsync(TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(optionType.Id);
-        result.Name.Should().Be(optionType.Name);
+        result.Name.Should().Be(name);
     }
 
     [Fact(DisplayName = "Projection: OptionTypeListItem should map correctly")]
     public async Task Projection_OptionTypeListItem_ShouldMapCorrectly()
     {
         // Arrange
-        var optionType = OptionType.Create("Size", "Select Size").Value;
+        var name = $"Size_{Guid.NewGuid()}";
+        var optionType = OptionType.Create(name, "Select Size").Value;
         optionType.Position = 5;
         optionType.Filterable = true;
         optionType.PublicMetadata["key"] = "value";
@@ -58,13 +64,13 @@ public class OptionTypeMappingTests : IClassFixture<TestDatabaseFixture>
         // Act
         var result = await _fixture.Context.Set<OptionType>()
             .Where(x => x.Id == optionType.Id)
-            .ProjectToType<OptionTypeListItem>()
+            .ProjectToType<OptionTypeListItem>(_config)
             .FirstOrDefaultAsync(TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(optionType.Id);
-        result.Name.Should().Be("Size");
+        result.Name.Should().Be(name);
         result.Presentation.Should().Be("Select Size");
         result.Position.Should().Be(5);
         result.Filterable.Should().BeTrue();
@@ -78,7 +84,8 @@ public class OptionTypeMappingTests : IClassFixture<TestDatabaseFixture>
     public async Task Projection_OptionTypeDetail_ShouldMapCorrectly()
     {
         // Arrange
-        var optionType = OptionType.Create("Material").Value;
+        var name = $"Material_{Guid.NewGuid()}";
+        var optionType = OptionType.Create(name).Value;
         optionType.AddValue("Cotton", "Cotton Material");
         optionType.AddValue("Silk", "Silk Material");
 
@@ -88,13 +95,13 @@ public class OptionTypeMappingTests : IClassFixture<TestDatabaseFixture>
         // Act
         var result = await _fixture.Context.Set<OptionType>()
             .Where(x => x.Id == optionType.Id)
-            .ProjectToType<OptionTypeDetail>()
+            .ProjectToType<OptionTypeDetail>(_config)
             .FirstOrDefaultAsync(TestContext.Current.CancellationToken);
 
         // Assert
         result.Should().NotBeNull();
         result!.Id.Should().Be(optionType.Id);
-        result.Name.Should().Be("Material");
+        result.Name.Should().Be(name);
         result.OptionValues.Should().HaveCount(2);
         result.OptionValues.Should().Contain(v => v.Name == "Cotton" && v.Presentation == "Cotton Material" && v.Position == 0);
         result.OptionValues.Should().Contain(v => v.Name == "Silk" && v.Presentation == "Silk Material" && v.Position == 1);
@@ -112,7 +119,7 @@ public class OptionTypeMappingTests : IClassFixture<TestDatabaseFixture>
         // Act
         var result = await _fixture.Context.Set<OptionType>()
             .Where(x => x.Id == optionType.Id)
-            .ProjectToType<OptionTypeListItem>()
+            .ProjectToType<OptionTypeListItem>(_config)
             .FirstOrDefaultAsync(TestContext.Current.CancellationToken);
 
         // Assert

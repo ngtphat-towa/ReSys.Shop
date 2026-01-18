@@ -4,11 +4,14 @@ using System.Text;
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Domain.Catalog.OptionTypes;
+using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 using ReSys.Core.Features.Catalog.OptionTypes.Common;
 using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
+using ReSys.Shared.Extensions;
 using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Catalog.OptionTypes;
@@ -36,6 +39,28 @@ public class UpdateOptionValueTests(IntegrationTestWebAppFactory factory, ITestO
 
         apiResponse!.Data!.Name.Should().Be("NewName");
         apiResponse.Data.Presentation.Should().Be("NewPres");
+    }
+
+    [Fact(DisplayName = "PUT /api/catalog/option-types/{optionTypeId}/values/{id}: Should return Conflict for duplicate name")]
+    public async Task Put_DuplicateName_ReturnsConflict()
+    {
+        // Arrange
+        var optionType = await SeedOptionTypeAsync($"ValueConflict_{Guid.NewGuid()}");
+        await SeedOptionValueAsync(optionType.Id, "Exist", "Exist");
+        var value = await SeedOptionValueAsync(optionType.Id, "Old", "Old");
+        
+        var request = new UpdateOptionValue.Request { Name = "Exist", Presentation = "P" };
+
+        // Act
+        var response = await Client.PutAsync($"/api/catalog/option-types/{optionType.Id}/values/{value.Id}",
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"),
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<OptionValueModel>>(content, JsonSettings);
+        apiResponse!.ErrorCode.Should().Be(OptionValueErrors.NameAlreadyExists("Exist").Code.ToSnakeCase());
     }
 
     private async Task<OptionValueModel> SeedOptionValueAsync(Guid optionTypeId, string name, string presentation)

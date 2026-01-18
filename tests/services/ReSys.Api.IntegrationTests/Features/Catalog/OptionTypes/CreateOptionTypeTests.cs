@@ -2,8 +2,10 @@ using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.Common;
 using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Shared.Extensions;
 using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Catalog.OptionTypes;
@@ -53,5 +55,26 @@ public class CreateOptionTypeTests(IntegrationTestWebAppFactory factory, ITestOu
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<OptionTypeDetail>>(content, JsonSettings);
+        apiResponse!.ErrorCode.Should().Be(OptionTypeErrors.DuplicateName.Code.ToSnakeCase());
+    }
+
+    [Fact(DisplayName = "POST /api/catalog/option-types: Should return BadRequest for invalid input")]
+    public async Task Post_WithEmptyName_ReturnsBadRequest()
+    {
+        // Arrange
+        var request = new CreateOptionType.Request { Name = "", Presentation = "P" };
+
+        // Act
+        var response = await Client.PostAsync("/api/catalog/option-types", 
+            new StringContent(JsonConvert.SerializeObject(request, JsonSettings), Encoding.UTF8, "application/json"), 
+            TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<OptionTypeDetail>>(content, JsonSettings);
+        apiResponse!.Errors.Should().ContainKey("Request.Name");
     }
 }

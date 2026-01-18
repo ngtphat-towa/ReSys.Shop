@@ -1,7 +1,9 @@
 using System.Net;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
+using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.Common;
 using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Shared.Extensions;
 using Newtonsoft.Json;
 using System.Text;
 using ReSys.Shared.Models.Wrappers;
@@ -25,6 +27,28 @@ public class DeleteOptionTypeTests(IntegrationTestWebAppFactory factory, ITestOu
         
         var getResponse = await Client.GetAsync($"/api/catalog/option-types/{created.Id}", TestContext.Current.CancellationToken);
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact(DisplayName = "DELETE /api/catalog/option-types/{id}: Should return Conflict when values exist")]
+    public async Task Delete_WithValues_ReturnsConflict()
+    {
+        // Arrange
+        var created = await SeedOptionTypeAsync($"DeleteConflict_{Guid.NewGuid()}");
+        
+        // Add a value
+        var valRequest = new { Name = "V1", Presentation = "V1" };
+        await Client.PostAsync($"/api/catalog/option-types/{created.Id}/values", 
+            new StringContent(JsonConvert.SerializeObject(valRequest, JsonSettings), Encoding.UTF8, "application/json"), 
+            TestContext.Current.CancellationToken);
+
+        // Act
+        var response = await Client.DeleteAsync($"/api/catalog/option-types/{created.Id}", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var apiResponse = JsonConvert.DeserializeObject<ApiResponse<OptionTypeDetail>>(content, JsonSettings);
+        apiResponse!.ErrorCode.Should().Be(OptionTypeErrors.CannotDeleteWithValues.Code.ToSnakeCase());
     }
 
     private async Task<OptionTypeDetail> SeedOptionTypeAsync(string name)

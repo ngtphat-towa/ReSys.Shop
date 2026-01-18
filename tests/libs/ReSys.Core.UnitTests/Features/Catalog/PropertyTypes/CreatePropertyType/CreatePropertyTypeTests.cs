@@ -41,4 +41,25 @@ public class CreatePropertyTypeTests : IClassFixture<TestDatabaseFixture>
         result.IsError.Should().BeFalse();
         result.Value.Name.Should().Be(request.Name);
     }
+
+    [Fact(DisplayName = "Handle: Should return error when name is duplicate")]
+    public async Task Handle_DuplicateName_ShouldReturnError()
+    {
+        // Arrange
+        var name = $"Duplicate_{Guid.NewGuid()}";
+        var existing = PropertyType.Create(name).Value;
+        _fixture.Context.Set<PropertyType>().Add(existing);
+        await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var handler = new ReSys.Core.Features.Catalog.PropertyTypes.CreatePropertyType.CreatePropertyType.Handler(_fixture.Context);
+        var request = new ReSys.Core.Features.Catalog.PropertyTypes.CreatePropertyType.CreatePropertyType.Request { Name = name, Kind = PropertyKind.String };
+        var command = new ReSys.Core.Features.Catalog.PropertyTypes.CreatePropertyType.CreatePropertyType.Command(request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(PropertyTypeErrors.DuplicateName);
+    }
 }

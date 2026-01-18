@@ -4,8 +4,9 @@ using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.UnitTests.TestInfrastructure;
+using ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType;
 
-namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.DeleteOptionType;
+namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Catalog")]
@@ -22,8 +23,8 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
         fixture.Context.Set<OptionType>().Add(optionType);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Handler(fixture.Context);
-        var command = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Command(optionType.Id);
+        var handler = new DeleteOptionType.Handler(fixture.Context);
+        var command = new DeleteOptionType.Command(optionType.Id);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -46,8 +47,8 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
         fixture.Context.Set<OptionType>().Add(optionType);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Handler(fixture.Context);
-        var command = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Command(optionType.Id);
+        var handler = new DeleteOptionType.Handler(fixture.Context);
+        var command = new DeleteOptionType.Command(optionType.Id);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -65,8 +66,8 @@ public class DeleteOptionTypeTests(TestDatabaseFixture fixture) : IClassFixture<
     public async Task Handle_NonExistent_ShouldReturnNotFound()
     {
         // Arrange
-        var handler = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Handler(fixture.Context);
-        var command = new ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType.DeleteOptionType.Command(Guid.NewGuid());
+        var handler = new DeleteOptionType.Handler(fixture.Context);
+        var command = new DeleteOptionType.Command(Guid.NewGuid());
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);

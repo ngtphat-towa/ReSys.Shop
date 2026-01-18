@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 
+using ErrorOr;
+
 using Mapster;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
+using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.OptionValues;
 
@@ -30,13 +33,13 @@ public class CreateOptionValueTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(ot);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Handler(_fixture.Context);
-        var request = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Request
+        var handler = new CreateOptionValue.Handler(_fixture.Context);
+        var request = new CreateOptionValue.Request
         {
             Name = "Cotton",
             Presentation = "Natural Cotton"
         };
-        var command = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Command(ot.Id, request);
+        var command = new CreateOptionValue.Command(ot.Id, request);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -58,9 +61,9 @@ public class CreateOptionValueTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(ot);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Handler(_fixture.Context);
-        var request = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Request { Name = "Large" };
-        var command = new Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue.CreateOptionValue.Command(ot.Id, request);
+        var handler = new CreateOptionValue.Handler(_fixture.Context);
+        var request = new CreateOptionValue.Request { Name = "Large" };
+        var command = new CreateOptionValue.Command(ot.Id, request);
 
         // Act
         var result = await handler.Handle(command, TestContext.Current.CancellationToken);
@@ -68,5 +71,21 @@ public class CreateOptionValueTests : IClassFixture<TestDatabaseFixture>
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(OptionValueErrors.NameAlreadyExists("Large"));
+    }
+
+    [Fact(DisplayName = "Handle: Should return NotFound when parent option type does not exist")]
+    public async Task Handle_ParentNotFound_ShouldReturnNotFound()
+    {
+        // Arrange
+        var handler = new CreateOptionValue.Handler(_fixture.Context);
+        var request = new CreateOptionValue.Request { Name = "Valid" };
+        var command = new CreateOptionValue.Command(Guid.NewGuid(), request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.NotFound);
     }
 }

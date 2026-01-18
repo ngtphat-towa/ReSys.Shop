@@ -1,4 +1,5 @@
 using NSubstitute;
+
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.CreateTaxon;
@@ -10,8 +11,6 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa;
 [Trait("Module", "Catalog")]
 public class CreateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
-    private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
-    private readonly ITaxonRegenerationService _regenerationService = Substitute.For<ITaxonRegenerationService>();
 
     [Fact(DisplayName = "Handle: Should create taxon successfully")]
     public async Task Handle_ValidRequest_ShouldSucceed()

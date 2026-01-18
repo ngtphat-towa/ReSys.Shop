@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+
 using NSubstitute;
+
+using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
@@ -38,5 +41,26 @@ public class CreateTaxonomyTests(TestDatabaseFixture fixture) : IClassFixture<Te
 
         rootTaxon.Should().NotBeNull();
         rootTaxon!.Name.Should().Be(request.Name);
+    }
+
+    [Fact(DisplayName = "Handle: Should return error when name is duplicate")]
+    public async Task Handle_DuplicateName_ShouldReturnError()
+    {
+        // Arrange
+        var name = $"Duplicate_{Guid.NewGuid()}";
+        var existing = Taxonomy.Create(name).Value;
+        fixture.Context.Set<ReSys.Core.Domain.Catalog.Taxonomies.Taxonomy>().Add(existing);
+        await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var handler = new CreateTaxonomy.Handler(fixture.Context);
+        var request = new CreateTaxonomy.Request { Name = name };
+        var command = new CreateTaxonomy.Command(request);
+
+        // Act
+        var result = await handler.Handle(command, TestContext.Current.CancellationToken);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ReSys.Core.Domain.Catalog.Taxonomies.TaxonomyErrors.DuplicateName);
     }
 }

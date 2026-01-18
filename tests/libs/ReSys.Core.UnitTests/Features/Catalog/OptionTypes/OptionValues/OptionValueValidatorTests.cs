@@ -37,6 +37,20 @@ public class OptionValueValidatorTests
             .WithErrorCode(OptionValueErrors.PresentationRequired.Code);
     }
 
+    [Fact(DisplayName = "Validator: Should fail when position is negative")]
+    public void Validator_NegativePosition_ShouldHaveError()
+    {
+        var model = new OptionValueInput
+        {
+            Name = "Valid",
+            Presentation = "Valid",
+            Position = -1
+        };
+        var result = _validator.TestValidate(model);
+        result.ShouldHaveValidationErrorFor(x => x.Position)
+            .WithErrorCode(OptionValueErrors.InvalidPosition.Code);
+    }
+
     [Fact(DisplayName = "Validator: Should pass for valid input")]
     public void Validator_ValidInput_ShouldNotHaveErrors()
     {
