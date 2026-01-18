@@ -50,6 +50,10 @@ public static class TaxonErrors
         code: "Taxon.SortOrderRequired",
         description: "Sort order is required when automatic classification is enabled.");
 
+    public static Error InvalidPosition => Error.Validation(
+        code: "Taxon.InvalidPosition",
+        description: "Position must be greater than or equal to 0.");
+
     public static Error ParentTaxonomyMismatch => Error.Validation(
         code: "Taxon.ParentTaxonomyMismatch",
         description: "The parent taxon must belong to the same taxonomy.");

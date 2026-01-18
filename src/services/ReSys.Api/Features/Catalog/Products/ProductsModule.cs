@@ -10,6 +10,9 @@ using ReSys.Core.Features.Catalog.Products.GetProductSelectList;
 using ReSys.Core.Features.Catalog.Products.UpdateProduct;
 using ReSys.Core.Features.Catalog.Products.ActivateProduct;
 using ReSys.Core.Features.Catalog.Products.ArchiveProduct;
+using ReSys.Core.Features.Catalog.Products.DraftProduct;
+using ReSys.Core.Features.Catalog.Products.DiscontinueProduct;
+using ReSys.Core.Features.Catalog.Products.GetProductBySlug;
 using ReSys.Core.Features.Catalog.Products.Classifications.GetProductClassifications;
 using ReSys.Core.Features.Catalog.Products.Classifications.ManageProductClassifications;
 using ReSys.Core.Features.Catalog.Products.OptionTypes.GetProductOptionTypes;
@@ -46,12 +49,19 @@ public class ProductsModule : ICarterModule
         })
         .WithName("GetProductSelectList");
 
-        group.MapGet("/{id}", async (Guid id, ISender sender) =>
+        group.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetProductDetail.Query(new GetProductDetail.Request(id)));
             return result.ToApiResponse();
         })
         .WithName("GetProductById");
+
+        group.MapGet("/slug/{slug}", async (string slug, ISender sender) =>
+        {
+            var result = await sender.Send(new GetProductBySlug.Query(new GetProductBySlug.Request(slug)));
+            return result.ToApiResponse();
+        })
+        .WithName("GetProductBySlug");
 
         group.MapPost("/", async ([FromBody] CreateProduct.Request request, ISender sender, CancellationToken ct) =>
         {
@@ -60,14 +70,14 @@ public class ProductsModule : ICarterModule
         })
         .WithName("CreateProduct");
 
-        group.MapPut("/{id}", async (Guid id, [FromBody] UpdateProduct.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateProduct.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new UpdateProduct.Command(id, request), ct);
             return result.ToApiResponse();
         })
         .WithName("UpdateProduct");
 
-        group.MapDelete("/{id}", async (Guid id, ISender sender) =>
+        group.MapDelete("/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new DeleteProduct.Command(id));
             if (result.IsError) return result.ToApiResponse();
@@ -75,22 +85,37 @@ public class ProductsModule : ICarterModule
         })
         .WithName("DeleteProduct");
 
-        group.MapPatch("/{id}/activate", async (Guid id, ISender sender, CancellationToken ct) =>
+        // Status Management
+        group.MapPatch("/{id:guid}/activate", async (Guid id, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ActivateProduct.Command(id), ct);
             return result.ToApiResponse();
         })
         .WithName("ActivateProduct");
 
-        group.MapPatch("/{id}/archive", async (Guid id, ISender sender, CancellationToken ct) =>
+        group.MapPatch("/{id:guid}/archive", async (Guid id, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ArchiveProduct.Command(id), ct);
             return result.ToApiResponse();
         })
         .WithName("ArchiveProduct");
 
+        group.MapPatch("/{id:guid}/draft", async (Guid id, ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new DraftProduct.Command(id), ct);
+            return result.ToApiResponse();
+        })
+        .WithName("DraftProduct");
+
+        group.MapPatch("/{id:guid}/discontinue", async (Guid id, ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new DiscontinueProduct.Command(id), ct);
+            return result.ToApiResponse();
+        })
+        .WithName("DiscontinueProduct");
+
         // Classifications
-        group.MapGet("/{id}/classifications", async (Guid id, [AsParameters] GetProductClassifications.Request request, ISender sender) =>
+        group.MapGet("/{id:guid}/classifications", async (Guid id, [AsParameters] GetProductClassifications.Request request, ISender sender) =>
         {
             request.ProductId = id;
             var result = await sender.Send(new GetProductClassifications.Query(request));
@@ -98,7 +123,7 @@ public class ProductsModule : ICarterModule
         })
         .WithName("GetProductClassifications");
 
-        group.MapPut("/{id}/classifications", async (Guid id, [FromBody] ManageProductClassifications.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}/classifications", async (Guid id, [FromBody] ManageProductClassifications.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ManageProductClassifications.Command(id, request), ct);
             return result.ToApiResponse();
@@ -106,7 +131,7 @@ public class ProductsModule : ICarterModule
         .WithName("ManageProductClassifications");
 
         // Option Types
-        group.MapGet("/{id}/option-types", async (Guid id, [AsParameters] GetProductOptionTypes.Request request, ISender sender) =>
+        group.MapGet("/{id:guid}/option-types", async (Guid id, [AsParameters] GetProductOptionTypes.Request request, ISender sender) =>
         {
             request.ProductId = id;
             var result = await sender.Send(new GetProductOptionTypes.Query(request));
@@ -114,7 +139,7 @@ public class ProductsModule : ICarterModule
         })
         .WithName("GetProductOptionTypes");
 
-        group.MapPut("/{id}/option-types", async (Guid id, [FromBody] ManageProductOptionTypes.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}/option-types", async (Guid id, [FromBody] ManageProductOptionTypes.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ManageProductOptionTypes.Command(id, request), ct);
             return result.ToApiResponse();
@@ -122,7 +147,7 @@ public class ProductsModule : ICarterModule
         .WithName("ManageProductOptionTypes");
 
         // Properties
-        group.MapGet("/{id}/properties", async (Guid id, [AsParameters] GetProductProperties.Request request, ISender sender) =>
+        group.MapGet("/{id:guid}/properties", async (Guid id, [AsParameters] GetProductProperties.Request request, ISender sender) =>
         {
             request.ProductId = id;
             var result = await sender.Send(new GetProductProperties.Query(request));
@@ -130,7 +155,7 @@ public class ProductsModule : ICarterModule
         })
         .WithName("GetProductProperties");
 
-        group.MapPut("/{id}/properties", async (Guid id, [FromBody] ManageProductProperties.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}/properties", async (Guid id, [FromBody] ManageProductProperties.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ManageProductProperties.Command(id, request), ct);
             return result.ToApiResponse();
@@ -138,7 +163,7 @@ public class ProductsModule : ICarterModule
         .WithName("ManageProductProperties");
 
         // Images
-        group.MapGet("/{id}/images", async (Guid id, [AsParameters] GetProductImages.Request request, ISender sender) =>
+        group.MapGet("/{id:guid}/images", async (Guid id, [AsParameters] GetProductImages.Request request, ISender sender) =>
         {
             request.ProductId = id;
             var result = await sender.Send(new GetProductImages.Query(request));
@@ -146,7 +171,7 @@ public class ProductsModule : ICarterModule
         })
         .WithName("GetProductImages");
 
-        group.MapPost("/{id}/images", async (
+        group.MapPost("/{id:guid}/images", async (
             Guid id,
             IFormFile file,
             [FromQuery] Guid? variantId,
@@ -163,7 +188,7 @@ public class ProductsModule : ICarterModule
         .WithName("UploadProductImage")
         .DisableAntiforgery();
 
-        group.MapPut("/{id}/images/{imageId}", async (
+        group.MapPut("/{id:guid}/images/{imageId:guid}", async (
             Guid id,
             Guid imageId,
             [FromBody] UpdateProductImage.Request request,
@@ -176,7 +201,7 @@ public class ProductsModule : ICarterModule
         })
         .WithName("UpdateProductImage");
 
-        group.MapDelete("/{id}/images/{imageId}", async (Guid id, Guid imageId, ISender sender) =>
+        group.MapDelete("/{id:guid}/images/{imageId:guid}", async (Guid id, Guid imageId, ISender sender) =>
         {
             var result = await sender.Send(new RemoveProductImage.Command(id, imageId));
             if (result.IsError) return result.ToApiResponse();

@@ -26,7 +26,12 @@ public abstract class TaxonRuleValidator<T> : AbstractValidator<T> where T : Tax
             .WithMessage(TaxonRuleErrors.PropertyNameRequired.Description);
 
         RuleFor(x => x.Value)
-            .NotEmpty();
+            .NotEmpty()
+                .WithErrorCode(TaxonRuleErrors.ValueRequired.Code)
+                .WithMessage(TaxonRuleErrors.ValueRequired.Description)
+            .MaximumLength(TaxonRuleConstraints.ValueMaxLength)
+                .WithErrorCode(TaxonRuleErrors.ValueTooLong.Code)
+                .WithMessage(TaxonRuleErrors.ValueTooLong.Description);
     }
 }
 

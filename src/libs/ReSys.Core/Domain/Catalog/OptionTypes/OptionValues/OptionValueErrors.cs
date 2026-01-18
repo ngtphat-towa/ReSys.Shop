@@ -27,4 +27,8 @@ public static class OptionValueErrors
     public static Error NameAlreadyExists(string name) => Error.Conflict(
         code: "OptionValue.NameAlreadyExists",
         description: $"Option value with name '{name}' already exists for this option type.");
+
+    public static Error InvalidPosition => Error.Validation(
+        code: "OptionValue.InvalidPosition",
+        description: $"Position must be greater than or equal to {OptionValueConstraints.MinPosition}.");
 }

@@ -59,7 +59,7 @@ public class ProductInputValidator : ProductParametersValidator<ProductInput>
 
         RuleFor(x => x.Price)
             .GreaterThanOrEqualTo(0);
-        
+
         RuleFor(x => x.MetaTitle)
             .MaximumLength(ProductConstraints.Seo.MetaTitleMaxLength)
                 .WithErrorCode(ProductErrors.Seo.MetaTitleTooLong.Code)
@@ -69,7 +69,7 @@ public class ProductInputValidator : ProductParametersValidator<ProductInput>
             .MaximumLength(ProductConstraints.Seo.MetaDescriptionMaxLength)
                 .WithErrorCode(ProductErrors.Seo.MetaDescriptionTooLong.Code)
                 .WithMessage(ProductErrors.Seo.MetaDescriptionTooLong.Description);
-        
+
         RuleFor(x => x.MetaKeywords)
             .MaximumLength(ProductConstraints.Seo.MetaKeywordsMaxLength)
                 .WithErrorCode(ProductErrors.Seo.MetaKeywordsTooLong.Code)

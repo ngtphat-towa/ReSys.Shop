@@ -37,10 +37,7 @@ public record OptionTypeListItem : OptionTypeParameters, IHasMetadata
 }
 
 // Read model for Detail: Includes Metadata and Values
-public record OptionTypeDetail : OptionTypeParameters, IHasMetadata
+public record OptionTypeDetail : OptionTypeListItem
 {
-    public Guid Id { get; init; }
-    public IDictionary<string, object?> PublicMetadata { get; set; } = new Dictionary<string, object?>();
-    public IDictionary<string, object?> PrivateMetadata { get; set; } = new Dictionary<string, object?>();
     public IEnumerable<OptionValueModel> OptionValues { get; init; } = [];
 }

@@ -7,7 +7,6 @@ using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Common;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Taxa.CreateTaxon;
 
@@ -27,8 +26,7 @@ public static class CreateTaxon
         }
     }
 
-    public class Handler(
-        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -72,7 +70,11 @@ public static class CreateTaxon
 
             // 2. Products: Regenerate via events
 
-            return taxon.Adapt<Response>();
+            return await context.Set<Taxon>()
+                .AsNoTracking()
+                .Where(x => x.Id == taxon.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

@@ -21,13 +21,15 @@ public sealed class Taxonomy : Aggregate, IHasMetadata
 
     private Taxonomy() { }
 
-    public static ErrorOr<Taxonomy> Create(string name, string? presentation = null, int position = 0)
+    public static ErrorOr<Taxonomy> Create(string name, string? presentation = null, int position = TaxonomyConstraints.DefaultPosition)
     {
         if (string.IsNullOrWhiteSpace(name)) return TaxonomyErrors.NameRequired;
         if (name.Length > TaxonomyConstraints.NameMaxLength) return TaxonomyErrors.NameTooLong;
 
         var finalPresentation = presentation?.Trim() ?? name.Trim();
         if (finalPresentation.Length > TaxonomyConstraints.PresentationMaxLength) return TaxonomyErrors.PresentationTooLong;
+
+        if (position < TaxonomyConstraints.MinPosition) return TaxonomyErrors.InvalidPosition;
 
         var taxonomy = new Taxonomy
         {
@@ -55,6 +57,8 @@ public sealed class Taxonomy : Aggregate, IHasMetadata
 
         if (string.IsNullOrWhiteSpace(presentation)) return TaxonomyErrors.PresentationRequired;
         if (presentation.Length > TaxonomyConstraints.PresentationMaxLength) return TaxonomyErrors.PresentationTooLong;
+
+        if (position < TaxonomyConstraints.MinPosition) return TaxonomyErrors.InvalidPosition;
 
         Name = name.Trim();
         Presentation = presentation.Trim();

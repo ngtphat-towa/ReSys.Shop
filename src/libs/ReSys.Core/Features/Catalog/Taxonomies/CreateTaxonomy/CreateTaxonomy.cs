@@ -6,7 +6,6 @@ using Mapster;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Common;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
 
@@ -31,8 +30,7 @@ public static class CreateTaxonomy
     }
 
     // Handler:
-    public class Handler(
-        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -73,7 +71,11 @@ public static class CreateTaxonomy
             // Hierarchy: initialization via events
 
             // Return: projected response
-            return taxonomy.Adapt<Response>();
+            return await context.Set<Taxonomy>()
+                .AsNoTracking()
+                .Where(x => x.Id == taxonomy.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

@@ -8,12 +8,13 @@ namespace ReSys.Core.Domain.Catalog.Products.Variants;
 public sealed class Variant : Aggregate, IHasMetadata, ISoftDeletable
 {
     public Guid ProductId { get; set; }
-    public bool IsMaster { get; set; }
-    public string? Sku { get; set; }
-    public string? Barcode { get; set; }
-
-    // Physical
-    public decimal? Weight { get; set; }
+        public bool IsMaster { get; set; }
+        public string? Sku { get; set; }
+        public string? Barcode { get; set; }
+        public DateTimeOffset? DiscontinuedOn { get; set; }
+        
+        // Physical
+        public decimal? Weight { get; set; }
     public decimal? Height { get; set; }
     public decimal? Width { get; set; }
     public decimal? Depth { get; set; }
@@ -105,18 +106,24 @@ public sealed class Variant : Aggregate, IHasMetadata, ISoftDeletable
         return Result.Deleted;
     }
 
-    public ErrorOr<Success> Restore()
-    {
-        if (!IsDeleted) return Result.Success;
-
-        IsDeleted = false;
-        DeletedAt = null;
-        RaiseDomainEvent(new VariantEvents.VariantRestored(this));
-        return Result.Success;
-    }
-
-    public ErrorOr<Success> AddOptionValue(OptionValue value)
-    {
+        public ErrorOr<Success> Restore()
+        {
+            if (!IsDeleted) return Result.Success;
+            
+            IsDeleted = false;
+            DeletedAt = null;
+            RaiseDomainEvent(new VariantEvents.VariantRestored(this));
+            return Result.Success;
+        }
+    
+            public ErrorOr<Success> Discontinue()
+            {
+                if (DiscontinuedOn != null) return Result.Success;
+                DiscontinuedOn = DateTimeOffset.UtcNow;
+                RaiseDomainEvent(new VariantEvents.VariantUpdated(this));
+                return Result.Success;
+            }    
+        public ErrorOr<Success> AddOptionValue(OptionValue value)    {
         if (IsMaster) return VariantErrors.MasterCannotHaveOptions;
 
         if (!OptionValues.Any(ov => ov.Id == value.Id))

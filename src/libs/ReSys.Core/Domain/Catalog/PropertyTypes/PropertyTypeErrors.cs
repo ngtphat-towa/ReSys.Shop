@@ -35,4 +35,8 @@ public static class PropertyTypeErrors
     public static Error InUse => Error.Conflict(
         code: "PropertyType.InUse",
         description: "Cannot delete property type that is currently in use by products.");
+
+    public static Error InvalidPosition => Error.Validation(
+        code: "PropertyType.InvalidPosition",
+        description: $"Position must be greater than or equal to {PropertyTypeConstraints.MinPosition}.");
 }

@@ -4,4 +4,5 @@ public static class OptionValueConstraints
 {
     public const int NameMaxLength = 100;
     public const int PresentationMaxLength = 100;
+    public const int MinPosition = 0;
 }

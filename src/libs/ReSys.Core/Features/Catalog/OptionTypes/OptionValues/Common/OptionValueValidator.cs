@@ -24,6 +24,11 @@ public abstract class OptionValueValidator<T> : AbstractValidator<T> where T : O
             .MaximumLength(OptionValueConstraints.PresentationMaxLength)
                 .WithErrorCode(OptionValueErrors.PresentationTooLong.Code)
                 .WithMessage(OptionValueErrors.PresentationTooLong.Description);
+
+        RuleFor(x => x.Position)
+            .GreaterThanOrEqualTo(OptionValueConstraints.MinPosition)
+                .WithErrorCode(OptionValueErrors.InvalidPosition.Code)
+                .WithMessage(OptionValueErrors.InvalidPosition.Description);
     }
 }
 

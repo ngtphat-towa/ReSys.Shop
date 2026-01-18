@@ -26,48 +26,83 @@ public static class UpdateVariant
         }
     }
 
-    public class Handler(IApplicationDbContext context, ILogger<Handler> logger) : IRequestHandler<Command, ErrorOr<Response>>
-    {
-        public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
+        public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+
         {
-            try
+
+            public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
+
             {
+
                 var request = command.Request;
 
+    
+
                 var variant = await context.Set<Variant>()
+
                     .Include(v => v.Product)
+
                     .Include(v => v.OptionValues).ThenInclude(ov => ov.OptionType)
+
                     .FirstOrDefaultAsync(v => v.Id == command.Id, cancellationToken);
 
+    
+
                 if (variant == null)
+
                     return VariantErrors.NotFound(command.Id);
 
+    
+
                 // Update fields
+
                 variant.Sku = request.Sku;
+
                 variant.Barcode = request.Barcode;
+
                 
+
                 var priceResult = variant.UpdatePricing(request.Price, request.CompareAtPrice);
+
                 if (priceResult.IsError) return priceResult.Errors;
 
+    
+
                 var dimResult = variant.UpdateDimensions(request.Weight, request.Height, request.Width, request.Depth);
+
                 if (dimResult.IsError) return dimResult.Errors;
 
+    
+
                 variant.CostPrice = request.CostPrice;
+
                 variant.TrackInventory = request.TrackInventory;
+
                 variant.Position = request.Position;
+
                 variant.PublicMetadata = request.PublicMetadata;
+
                 variant.PrivateMetadata = request.PrivateMetadata;
 
+    
+
                 context.Set<Variant>().Update(variant);
+
                 await context.SaveChangesAsync(cancellationToken);
 
-                return variant.Adapt<Response>();
+    
+
+                return await context.Set<Variant>()
+
+                    .AsNoTracking()
+
+                    .Where(x => x.Id == variant.Id)
+
+                    .ProjectToType<Response>()
+
+                    .FirstAsync(cancellationToken);
+
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error updating variant {VariantId}", command.Id);
-                return Error.Failure("Variant.UpdateFailed", $"Failed to update variant: {ex.Message}");
-            }
+
         }
-    }
 }

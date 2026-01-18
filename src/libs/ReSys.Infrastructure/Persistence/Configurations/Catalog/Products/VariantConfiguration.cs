@@ -41,5 +41,10 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
         // Relationships
         builder.HasMany(x => x.OptionValues)
             .WithMany(); // Uni-directional Many-to-Many
+
+        builder.HasMany(x => x.StockItems)
+            .WithOne()
+            .HasForeignKey(x => x.VariantId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -23,15 +23,21 @@ public sealed class OptionType : Aggregate, IHasMetadata
     public static ErrorOr<OptionType> Create(
         string name,
         string? presentation = null,
-        int position = 0,
+        int position = OptionTypeConstraints.DefaultPosition,
         bool filterable = false)
     {
         if (string.IsNullOrWhiteSpace(name)) return OptionTypeErrors.NameRequired;
+        if (name.Length > OptionTypeConstraints.NameMaxLength) return OptionTypeErrors.NameTooLong;
+
+        var presentationValue = presentation?.Trim() ?? name.Trim();
+        if (presentationValue.Length > OptionTypeConstraints.PresentationMaxLength) return OptionTypeErrors.PresentationTooLong;
+
+        if (position < OptionTypeConstraints.MinPosition) return OptionTypeErrors.InvalidPosition;
 
         var optionType = new OptionType
         {
             Name = name.Trim(),
-            Presentation = presentation?.Trim() ?? name.Trim(),
+            Presentation = presentationValue,
             Position = position,
             Filterable = filterable
         };
@@ -47,6 +53,12 @@ public sealed class OptionType : Aggregate, IHasMetadata
         bool filterable)
     {
         if (string.IsNullOrWhiteSpace(name)) return OptionTypeErrors.NameRequired;
+        if (name.Length > OptionTypeConstraints.NameMaxLength) return OptionTypeErrors.NameTooLong;
+
+        if (string.IsNullOrWhiteSpace(presentation)) return OptionTypeErrors.PresentationRequired;
+        if (presentation.Length > OptionTypeConstraints.PresentationMaxLength) return OptionTypeErrors.PresentationTooLong;
+
+        if (position < OptionTypeConstraints.MinPosition) return OptionTypeErrors.InvalidPosition;
 
         Name = name.Trim();
         Presentation = presentation.Trim();

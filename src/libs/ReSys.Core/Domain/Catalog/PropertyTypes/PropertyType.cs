@@ -38,7 +38,7 @@ public sealed class PropertyType : Aggregate, IHasMetadata
         string name, 
         string? presentation = null, 
         PropertyKind kind = PropertyKind.String,
-        int position = 0, 
+        int position = PropertyTypeConstraints.DefaultPosition, 
         bool filterable = false)
     {
         if (string.IsNullOrWhiteSpace(name)) return PropertyTypeErrors.NameRequired;
@@ -46,6 +46,8 @@ public sealed class PropertyType : Aggregate, IHasMetadata
 
         var finalPresentation = presentation?.Trim() ?? name.Trim();
         if (finalPresentation.Length > PropertyTypeConstraints.PresentationMaxLength) return PropertyTypeErrors.PresentationTooLong;
+
+        if (position < PropertyTypeConstraints.MinPosition) return PropertyTypeErrors.InvalidPosition;
 
         var propertyType = new PropertyType
         {
@@ -72,6 +74,8 @@ public sealed class PropertyType : Aggregate, IHasMetadata
 
         if (string.IsNullOrWhiteSpace(presentation)) return PropertyTypeErrors.PresentationRequired;
         if (presentation.Length > PropertyTypeConstraints.PresentationMaxLength) return PropertyTypeErrors.PresentationTooLong;
+
+        if (position < PropertyTypeConstraints.MinPosition) return PropertyTypeErrors.InvalidPosition;
 
         Name = name.Trim();
         Presentation = presentation.Trim();

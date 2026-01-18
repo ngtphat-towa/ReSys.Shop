@@ -5,8 +5,7 @@ using ReSys.Core.Domain.Common.Abstractions;
 
 namespace ReSys.Core.Features.Catalog.OptionTypes.Common;
 
-public abstract class OptionTypeValidator<T> : AbstractValidator<T> where T
-    : OptionTypeParameters
+public abstract class OptionTypeValidator<T> : AbstractValidator<T> where T : OptionTypeParameters
 {
     protected OptionTypeValidator()
     {
@@ -19,10 +18,14 @@ public abstract class OptionTypeValidator<T> : AbstractValidator<T> where T
                 .WithMessage(OptionTypeErrors.NameTooLong.Description);
 
         RuleFor(x => x.Presentation)
-
             .MaximumLength(OptionTypeConstraints.PresentationMaxLength)
                 .WithErrorCode(OptionTypeErrors.PresentationTooLong.Code)
                 .WithMessage(OptionTypeErrors.PresentationTooLong.Description);
+
+        RuleFor(x => x.Position)
+            .GreaterThanOrEqualTo(OptionTypeConstraints.MinPosition)
+                .WithErrorCode(OptionTypeErrors.InvalidPosition.Code)
+                .WithMessage(OptionTypeErrors.InvalidPosition.Description);
     }
 }
 

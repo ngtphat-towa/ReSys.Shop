@@ -11,6 +11,7 @@ public static class VariantConstraints
     public const int DimensionScale = 4;
 
     public const decimal MinPrice = 0;
+    public const int DefaultPosition = 0;
     public const int MinPosition = 0;
 
     public static class Dimensions

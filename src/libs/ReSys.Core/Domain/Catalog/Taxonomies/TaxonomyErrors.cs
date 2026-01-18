@@ -23,4 +23,8 @@ public static class TaxonomyErrors
     public static Error HasTaxons => Error.Validation(
         code: "Taxonomy.HasTaxons",
         description: "Cannot delete a taxonomy with associated taxons. Delete or move all taxons first.");
+
+    public static Error InvalidPosition => Error.Validation(
+        code: "Taxonomy.InvalidPosition",
+        description: $"Position must be greater than or equal to {TaxonomyConstraints.MinPosition}.");
 }

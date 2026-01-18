@@ -35,7 +35,9 @@ public abstract class TaxonValidator<T> : AbstractValidator<T> where T : TaxonPa
                 .WithMessage(TaxonErrors.SlugTooLong.Description);
 
         RuleFor(x => x.Position)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(TaxonConstraints.MinPosition)
+                .WithErrorCode(TaxonErrors.InvalidPosition.Code)
+                .WithMessage(TaxonErrors.InvalidPosition.Description);
     }
 }
 

@@ -11,6 +11,7 @@ using ReSys.Core.Features.Catalog.Products.Variants.ManageVariantOptionValues;
 using ReSys.Core.Features.Catalog.Products.Variants.SetMasterVariant;
 using ReSys.Core.Features.Catalog.Products.Variants.SetVariantPrice;
 using ReSys.Core.Features.Catalog.Products.Variants.UpdateVariant;
+using ReSys.Core.Features.Catalog.Products.Variants.DiscontinueVariant;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 
@@ -37,7 +38,7 @@ public class VariantsModule : ICarterModule
         })
         .WithName("GetVariantSelectList");
 
-        group.MapGet("/{id}", async (Guid id, ISender sender) =>
+        group.MapGet("/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new GetVariantDetail.Query(new GetVariantDetail.Request(id)));
             return result.ToApiResponse();
@@ -51,14 +52,14 @@ public class VariantsModule : ICarterModule
         })
         .WithName("CreateVariant");
 
-        group.MapPut("/{id}", async (Guid id, [FromBody] UpdateVariant.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}", async (Guid id, [FromBody] UpdateVariant.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new UpdateVariant.Command(id, request), ct);
             return result.ToApiResponse();
         })
         .WithName("UpdateVariant");
 
-        group.MapDelete("/{id}", async (Guid id, ISender sender) =>
+        group.MapDelete("/{id:guid}", async (Guid id, ISender sender) =>
         {
             var result = await sender.Send(new DeleteVariant.Command(id));
             if (result.IsError) return result.ToApiResponse();
@@ -66,21 +67,28 @@ public class VariantsModule : ICarterModule
         })
         .WithName("DeleteVariant");
 
-        group.MapPost("/{id}/set-master", async (Guid id, ISender sender, CancellationToken ct) =>
+        group.MapPatch("/{id:guid}/discontinue", async (Guid id, ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new DiscontinueVariant.Command(id), ct);
+            return result.ToApiResponse();
+        })
+        .WithName("DiscontinueVariant");
+
+        group.MapPost("/{id:guid}/set-master", async (Guid id, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new SetMasterVariant.Command(id), ct);
             return result.ToApiResponse();
         })
         .WithName("SetMasterVariant");
 
-        group.MapPost("/{id}/price", async (Guid id, [FromBody] SetVariantPrice.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPost("/{id:guid}/price", async (Guid id, [FromBody] SetVariantPrice.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new SetVariantPrice.Command(id, request), ct);
             return result.ToApiResponse();
         })
         .WithName("SetVariantPrice");
 
-        group.MapPut("/{id}/option-values", async (Guid id, [FromBody] ManageVariantOptionValues.Request request, ISender sender, CancellationToken ct) =>
+        group.MapPut("/{id:guid}/option-values", async (Guid id, [FromBody] ManageVariantOptionValues.Request request, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(new ManageVariantOptionValues.Command(id, request), ct);
             return result.ToApiResponse();

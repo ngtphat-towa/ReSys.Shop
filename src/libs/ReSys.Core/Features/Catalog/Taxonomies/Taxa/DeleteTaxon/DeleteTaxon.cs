@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Taxa.DeleteTaxon;
 
@@ -12,8 +11,7 @@ public static class DeleteTaxon
 {
     public record Command(Guid TaxonomyId, Guid Id) : IRequest<ErrorOr<Deleted>>;
 
-    public class Handler(
-        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Deleted>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Deleted>>
     {
         public async Task<ErrorOr<Deleted>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -37,8 +35,6 @@ public static class DeleteTaxon
 
             await context.SaveChangesAsync(cancellationToken);
 
-            // Rebuild hierarchy via events
-            
             return Result.Deleted;
         }
     }

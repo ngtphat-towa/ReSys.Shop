@@ -19,7 +19,7 @@ public record ProductInput : ProductParameters, IHasMetadata
 {
     public string Sku { get; set; } = null!;
     public decimal Price { get; set; }
-    
+
     // SEO
     public string? MetaTitle { get; set; }
     public string? MetaDescription { get; set; }

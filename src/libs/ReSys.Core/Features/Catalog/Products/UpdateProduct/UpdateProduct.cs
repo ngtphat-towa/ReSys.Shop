@@ -6,6 +6,7 @@ using Mapster;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Products;
 using ReSys.Core.Features.Catalog.Products.Common;
+using ReSys.Core.Domain.Catalog.Products.Variants;
 
 namespace ReSys.Core.Features.Catalog.Products.UpdateProduct;
 
@@ -77,7 +78,7 @@ public static class UpdateProduct
                 var priceResult = product.MasterVariant.UpdatePricing(request.Price);
                 if (priceResult.IsError) return priceResult.Errors;
                 
-                context.Set<ReSys.Core.Domain.Catalog.Products.Variants.Variant>().Update(product.MasterVariant);
+                context.Set<Variant>().Update(product.MasterVariant);
             }
 
             // 4. Set: metadata
@@ -89,7 +90,11 @@ public static class UpdateProduct
             await context.SaveChangesAsync(cancellationToken);
 
             // 6. Return: projected response
-            return product.Adapt<Response>();
+            return await context.Set<Product>()
+                .AsNoTracking()
+                .Where(x => x.Id == product.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

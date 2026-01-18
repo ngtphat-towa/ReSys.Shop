@@ -66,7 +66,11 @@ public static class CreateVariant
 
             await context.SaveChangesAsync(cancellationToken);
 
-            return variant.Adapt<Response>();
+            return await context.Set<Variant>()
+                .AsNoTracking()
+                .Where(x => x.Id == variant.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

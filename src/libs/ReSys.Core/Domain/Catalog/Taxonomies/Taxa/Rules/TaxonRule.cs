@@ -24,6 +24,9 @@ public sealed class TaxonRule : Entity
         string? matchPolicy = null,
         string? propertyName = null)
     {
+        if (string.IsNullOrWhiteSpace(value)) return TaxonRuleErrors.ValueRequired;
+        if (value.Length > TaxonRuleConstraints.ValueMaxLength) return TaxonRuleErrors.ValueTooLong;
+
         var normalizedType = type.Trim().ToLowerInvariant();
         if (!TaxonRuleConstraints.RuleTypes.Contains(normalizedType))
             return TaxonRuleErrors.InvalidType;
@@ -51,6 +54,13 @@ public sealed class TaxonRule : Entity
         string? matchPolicy = null,
         string? propertyName = null)
     {
+        if (value is not null)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return TaxonRuleErrors.ValueRequired;
+            if (value.Length > TaxonRuleConstraints.ValueMaxLength) return TaxonRuleErrors.ValueTooLong;
+            Value = value.Trim();
+        }
+
         if (!string.IsNullOrWhiteSpace(type))
         {
             var normalized = type.Trim().ToLowerInvariant();
@@ -58,8 +68,6 @@ public sealed class TaxonRule : Entity
                 return TaxonRuleErrors.InvalidType;
             Type = normalized;
         }
-
-        if (value is not null) Value = value.Trim();
 
         if (!string.IsNullOrWhiteSpace(matchPolicy))
         {
@@ -87,7 +95,6 @@ public sealed class TaxonRule : Entity
             "product_name" => true,
             "product_description" => true,
             "product_status" => true,
-            "is_digital" => true,
             _ => false
         };
     }

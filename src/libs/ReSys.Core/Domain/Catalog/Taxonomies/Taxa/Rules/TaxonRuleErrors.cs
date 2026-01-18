@@ -23,4 +23,12 @@ public static class TaxonRuleErrors
     public static Error PropertyNameRequired => Error.Validation(
         code: "TaxonRule.PropertyNameRequired",
         description: "Property name is required for 'product_property' rule type.");
+
+    public static Error ValueRequired => Error.Validation(
+        code: "TaxonRule.ValueRequired",
+        description: "Rule value is required.");
+
+    public static Error ValueTooLong => Error.Validation(
+        code: "TaxonRule.ValueTooLong",
+        description: $"Value cannot exceed {TaxonRuleConstraints.ValueMaxLength} characters.");
 }

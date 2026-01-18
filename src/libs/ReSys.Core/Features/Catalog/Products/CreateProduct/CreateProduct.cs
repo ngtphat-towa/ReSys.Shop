@@ -80,7 +80,11 @@ public static class CreateProduct
             await context.SaveChangesAsync(cancellationToken);
 
             // Return: projected response
-            return product.Adapt<Response>();
+            return await context.Set<Product>()
+                .AsNoTracking()
+                .Where(x => x.Id == product.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

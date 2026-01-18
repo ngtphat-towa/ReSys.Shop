@@ -66,7 +66,11 @@ public static class CreatePropertyType
             await context.SaveChangesAsync(cancellationToken);
 
             // 5. Return: projected response
-            return propertyType.Adapt<Response>();
+            return await context.Set<PropertyType>()
+                .AsNoTracking()
+                .Where(x => x.Id == propertyType.Id)
+                .ProjectToType<Response>()
+                .FirstAsync(cancellationToken);
         }
     }
 }

@@ -1,7 +1,6 @@
 using Mapster;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
 
 namespace ReSys.Core.Features.Catalog.OptionTypes.Common;
 

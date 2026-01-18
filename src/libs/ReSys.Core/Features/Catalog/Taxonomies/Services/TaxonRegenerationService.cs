@@ -1,13 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Products;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 using ReSys.Core.Common.Extensions.Filters;
-
 using ErrorOr;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Services;
@@ -21,7 +19,7 @@ public sealed class TaxonRegenerationService(
     public async Task<ErrorOr<Success>> RegenerateProductsForTaxonAsync(Guid taxonId, CancellationToken ct)
     {
         logger.LogInformation("Starting product classification regeneration for Taxon {TaxonId}", taxonId);
-
+        
         try
         {
             var taxon = await context.Set<Taxon>()
@@ -68,7 +66,7 @@ public sealed class TaxonRegenerationService(
         }
 
         var rules = taxon.TaxonRules.ToList();
-
+        
         if (taxon.RulesMatchPolicy == "all")
         {
             return await BuildAllMatchPolicyQuery(baseQuery, rules, ct);
@@ -186,14 +184,17 @@ public sealed class TaxonRegenerationService(
 
     private async Task SyncClassificationsAsync(Taxon taxon, HashSet<Guid> matchingProductIds, CancellationToken ct)
     {
-        var existingProductIds = taxon.Classifications.Select(c => c.ProductId).ToHashSet();
+        var existingAutoClassifications = taxon.Classifications
+            .Where(c => c.IsAutomatic)
+            .ToList();
+
+        var existingProductIds = existingAutoClassifications.Select(c => c.ProductId).ToHashSet();
 
         var toAdd = matchingProductIds.Except(existingProductIds).ToList();
-        var toRemoveIds = existingProductIds.Except(matchingProductIds).ToList();
+        var toRemove = existingAutoClassifications.Where(c => !matchingProductIds.Contains(c.ProductId)).ToList();
 
         // Remove
-        var classificationsToRemove = taxon.Classifications.Where(c => toRemoveIds.Contains(c.ProductId)).ToList();
-        foreach (var c in classificationsToRemove)
+        foreach (var c in toRemove)
         {
             taxon.Classifications.Remove(c);
             context.Set<Classification>().Remove(c);
@@ -202,22 +203,27 @@ public sealed class TaxonRegenerationService(
         // Add
         foreach (var productId in toAdd)
         {
-            var classificationResult = Classification.Create(productId, taxon.Id);
+            var classificationResult = Classification.Create(productId, taxon.Id, isAutomatic: true);
             if (!classificationResult.IsError)
             {
                 taxon.Classifications.Add(classificationResult.Value);
+                context.Set<Classification>().Add(classificationResult.Value);
             }
         }
 
         // Mark products for regeneration if needed
-        var affectedProductIds = toAdd.Concat(toRemoveIds).ToList();
+        var affectedProductIds = toAdd.Select(x => x).Concat(toRemove.Select(x => x.ProductId)).ToList();
         if (affectedProductIds.Any())
         {
             var products = await context.Set<Product>()
                 .Where(p => affectedProductIds.Contains(p.Id))
                 .ToListAsync(ct);
 
-            foreach (var p in products) p.MarkedForRegenerateTaxonProducts = true;
+            foreach (var p in products)
+            {
+                p.MarkedForRegenerateTaxonProducts = true;
+                context.Set<Product>().Update(p);
+            }
         }
 
         await context.SaveChangesAsync(ct);

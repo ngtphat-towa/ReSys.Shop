@@ -27,7 +27,9 @@ public abstract class TaxonomyValidator<T> : AbstractValidator<T> where T : Taxo
                 .WithMessage(TaxonomyErrors.PresentationTooLong.Description);
 
         RuleFor(x => x.Position)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(TaxonomyConstraints.MinPosition)
+                .WithErrorCode(TaxonomyErrors.InvalidPosition.Code)
+                .WithMessage(TaxonomyErrors.InvalidPosition.Description);
     }
 }
 

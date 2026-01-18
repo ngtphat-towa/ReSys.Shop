@@ -68,6 +68,14 @@ public static class ProductErrors
         code: "Product.ClassificationNotFound",
         description: "Classification for the specified taxon was not found.");
 
+    public static Error InvalidPrice => Error.Validation(
+        code: "Product.InvalidPrice",
+        description: $"Product price must be greater than or equal to {ProductConstraints.MinPrice}.");
+
+    public static Error InvalidPosition => Error.Validation(
+        code: "Product.InvalidPosition",
+        description: $"Position must be greater than or equal to {ProductConstraints.MinPosition}.");
+
     public static class Status
     {
         public static Error AlreadyActive => Error.Conflict(

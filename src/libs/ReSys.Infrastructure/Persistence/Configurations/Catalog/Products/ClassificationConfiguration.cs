@@ -25,5 +25,6 @@ public class ClassificationConfiguration : IEntityTypeConfiguration<Classificati
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(x => x.Position).HasDefaultValue(0);
+        builder.Property(x => x.IsAutomatic).HasDefaultValue(false);
     }
 }

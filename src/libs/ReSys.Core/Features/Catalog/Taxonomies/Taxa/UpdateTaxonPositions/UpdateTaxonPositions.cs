@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Taxa.UpdateTaxonPositions;
 
@@ -23,8 +22,7 @@ public static class UpdateTaxonPositions
         }
     }
 
-    public class Handler(
-        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Success>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -40,7 +38,7 @@ public static class UpdateTaxonPositions
                 var taxon = taxonomy.Taxons.FirstOrDefault(t => t.Id == pos.Id);
                 if (taxon != null)
                 {
-                    taxon.SetPosition(pos.Position);
+                    taxon.Position = pos.Position;
                     if (taxon.ParentId != pos.ParentId)
                     {
                         var parentResult = taxon.SetParent(pos.ParentId);
@@ -52,8 +50,6 @@ public static class UpdateTaxonPositions
 
             context.Set<Taxonomy>().Update(taxonomy);
             await context.SaveChangesAsync(cancellationToken);
-
-            // Rebuild hierarchy via events
 
             return Result.Success;
         }

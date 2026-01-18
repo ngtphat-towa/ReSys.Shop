@@ -73,8 +73,9 @@ public static class UpdateOptionType
             // Return: detail
             return await context.Set<OptionType>()
                 .AsNoTracking()
+                .Where(x => x.Id == optionType.Id)
                 .ProjectToType<Response>()
-                .FirstAsync(x => x.Id == optionType.Id, cancellationToken);
+                .FirstAsync(cancellationToken);
         }
     }
 }

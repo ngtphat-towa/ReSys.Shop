@@ -14,25 +14,25 @@ public static class OptionTypeErrors
 
     public static Error NameRequired => Error.Validation(
         code: "OptionType.NameRequired",
-        description: "Name is required.");
+        description: "Option type name is required.");
 
     public static Error NameTooLong => Error.Validation(
         code: "OptionType.NameTooLong",
-        description: $"Name exceeds maximum length of {OptionTypeConstraints.NameMaxLength} characters.");
+        description: $"Option type name cannot exceed {OptionTypeConstraints.NameMaxLength} characters.");
 
     public static Error PresentationRequired => Error.Validation(
         code: "OptionType.PresentationRequired",
-        description: "Presentation is required.");
+        description: "Option type presentation is required.");
 
     public static Error PresentationTooLong => Error.Validation(
         code: "OptionType.PresentationTooLong",
-        description: $"Presentation exceeds maximum length of {OptionTypeConstraints.PresentationMaxLength} characters.");
-
-    public static Error HasProductInUse => Error.Conflict(
-        code: "OptionType.HasProductInUse",
-        description: "Cannot delete option type with existing product in use.");
+        description: $"Option type presentation cannot exceed {OptionTypeConstraints.PresentationMaxLength} characters.");
 
     public static Error CannotDeleteWithValues => Error.Conflict(
         code: "OptionType.CannotDeleteWithValues",
-        description: "Cannot delete option type that has associated values. Remove values first.");
+        description: "Cannot delete an option type that has associated values.");
+
+    public static Error InvalidPosition => Error.Validation(
+        code: "OptionType.InvalidPosition",
+        description: $"Position must be greater than or equal to {OptionTypeConstraints.MinPosition}.");
 }

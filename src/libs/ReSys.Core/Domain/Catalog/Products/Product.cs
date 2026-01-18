@@ -55,6 +55,8 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
     {
         if (string.IsNullOrWhiteSpace(name)) return ProductErrors.NameRequired;
         if (name.Length > ProductConstraints.NameMaxLength) return ProductErrors.NameTooLong;
+        
+        if (price < ProductConstraints.MinPrice) return ProductErrors.InvalidPrice;
 
         var product = new Product
         {
@@ -158,6 +160,29 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
         var oldStatus = Status;
         Status = ProductStatus.Archived;
 
+        RaiseDomainEvent(new ProductEvents.ProductStatusChanged(this, oldStatus, Status));
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> SetToDraft()
+    {
+        if (Status == ProductStatus.Draft) return Result.Success;
+
+        var oldStatus = Status;
+        Status = ProductStatus.Draft;
+
+        RaiseDomainEvent(new ProductEvents.ProductStatusChanged(this, oldStatus, Status));
+        return Result.Success;
+    }
+
+    public ErrorOr<Success> Discontinue()
+    {
+        if (Status == ProductStatus.Discontinued) return Result.Success;
+
+        var oldStatus = Status;
+        Status = ProductStatus.Discontinued;
+        DiscontinuedOn = DateTimeOffset.UtcNow;
+        
         RaiseDomainEvent(new ProductEvents.ProductStatusChanged(this, oldStatus, Status));
         return Result.Success;
     }
@@ -362,5 +387,5 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
         if (existing != null) existing.SetRole(ProductImage.ProductImageType.Gallery);
     }
 
-    public enum ProductStatus { Draft, Active, Archived }
+    public enum ProductStatus { Draft, Active, Archived, Discontinued }
 }

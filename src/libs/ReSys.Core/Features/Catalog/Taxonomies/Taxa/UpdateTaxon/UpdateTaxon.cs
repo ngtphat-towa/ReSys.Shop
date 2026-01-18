@@ -7,7 +7,6 @@ using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Common;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Taxa.UpdateTaxon;
 
@@ -27,8 +26,7 @@ public static class UpdateTaxon
         }
     }
 
-    public class Handler(
-        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -45,6 +43,7 @@ public static class UpdateTaxon
             if (taxon == null)
                 return TaxonErrors.NotFound(command.Id);
 
+            // Update: taxon
             var updateResult = taxon.Update(
                 request.Name,
                 request.Presentation,
@@ -55,14 +54,18 @@ public static class UpdateTaxon
             if (updateResult.IsError)
                 return updateResult.Errors;
 
+            // Set Parent if changed
             if (taxon.ParentId != request.ParentId)
             {
                 var parentResult = taxon.SetParent(request.ParentId);
                 if (parentResult.IsError) return parentResult.Errors;
             }
 
+            // Set: metadata
             taxon.PublicMetadata = request.PublicMetadata;
             taxon.PrivateMetadata = request.PrivateMetadata;
+            
+            // Set: SEO
             taxon.MetaTitle = request.MetaTitle;
             taxon.MetaDescription = request.MetaDescription;
             taxon.MetaKeywords = request.MetaKeywords;
@@ -71,10 +74,6 @@ public static class UpdateTaxon
             context.Set<Taxonomy>().Update(taxonomy);
 
             await context.SaveChangesAsync(cancellationToken);
-
-            // 1. Hierarchy: Rebuild via events
-
-            // 2. Products: Regenerate via events
 
             return taxon.Adapt<Response>();
         }

@@ -27,5 +27,10 @@ public abstract class PropertyTypeValidator<T> : AbstractValidator<T> where T : 
             .IsInEnum()
                 .WithErrorCode(PropertyTypeErrors.InvalidKind.Code)
                 .WithMessage(PropertyTypeErrors.InvalidKind.Description);
+
+        RuleFor(x => x.Position)
+            .GreaterThanOrEqualTo(PropertyTypeConstraints.MinPosition)
+                .WithErrorCode(PropertyTypeErrors.InvalidPosition.Code)
+                .WithMessage(PropertyTypeErrors.InvalidPosition.Description);
     }
 }
