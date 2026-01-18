@@ -1,9 +1,6 @@
 using ErrorOr;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 
@@ -19,20 +16,20 @@ public static class DeleteTaxonomy
     {
         public async Task<ErrorOr<Deleted>> Handle(Command command, CancellationToken cancellationToken)
         {
-            // Get: domain entity (Include taxons to check business rules)
+            // Check: taxonomy exists
             var taxonomy = await context.Set<Taxonomy>()
-                .Include(x => x.Taxons)
-                .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
+                .Include(ot => ot.Taxons)
+                .FirstOrDefaultAsync(ot => ot.Id == command.Id, cancellationToken);
 
             if (taxonomy is null)
                 return TaxonomyErrors.NotFound(command.Id);
 
-            // Business Rule: entity-level checks (raises events)
+            // Business Rule: cannot delete if has associated (handled by domain)
             var deleteResult = taxonomy.Delete();
             if (deleteResult.IsError)
                 return deleteResult.Errors;
 
-            // Delete: from database
+            // Delete from database
             context.Set<Taxonomy>().Remove(taxonomy);
             await context.SaveChangesAsync(cancellationToken);
 

@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Products;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 using ReSys.Core.Common.Extensions.Filters;
+
 using ErrorOr;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Services;
@@ -19,7 +21,7 @@ public sealed class TaxonRegenerationService(
     public async Task<ErrorOr<Success>> RegenerateProductsForTaxonAsync(Guid taxonId, CancellationToken ct)
     {
         logger.LogInformation("Starting product classification regeneration for Taxon {TaxonId}", taxonId);
-        
+
         try
         {
             var taxon = await context.Set<Taxon>()
@@ -66,7 +68,7 @@ public sealed class TaxonRegenerationService(
         }
 
         var rules = taxon.TaxonRules.ToList();
-        
+
         if (taxon.RulesMatchPolicy == "all")
         {
             return await BuildAllMatchPolicyQuery(baseQuery, rules, ct);

@@ -1,13 +1,9 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Logging;
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.Common;
@@ -55,9 +51,9 @@ public static class CreateOptionType
                 position: request.Position,
                 filterable: request.Filterable);
 
-            // Business Rule: check creation result
             if (optionTypeResult.IsError)
                 return optionTypeResult.Errors;
+            
             var optionType = optionTypeResult.Value;
 
             // Set: metadata

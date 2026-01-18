@@ -1,17 +1,12 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
-
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Common;
+using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.UpdateTaxonomy;
 
@@ -37,7 +32,8 @@ public static class UpdateTaxonomy
     }
 
     // Handler:
-    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+    public class Handler(
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -45,6 +41,7 @@ public static class UpdateTaxonomy
 
             // 1. Get: domain entity
             var taxonomy = await context.Set<Taxonomy>()
+                .Include(x => x.Taxons)
                 .FirstOrDefaultAsync(x => x.Id == command.Id, cancellationToken);
 
             if (taxonomy is null)
@@ -74,7 +71,9 @@ public static class UpdateTaxonomy
             context.Set<Taxonomy>().Update(taxonomy);
             await context.SaveChangesAsync(cancellationToken);
 
-            // 6. Return: projected response
+            // 6. Hierarchy: rebuild via events (if taxons updated)
+
+            // 7. Return: projected response
             return taxonomy.Adapt<Response>();
         }
     }

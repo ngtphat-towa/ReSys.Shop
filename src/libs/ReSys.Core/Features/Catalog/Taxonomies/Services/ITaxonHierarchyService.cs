@@ -1,6 +1,6 @@
 using ErrorOr;
+
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Common;
-using ReSys.Shared.Models;
 using ReSys.Shared.Models.Pages;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.Services;
@@ -16,7 +16,7 @@ public interface ITaxonHierarchyService
     /// <param name="taxonomyId">The unique identifier of the taxonomy to rebuild.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A result indicating success or failure.</returns>
-    Task<ErrorOr<Success>> RebuildAsync(Guid taxonomyId, CancellationToken cancellationToken);
+    Task<ErrorOr<Success>> RebuildHierarchyAsync(Guid taxonomyId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Validates the hierarchy of a taxonomy for cycles and multiple roots.

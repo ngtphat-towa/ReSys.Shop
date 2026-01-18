@@ -1,12 +1,8 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.Common;
@@ -42,23 +38,29 @@ public static class UpdateTaxonRule
         {
             var request = command.Request;
 
-            var rule = await context.Set<TaxonRule>()
-                .Include(x => x.Taxon)
-                .FirstOrDefaultAsync(x => x.Id == command.Id && x.TaxonId == command.TaxonId, cancellationToken);
+            var taxon = await context.Set<ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Taxon>()
+                .Include(x => x.TaxonRules)
+                .FirstOrDefaultAsync(x => x.Id == command.TaxonId && x.TaxonomyId == command.TaxonomyId, cancellationToken);
 
+            if (taxon is null)
+                return ReSys.Core.Domain.Catalog.Taxonomies.Taxa.TaxonErrors.NotFound(command.TaxonId);
+
+            var rule = taxon.TaxonRules.FirstOrDefault(r => r.Id == command.Id);
             if (rule is null)
                 return TaxonRuleErrors.NotFound(command.Id);
 
-            var updateResult = rule.Update(
+            var result = taxon.UpdateRule(
+                command.Id,
                 request.Type,
                 request.Value,
                 request.MatchPolicy,
                 request.PropertyName);
 
-            if (updateResult.IsError)
-                return updateResult.Errors;
+            if (result.IsError)
+                return result.Errors;
 
-            rule.Taxon.MarkedForRegenerateProducts = true;
+            context.Set<TaxonRule>().Update(rule);
+            context.Set<ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Taxon>().Update(taxon);
 
             await context.SaveChangesAsync(cancellationToken);
 

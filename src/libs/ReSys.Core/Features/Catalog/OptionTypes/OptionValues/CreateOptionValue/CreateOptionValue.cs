@@ -1,13 +1,8 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
@@ -44,14 +39,17 @@ public static class CreateOptionValue
             if (optionType is null)
                 return OptionTypeErrors.NotFound(command.OptionTypeId);
 
-            // Add via the Aggregate Root (Enforces invariants like unique name)
+            // Add via the Aggregate Root
             var addResult = optionType.AddValue(request.Name, request.Presentation);
 
             if (addResult.IsError)
                 return addResult.Errors;
+            
             var optionValue = addResult.Value;
 
             context.Set<OptionValue>().Add(optionValue);
+            context.Set<OptionType>().Update(optionType);
+            
             await context.SaveChangesAsync(cancellationToken);
 
             return optionValue.Adapt<Response>();

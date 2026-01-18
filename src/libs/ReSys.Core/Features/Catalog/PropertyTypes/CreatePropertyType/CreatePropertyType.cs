@@ -1,12 +1,8 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.PropertyTypes;
 using ReSys.Core.Features.Catalog.PropertyTypes.Common;

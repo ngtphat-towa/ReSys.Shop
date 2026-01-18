@@ -14,7 +14,7 @@ public static class RebuildTaxonomy
     {
         public async Task<ErrorOr<Success>> Handle(Command command, CancellationToken ct)
         {
-            return await hierarchyService.RebuildAsync(command.TaxonomyId, ct);
+            return await hierarchyService.RebuildHierarchyAsync(command.TaxonomyId, ct);
         }
     }
 }

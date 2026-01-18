@@ -1,16 +1,12 @@
 using ErrorOr;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using Mapster;
-
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Common;
+using ReSys.Core.Features.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
 
@@ -35,7 +31,8 @@ public static class CreateTaxonomy
     }
 
     // Handler:
-    public class Handler(IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
+    public class Handler(
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken cancellationToken)
         {
@@ -49,7 +46,6 @@ public static class CreateTaxonomy
             }
 
             // Create: domain entity
-            // Note: Taxonomy.Create now internally creates the root taxon.
             var taxonomyResult = Taxonomy.Create(
                 name: request.Name,
                 presentation: request.Presentation,
@@ -66,7 +62,15 @@ public static class CreateTaxonomy
 
             // Save: domain entity
             context.Set<Taxonomy>().Add(taxonomy);
+            
+            if (taxonomy.RootTaxon != null)
+            {
+                context.Set<ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Taxon>().Add(taxonomy.RootTaxon);
+            }
+
             await context.SaveChangesAsync(cancellationToken);
+
+            // Hierarchy: initialization via events
 
             // Return: projected response
             return taxonomy.Adapt<Response>();

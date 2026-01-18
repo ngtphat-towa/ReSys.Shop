@@ -1,6 +1,8 @@
 using ErrorOr;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
@@ -17,7 +19,7 @@ public sealed class TaxonHierarchyService(
     ILogger<TaxonHierarchyService> logger) : ITaxonHierarchyService
 {
     /// <inheritdoc/>
-    public async Task<ErrorOr<Success>> RebuildAsync(Guid taxonomyId, CancellationToken ct)
+    public async Task<ErrorOr<Success>> RebuildHierarchyAsync(Guid taxonomyId, CancellationToken ct)
     {
         if (taxonomyId == Guid.Empty) return TaxonomyErrors.NotFound(taxonomyId);
 
@@ -113,7 +115,7 @@ public sealed class TaxonHierarchyService(
         if (dict[id].ParentId.HasValue)
         {
             var parentId = dict[id].ParentId!.Value;
-            if (!dict.ContainsKey(parentId)) return false; 
+            if (!dict.ContainsKey(parentId)) return false;
 
             if (!visited.Contains(parentId))
             {
@@ -261,7 +263,7 @@ public sealed class TaxonHierarchyService(
             Tree = tree,
             Breadcrumbs = breadcrumbs,
             FocusedNode = focusedNode,
-            FocusedSubtree = focusedNode 
+            FocusedSubtree = focusedNode
         };
     }
 
