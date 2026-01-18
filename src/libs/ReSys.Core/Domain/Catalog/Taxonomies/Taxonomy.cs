@@ -39,7 +39,7 @@ public sealed class Taxonomy : Aggregate, IHasMetadata
         // Create the initial root taxon matching taxonomy name
         var rootTaxonResult = Taxon.Create(taxonomy.Id, taxonomy.Name);
         if (rootTaxonResult.IsError) return rootTaxonResult.Errors;
-        
+
         var rootTaxon = rootTaxonResult.Value;
         rootTaxon.UpdatePermalink(taxonomy.Name);
         taxonomy.Taxons.Add(rootTaxon);

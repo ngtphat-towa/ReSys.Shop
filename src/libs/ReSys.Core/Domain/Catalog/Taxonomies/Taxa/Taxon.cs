@@ -19,7 +19,7 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
     public string PrettyName { get; set; } = string.Empty;
     public int Position { get; set; }
     public bool HideFromNav { get; set; }
-    
+
     // Nested Set
     public int Lft { get; set; }
     public int Rgt { get; set; }
@@ -56,9 +56,9 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
     private Taxon() { }
 
     public static ErrorOr<Taxon> Create(
-        Guid taxonomyId, 
-        string name, 
-        Guid? parentId = null, 
+        Guid taxonomyId,
+        string name,
+        Guid? parentId = null,
         string? slug = null,
         bool automatic = false)
     {
@@ -75,13 +75,15 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
             Automatic = automatic
         };
 
+        taxon.RaiseDomainEvent(new TaxonEvents.TaxonCreated(taxon));
+
         return taxon;
     }
 
     public ErrorOr<Success> Update(
-        string name, 
-        string presentation, 
-        string? description, 
+        string name,
+        string presentation,
+        string? description,
         string? slug = null,
         bool? automatic = null,
         bool? hideFromNav = null,
@@ -107,7 +109,7 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
         if (hideFromNav.HasValue) HideFromNav = hideFromNav.Value;
         if (!string.IsNullOrWhiteSpace(rulesMatchPolicy)) RulesMatchPolicy = rulesMatchPolicy;
         if (!string.IsNullOrWhiteSpace(sortOrder)) SortOrder = sortOrder;
-        
+
         if (imageUrl != null) ImageUrl = imageUrl;
         if (squareImageUrl != null) SquareImageUrl = squareImageUrl;
 
@@ -130,7 +132,21 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
         TaxonRules.Add(rule);
         
         MarkedForRegenerateProducts = true;
+        RaiseDomainEvent(new TaxonRuleEvents.TaxonRuleAdded(this, rule));
         return rule;
+    }
+
+    public ErrorOr<Success> UpdateRule(Guid ruleId, string type, string value, string? matchPolicy = null, string? propertyName = null)
+    {
+        var rule = TaxonRules.FirstOrDefault(r => r.Id == ruleId);
+        if (rule == null) return TaxonRuleErrors.NotFound(ruleId);
+
+        var result = rule.Update(type, value, matchPolicy, propertyName);
+        if (result.IsError) return result.Errors;
+
+        MarkedForRegenerateProducts = true;
+        RaiseDomainEvent(new TaxonRuleEvents.TaxonRuleUpdated(this, rule));
+        return Result.Success;
     }
 
     public ErrorOr<Success> RemoveRule(Guid ruleId)
@@ -140,6 +156,7 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
 
         TaxonRules.Remove(rule);
         MarkedForRegenerateProducts = true;
+        RaiseDomainEvent(new TaxonRuleEvents.TaxonRuleRemoved(this, rule));
         return Result.Success;
     }
 
@@ -149,22 +166,37 @@ public sealed class Taxon : Aggregate, IHasMetadata, IHasSlug
     {
         var slugPath = Parent != null ? $"{Parent.Permalink}/{Slug}" : taxonomyName.ToSlug();
         Permalink = slugPath.Trim('/');
-        
+
         var prettyPath = Parent != null ? $"{Parent.PrettyName} -> {Presentation}" : Presentation;
         PrettyName = prettyPath;
     }
 
     public ErrorOr<Success> SetParent(Guid? newParentId)
     {
+        if (ParentId == null) return TaxonErrors.RootLock;
         if (newParentId == Id) return TaxonErrors.SelfParenting;
+
+        var oldParentId = ParentId;
         ParentId = newParentId;
+
+        RaiseDomainEvent(new TaxonEvents.TaxonMoved(this, oldParentId, newParentId));
         return Result.Success;
+    }
+
+    public void SetPosition(int position)
+    {
+        if (Position != position)
+        {
+            Position = position;
+            RaiseDomainEvent(new TaxonEvents.TaxonMoved(this, ParentId, ParentId));
+        }
     }
 
     public ErrorOr<Deleted> Delete()
     {
+        if (ParentId == null) return TaxonErrors.RootLock;
         if (Children.Any()) return TaxonErrors.HasChildren;
-        
+
         RaiseDomainEvent(new TaxonEvents.TaxonDeleted(this));
         return Result.Deleted;
     }

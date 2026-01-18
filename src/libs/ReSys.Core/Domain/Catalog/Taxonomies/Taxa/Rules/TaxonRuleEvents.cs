@@ -4,7 +4,7 @@ namespace ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 
 public static class TaxonRuleEvents
 {
-    public record TaxonRuleCreated(TaxonRule Rule) : IDomainEvent;
-    public record TaxonRuleUpdated(TaxonRule Rule) : IDomainEvent;
-    public record TaxonRuleDeleted(TaxonRule Rule) : IDomainEvent;
+    public record TaxonRuleAdded(Taxon Taxon, TaxonRule Rule) : IDomainEvent;
+    public record TaxonRuleUpdated(Taxon Taxon, TaxonRule Rule) : IDomainEvent;
+    public record TaxonRuleRemoved(Taxon Taxon, TaxonRule Rule) : IDomainEvent;
 }

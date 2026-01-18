@@ -1,11 +1,10 @@
 using ReSys.Core.Domain.Common.Abstractions;
-using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 
-public sealed class TaxonRule : Aggregate
+public sealed class TaxonRule : Entity
 {
     public Guid TaxonId { get; private set; }
     public string Type { get; private set; } = null!;
@@ -78,14 +77,7 @@ public sealed class TaxonRule : Aggregate
             PropertyName = trimmed;
         }
 
-        RaiseDomainEvent(new TaxonRuleEvents.TaxonRuleUpdated(this));
         return Result.Success;
-    }
-
-    public ErrorOr<Deleted> Delete()
-    {
-        RaiseDomainEvent(new TaxonRuleEvents.TaxonRuleDeleted(this));
-        return Result.Deleted;
     }
 
     public bool CanConvertToQueryFilter()
