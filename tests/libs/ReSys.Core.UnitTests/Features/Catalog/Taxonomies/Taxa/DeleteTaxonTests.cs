@@ -1,5 +1,4 @@
 using NSubstitute;
-
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.DeleteTaxon;
@@ -11,9 +10,7 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa;
 [Trait("Module", "Catalog")]
 public class DeleteTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
-    private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
-
-    [Fact(DisplayName = "Handle: Should delete taxon and rebuild hierarchy")]
+    [Fact(DisplayName = "Handle: Should delete taxon successfully")]
     public async Task Handle_ValidId_ShouldSucceed()
     {
         // Arrange
@@ -23,7 +20,7 @@ public class DeleteTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new DeleteTaxon.Handler(fixture.Context, _hierarchyService);
+        var handler = new DeleteTaxon.Handler(fixture.Context);
         var command = new DeleteTaxon.Command(taxonomy.Id, child.Id);
 
         // Act
@@ -31,7 +28,6 @@ public class DeleteTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
 
         // Assert
         result.IsError.Should().BeFalse();
-        await _hierarchyService.Received(1).RebuildAsync(taxonomy.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact(DisplayName = "Handle: Should prevent deleting root taxon")]
@@ -43,7 +39,7 @@ public class DeleteTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new DeleteTaxon.Handler(fixture.Context, _hierarchyService);
+        var handler = new DeleteTaxon.Handler(fixture.Context);
         var command = new DeleteTaxon.Command(taxonomy.Id, root.Id);
 
         // Act

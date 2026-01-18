@@ -1,6 +1,4 @@
 using NSubstitute;
-
-
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.UpdateTaxon;
@@ -13,6 +11,7 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa;
 public class UpdateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
     private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
+    private readonly ITaxonRegenerationService _regenerationService = Substitute.For<ITaxonRegenerationService>();
 
     [Fact(DisplayName = "Handle: Should prevent moving root taxon")]
     public async Task Handle_MoveRoot_ShouldFail()
@@ -23,10 +22,11 @@ public class UpdateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new UpdateTaxon.Handler(fixture.Context, _hierarchyService);
+        var handler = new UpdateTaxon.Handler(fixture.Context);
         var request = new UpdateTaxon.Request
         {
             Name = "NewRootName",
+            Presentation = "NewRootName",
             ParentId = Guid.NewGuid() // Attempt to re-parent root
         };
         var command = new UpdateTaxon.Command(taxonomy.Id, root.Id, request);

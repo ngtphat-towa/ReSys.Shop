@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
+using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.UpdateTaxonomy;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
@@ -10,6 +12,8 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.UpdateTaxonomyTests;
 [Trait("Module", "Catalog")]
 public class UpdateTaxonomyTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
+    private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
+
     [Fact(DisplayName = "Handle: Should update state and sync root taxon")]
     public async Task Handle_ValidRequest_ShouldSyncRoot()
     {

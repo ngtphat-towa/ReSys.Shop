@@ -111,7 +111,7 @@ public class TaxonHierarchyDeepTests(TestDatabaseFixture fixture) : IClassFixtur
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // ACT
-        var result = await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        var result = await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // ASSERT
         result.IsError.Should().BeFalse();
@@ -171,7 +171,7 @@ public class TaxonHierarchyDeepTests(TestDatabaseFixture fixture) : IClassFixtur
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var result = await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        var result = await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
         result.IsError.Should().BeFalse();
 
         var allTaxons = await fixture.Context.Set<Taxon>()

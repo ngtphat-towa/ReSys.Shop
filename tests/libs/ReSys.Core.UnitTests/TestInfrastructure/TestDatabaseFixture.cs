@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using ReSys.Core.Common.Data;
 using ReSys.Infrastructure.Persistence;
 
@@ -16,6 +18,8 @@ public class TestDatabaseFixture : IDisposable
 
         Context = new TestAppDbContext(options);
     }
+
+    public ILogger<T> CreateLogger<T>() => Substitute.For<ILogger<T>>();
 
     public void Dispose()
     {

@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-
+using NSubstitute;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
+using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies;
@@ -10,6 +11,8 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies;
 [Trait("Module", "Catalog")]
 public class CreateTaxonomyTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
+    private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
+
     [Fact(DisplayName = "Handle: Should create taxonomy and automatic root taxon")]
     public async Task Handle_ValidRequest_ShouldSucceed()
     {

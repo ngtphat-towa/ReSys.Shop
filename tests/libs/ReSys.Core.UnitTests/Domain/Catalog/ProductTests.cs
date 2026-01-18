@@ -78,6 +78,6 @@ public class ProductTests
         // Assert
         product.Status.Should().Be(Product.ProductStatus.Active);
         product.AvailableOn.Should().NotBeNull();
-        product.DomainEvents.Should().Contain(e => e is ProductEvents.ProductActivated);
+        product.DomainEvents.Should().Contain(e => e is ProductEvents.ProductStatusChanged);
     }
 }

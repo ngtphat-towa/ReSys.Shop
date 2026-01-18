@@ -63,7 +63,7 @@ public class TaxonHierarchyQueryTests(TestDatabaseFixture fixture) : IClassFixtu
         fixture.Context.Set<Taxon>().Add(oversized);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // Act: Focus on Depth 5 node
         var options = new TaxonQueryOptions
@@ -108,7 +108,7 @@ public class TaxonHierarchyQueryTests(TestDatabaseFixture fixture) : IClassFixtu
             fixture.Context.Set<Taxon>().Add(Taxon.Create(taxonomy.Id, $"Item-{i:D2}", rootId).Value);
         }
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // Act: Sort by Name DESC, Page 2, Size 5
         var options = new TaxonQueryOptions
@@ -139,7 +139,7 @@ public class TaxonHierarchyQueryTests(TestDatabaseFixture fixture) : IClassFixtu
 
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // Act: MaxDepth = 2 (Root, L1, L2)
         var options = new TaxonQueryOptions { TaxonomyId = [taxonomy.Id], MaxDepth = 2 };
@@ -162,7 +162,7 @@ public class TaxonHierarchyQueryTests(TestDatabaseFixture fixture) : IClassFixtu
 
         fixture.Context.Set<Taxonomy>().Add(taxonomy);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
-        await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // Act
         var options = new TaxonQueryOptions { TaxonomyId = [taxonomy.Id], IncludeLeavesOnly = true };

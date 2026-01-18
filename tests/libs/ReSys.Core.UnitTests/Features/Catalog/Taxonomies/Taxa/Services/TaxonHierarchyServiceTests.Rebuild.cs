@@ -22,7 +22,7 @@ public class TaxonHierarchyRebuildTests(TestDatabaseFixture fixture) : IClassFix
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
-        var result = await _service.RebuildAsync(taxonomy.Id, TestContext.Current.CancellationToken);
+        var result = await _service.RebuildHierarchyAsync(taxonomy.Id, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -37,7 +37,7 @@ public class TaxonHierarchyRebuildTests(TestDatabaseFixture fixture) : IClassFix
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act: Guid.Empty is invalid
-        var result = await _service.RebuildAsync(Guid.Empty, TestContext.Current.CancellationToken);
+        var result = await _service.RebuildHierarchyAsync(Guid.Empty, TestContext.Current.CancellationToken);
 
         // Assert
         result.IsError.Should().BeTrue();

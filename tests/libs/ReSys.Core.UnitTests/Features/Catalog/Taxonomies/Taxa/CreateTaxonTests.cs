@@ -1,6 +1,4 @@
 using NSubstitute;
-
-
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
 using ReSys.Core.Features.Catalog.Taxonomies.Taxa.CreateTaxon;
@@ -13,8 +11,9 @@ namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa;
 public class CreateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestDatabaseFixture>
 {
     private readonly ITaxonHierarchyService _hierarchyService = Substitute.For<ITaxonHierarchyService>();
+    private readonly ITaxonRegenerationService _regenerationService = Substitute.For<ITaxonRegenerationService>();
 
-    [Fact(DisplayName = "Handle: Should create taxon and rebuild hierarchy")]
+    [Fact(DisplayName = "Handle: Should create taxon successfully")]
     public async Task Handle_ValidRequest_ShouldSucceed()
     {
         // Arrange
@@ -23,7 +22,7 @@ public class CreateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
         var rootId = taxonomy.RootTaxon!.Id;
 
-        var handler = new CreateTaxon.Handler(fixture.Context, _hierarchyService);
+        var handler = new CreateTaxon.Handler(fixture.Context);
         var request = new CreateTaxon.Request
         {
             Name = "ChildNode",
@@ -38,6 +37,5 @@ public class CreateTaxonTests(TestDatabaseFixture fixture) : IClassFixture<TestD
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Name.Should().Be("ChildNode");
-        await _hierarchyService.Received(1).RebuildAsync(taxonomy.Id, Arg.Any<CancellationToken>());
     }
 }

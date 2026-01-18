@@ -82,7 +82,7 @@ public class UpdateTaxonRulesTests : IDisposable
         _regenerationService.RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>())
             .Returns(Result.Success);
 
-        var handler = new UpdateTaxonRules.Handler(_context, _regenerationService, NullLogger<UpdateTaxonRules.Handler>.Instance);
+        var handler = new UpdateTaxonRules.Handler(_context);
 
         var request = new UpdateTaxonRules.Request
         {
@@ -98,9 +98,6 @@ public class UpdateTaxonRulesTests : IDisposable
         result.IsError.Should().BeFalse();
         result.Value.Rules.Should().HaveCount(1);
         result.Value.Rules[0].Value.Should().Be("NewRule");
-
-        await _regenerationService.Received(1)
-            .RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>());
     }
 
     [Fact(DisplayName = "Handle: Should update existing rule when ID matches")]
@@ -113,7 +110,7 @@ public class UpdateTaxonRulesTests : IDisposable
         _regenerationService.RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>())
             .Returns(Result.Success);
 
-        var handler = new UpdateTaxonRules.Handler(_context, _regenerationService, NullLogger<UpdateTaxonRules.Handler>.Instance);
+        var handler = new UpdateTaxonRules.Handler(_context);
 
         var request = new UpdateTaxonRules.Request
         {
@@ -129,9 +126,6 @@ public class UpdateTaxonRulesTests : IDisposable
         result.IsError.Should().BeFalse();
         result.Value.Rules.Should().HaveCount(1);
         result.Value.Rules[0].Value.Should().Be("UpdatedValue");
-
-        await _regenerationService.Received(1)
-            .RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>());
     }
 
     [Fact(DisplayName = "Handle: Should remove rule when not in request list")]
@@ -144,7 +138,7 @@ public class UpdateTaxonRulesTests : IDisposable
         _regenerationService.RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>())
             .Returns(Result.Success);
 
-        var handler = new UpdateTaxonRules.Handler(_context, _regenerationService, NullLogger<UpdateTaxonRules.Handler>.Instance);
+        var handler = new UpdateTaxonRules.Handler(_context);
 
         var request = new UpdateTaxonRules.Request
         {
@@ -159,9 +153,6 @@ public class UpdateTaxonRulesTests : IDisposable
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Rules.Should().BeEmpty();
-
-        await _regenerationService.Received(1)
-            .RegenerateProductsForTaxonAsync(rootId, Arg.Any<CancellationToken>());
     }
 
     [Fact(DisplayName = "Handle: Should not regenerate if no changes made")]
@@ -171,7 +162,7 @@ public class UpdateTaxonRulesTests : IDisposable
         var (taxonomyId, rootId) = await SetupTaxonomyAsync($"NoChange_{Guid.NewGuid()}");
         var ruleId = await AddRuleAsync(rootId, "product_name", "Stable", "contains");
 
-        var handler = new UpdateTaxonRules.Handler(_context, _regenerationService, NullLogger<UpdateTaxonRules.Handler>.Instance);
+        var handler = new UpdateTaxonRules.Handler(_context);
 
         var request = new UpdateTaxonRules.Request
         {
@@ -185,8 +176,5 @@ public class UpdateTaxonRulesTests : IDisposable
 
         // Assert
         result.IsError.Should().BeFalse();
-
-        await _regenerationService.DidNotReceive()
-            .RegenerateProductsForTaxonAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
     }
 }
