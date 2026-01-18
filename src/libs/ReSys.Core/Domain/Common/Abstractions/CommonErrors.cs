@@ -17,7 +17,7 @@ public static class CommonErrors
         public static Error InvalidFormat(string field) => Error.Validation(
             code: $"{field}.InvalidFormat",
             description: $"{field} has an invalid format.");
-            
+
         public static Error NegativeValue(string field) => Error.Validation(
             code: $"{field}.NegativeValue",
             description: $"{field} cannot be negative.");
