@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-
 using ReSys.Core.Domain.Identity.Users.UserAddresses;
 using ReSys.Infrastructure.Persistence.Configurations.Location;
 using ReSys.Shared.Constants;

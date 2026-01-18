@@ -28,8 +28,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasIndex(x => x.Slug).IsUnique();
 
-        builder.Property(x => x.Status)
-            .HasConversion<string>();
+        builder.Property(x => x.Status);
 
         builder.Property(x => x.MetaTitle)
             .HasMaxLength(ProductConstraints.Seo.MetaTitleMaxLength);

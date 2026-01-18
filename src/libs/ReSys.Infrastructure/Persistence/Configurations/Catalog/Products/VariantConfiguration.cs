@@ -25,18 +25,18 @@ public class VariantConfiguration : IEntityTypeConfiguration<Variant>
             .HasMaxLength(VariantConstraints.BarcodeMaxLength);
 
         builder.Property(x => x.Price)
-            .HasColumnType("decimal(18,2)");
+            .HasPrecision(VariantConstraints.PricePrecision, VariantConstraints.PriceScale);
 
         builder.Property(x => x.CompareAtPrice)
-            .HasColumnType("decimal(18,2)");
+            .HasPrecision(VariantConstraints.PricePrecision, VariantConstraints.PriceScale);
 
         builder.Property(x => x.CostPrice)
-            .HasColumnType("decimal(18,2)");
+            .HasPrecision(VariantConstraints.PricePrecision, VariantConstraints.PriceScale);
         
-        builder.Property(x => x.Weight).HasColumnType("decimal(18,4)");
-        builder.Property(x => x.Height).HasColumnType("decimal(18,4)");
-        builder.Property(x => x.Width).HasColumnType("decimal(18,4)");
-        builder.Property(x => x.Depth).HasColumnType("decimal(18,4)");
+        builder.Property(x => x.Weight).HasPrecision(VariantConstraints.DimensionPrecision, VariantConstraints.DimensionScale);
+        builder.Property(x => x.Height).HasPrecision(VariantConstraints.DimensionPrecision, VariantConstraints.DimensionScale);
+        builder.Property(x => x.Width).HasPrecision(VariantConstraints.DimensionPrecision, VariantConstraints.DimensionScale);
+        builder.Property(x => x.Depth).HasPrecision(VariantConstraints.DimensionPrecision, VariantConstraints.DimensionScale);
 
         // Relationships
         builder.HasMany(x => x.OptionValues)

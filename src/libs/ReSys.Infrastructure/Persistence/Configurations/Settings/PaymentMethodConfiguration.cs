@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using ReSys.Core.Domain.Settings.PaymentMethods;
 using ReSys.Shared.Constants;
 
