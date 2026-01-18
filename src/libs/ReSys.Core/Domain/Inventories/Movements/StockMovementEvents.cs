@@ -4,5 +4,5 @@ namespace ReSys.Core.Domain.Inventories.Movements;
 
 public static class StockMovementEvents
 {
-    public record StockMovementCreated(StockMovement StockMovement) : IDomainEvent;
+    public record StockMovementCreated(StockMovement Movement) : IDomainEvent;
 }

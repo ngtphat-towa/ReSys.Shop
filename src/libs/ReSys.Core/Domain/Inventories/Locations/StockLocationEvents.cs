@@ -4,7 +4,10 @@ namespace ReSys.Core.Domain.Inventories.Locations;
 
 public static class StockLocationEvents
 {
-    public record StockLocationCreated(StockLocation StockLocation) : IDomainEvent;
-    public record StockLocationUpdated(StockLocation StockLocation) : IDomainEvent;
-    public record StockLocationDeleted(StockLocation StockLocation) : IDomainEvent;
+    public record StockLocationCreated(StockLocation Location) : IDomainEvent;
+    public record StockLocationUpdated(StockLocation Location) : IDomainEvent;
+    public record StockLocationDeleted(StockLocation Location) : IDomainEvent;
+    public record StockLocationRestored(StockLocation Location) : IDomainEvent;
+    public record StockLocationActivated(StockLocation Location) : IDomainEvent;
+    public record StockLocationDeactivated(StockLocation Location) : IDomainEvent;
 }
