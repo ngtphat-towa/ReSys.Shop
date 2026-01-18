@@ -11,6 +11,7 @@ using ReSys.Shared.Constants;
 using ReSys.Core.Common.Security.Authentication.Contexts;
 using ReSys.Core.Common.Mappings;
 using ReSys.Core.Features.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Inventories.Services.Fulfillment;
 
 namespace ReSys.Core;
 
@@ -53,8 +54,12 @@ public static class CoreModule
             s.AddScoped<ITaxonWorkRegistry, TaxonWorkRegistry>();
             
             // Taxonomy Services
-            s.AddScoped<Features.Catalog.Taxonomies.Services.ITaxonHierarchyService, Features.Catalog.Taxonomies.Services.TaxonHierarchyService>();
-            s.AddScoped<Features.Catalog.Taxonomies.Services.ITaxonRegenerationService, Features.Catalog.Taxonomies.Services.TaxonRegenerationService>();
+            s.AddScoped<ITaxonEvaluator, TaxonEvaluator>();
+            s.AddScoped<ITaxonHierarchyService, TaxonHierarchyService>();
+            s.AddScoped<ITaxonRegenerationService, TaxonRegenerationService>();
+
+            // Inventory Services
+            s.AddScoped<IFulfillmentPlanner, DefaultFulfillmentPlanner>();
         });
 
         return services;

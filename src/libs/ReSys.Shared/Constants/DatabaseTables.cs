@@ -34,6 +34,14 @@ public static class DatabaseTables
     public const string TaxonRules = "taxon_rules";
     public const string Classifications = "classifications";
 
+    // Inventory
+    public const string StockLocations = "stock_locations";
+    public const string StockItems = "stock_items";
+    public const string InventoryUnits = "inventory_units";
+    public const string StockMovements = "stock_movements";
+    public const string StockTransfers = "stock_transfers";
+    public const string StockTransferItems = "stock_transfer_items";
+
     // Testing
     public const string Examples = "examples";
     public const string ExampleCategories = "example_categories";
