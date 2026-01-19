@@ -74,19 +74,27 @@ public static class UpdateVariant
 
     
 
-                variant.CostPrice = request.CostPrice;
-
-                variant.TrackInventory = request.TrackInventory;
-
-                variant.Position = request.Position;
-
-                variant.PublicMetadata = request.PublicMetadata;
-
-                variant.PrivateMetadata = request.PrivateMetadata;
+                            variant.CostPrice = request.CostPrice;
 
     
 
-                context.Set<Variant>().Update(variant);
+                            variant.TrackInventory = request.TrackInventory;
+
+    
+
+                            variant.Position = request.Position;
+
+    
+
+                            variant.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
+
+    
+
+                
+
+    
+
+                            context.Set<Variant>().Update(variant);
 
                 await context.SaveChangesAsync(cancellationToken);
 

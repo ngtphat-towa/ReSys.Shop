@@ -1,8 +1,4 @@
 using ReSys.Core.Domain.Catalog.Products.Variants;
-using ReSys.Core.Domain.Common.Abstractions;
-using ErrorOr;
-using FluentAssertions;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog.Products.Variants;
 
@@ -11,58 +7,67 @@ namespace ReSys.Core.UnitTests.Domain.Catalog.Products.Variants;
 [Trait("Domain", "Variant")]
 public class VariantTests
 {
-    [Fact(DisplayName = "Create should succeed with valid data")]
-    public void Create_ShouldSucceed_WithValidData()
+    private readonly Guid _productId = Guid.NewGuid();
+
+    [Fact(DisplayName = "Create: Should successfully initialize variant")]
+    public void Create_Should_InitializeVariant()
     {
         // Act
-        var productId = Guid.NewGuid();
-        var result = Variant.Create(productId, "SKU-1", 100);
+        var result = Variant.Create(_productId, "SKU-001", 150.00m, isMaster: false);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.ProductId.Should().Be(productId);
-        result.Value.Sku.Should().Be("SKU-1");
-        result.Value.Price.Should().Be(100);
+        result.Value.ProductId.Should().Be(_productId);
+        result.Value.Sku.Should().Be("SKU-001");
+        result.Value.Price.Should().Be(150.00m);
+        result.Value.IsMaster.Should().BeFalse();
         result.Value.DomainEvents.Should().ContainSingle(e => e is VariantEvents.VariantCreated);
     }
 
-    [Fact(DisplayName = "UpdatePricing should validate compare-at price")]
-    public void UpdatePricing_Should_ValidateComparePrice()
+    [Fact(DisplayName = "UpdatePricing: Should update prices and validate compare-at logic")]
+    public void UpdatePricing_Should_UpdateAndValidate()
     {
         // Arrange
-        var variant = Variant.Create(Guid.NewGuid(), "SKU", 100).Value;
+        var variant = Variant.Create(_productId, "SKU", 100).Value;
 
-        // Act
-        var result = variant.UpdatePricing(100, 90); // CompareAt must be > Price
-
-        // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(VariantErrors.InvalidCompareAtPrice);
-    }
-
-    [Fact(DisplayName = "UpdateDimensions should modify physical attributes")]
-    public void UpdateDimensions_Should_ChangePhysicalData()
-    {
-        // Arrange
-        var variant = Variant.Create(Guid.NewGuid(), "SKU", 100).Value;
-
-        // Act
-        var result = variant.UpdateDimensions(1.5m, 10, 20, 30);
+        // Act: Valid update
+        var result = variant.UpdatePricing(90, 110);
 
         // Assert
         result.IsError.Should().BeFalse();
-        variant.Weight.Should().Be(1.5m);
-        variant.Height.Should().Be(10);
-        variant.Width.Should().Be(20);
-        variant.Depth.Should().Be(30);
+        variant.Price.Should().Be(90);
+        variant.CompareAtPrice.Should().Be(110);
+
+        // Act: Invalid (CompareAt <= Price)
+        var invalidResult = variant.UpdatePricing(100, 90);
+
+        // Assert
+        invalidResult.IsError.Should().BeTrue();
+        invalidResult.FirstError.Should().Be(VariantErrors.InvalidCompareAtPrice);
     }
 
-    [Fact(DisplayName = "Delete should raise deleted event")]
-    public void Delete_Should_SetDeletedState()
+    [Fact(DisplayName = "UpdateDimensions: Should change physical attributes")]
+    public void UpdateDimensions_Should_ChangeAttributes()
     {
         // Arrange
-        var variant = Variant.Create(Guid.NewGuid(), "SKU", 100).Value;
-        variant.ClearDomainEvents();
+        var variant = Variant.Create(_productId, "SKU", 100).Value;
+
+        // Act
+        var result = variant.UpdateDimensions(2.5m, 15.5m, 20.0m, 5.0m);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        variant.Weight.Should().Be(2.5m);
+        variant.Height.Should().Be(15.5m);
+        variant.Width.Should().Be(20.0m);
+        variant.Depth.Should().Be(5.0m);
+    }
+
+    [Fact(DisplayName = "Delete: Should set soft delete state")]
+    public void Delete_Should_SetSoftDelete()
+    {
+        // Arrange
+        var variant = Variant.Create(_productId, "SKU", 100).Value;
 
         // Act
         var result = variant.Delete();
@@ -70,6 +75,7 @@ public class VariantTests
         // Assert
         result.IsError.Should().BeFalse();
         variant.IsDeleted.Should().BeTrue();
-        variant.DomainEvents.Should().ContainSingle(e => e is VariantEvents.VariantDeleted);
+        variant.DeletedAt.Should().NotBeNull();
+        variant.DomainEvents.Should().Contain(e => e is VariantEvents.VariantDeleted);
     }
 }

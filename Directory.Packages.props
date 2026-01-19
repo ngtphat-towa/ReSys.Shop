@@ -50,6 +50,7 @@
   </ItemGroup>
   <!-- Identity & Security -->
   <ItemGroup>
+    <PackageVersion Include="AsyncKeyedLock" Version="7.1.1" />
     <PackageVersion Include="Google.Apis.Auth" Version="1.69.0" />
     <PackageVersion Include="starkbank-ecdsa" Version="1.3.3" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.5.0" />

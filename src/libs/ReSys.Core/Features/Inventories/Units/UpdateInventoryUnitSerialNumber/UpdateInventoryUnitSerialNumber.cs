@@ -3,6 +3,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
+using ReSys.Core.Domain.Ordering.InventoryUnits;
 using ReSys.Core.Domain.Inventories.Stocks;
 using ReSys.Core.Features.Inventories.Units.Common;
 

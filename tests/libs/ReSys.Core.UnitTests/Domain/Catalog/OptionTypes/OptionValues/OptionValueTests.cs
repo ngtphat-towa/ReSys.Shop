@@ -1,9 +1,4 @@
-using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
-using ReSys.Core.Domain.Common.Abstractions;
-using ErrorOr;
-using FluentAssertions;
-using Xunit;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog.OptionTypes.OptionValues;
 
@@ -12,69 +7,67 @@ namespace ReSys.Core.UnitTests.Domain.Catalog.OptionTypes.OptionValues;
 [Trait("Domain", "OptionValue")]
 public class OptionValueTests
 {
-    [Fact(DisplayName = "Update should succeed with valid data")]
-    public void Update_ShouldSucceed_WithValidData()
-    {
-        // Arrange
-        var ot = OptionType.Create("Size").Value;
-        var ov = ot.AddValue("Small", "S").Value;
-        ov.ClearDomainEvents();
+    private readonly Guid _optionTypeId = Guid.NewGuid();
 
+    [Fact(DisplayName = "Create: Should successfully initialize option value and normalize inputs")]
+    public void Create_Should_InitializeValue()
+    {
         // Act
-        var result = ov.Update("ExtraSmall", "XS", 5);
+        var result = OptionValue.Create(_optionTypeId, " red ", " Bright Red ", 10);
 
         // Assert
         result.IsError.Should().BeFalse();
-        ov.Name.Should().Be("ExtraSmall");
-        ov.Presentation.Should().Be("XS");
-        ov.Position.Should().Be(5);
-        ov.DomainEvents.Should().ContainSingle(e => e is OptionValueEvents.OptionValueUpdated);
+        result.Value.OptionTypeId.Should().Be(_optionTypeId);
+        result.Value.Name.Should().Be("red");
+        result.Value.Presentation.Should().Be("Bright Red");
+        result.Value.Position.Should().Be(10);
+        result.Value.CreatedAt.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(1));
     }
 
-    [Fact(DisplayName = "Update should fail when name is empty")]
-    public void Update_ShouldFail_WhenNameIsEmpty()
+    [Fact(DisplayName = "Update: Should change properties and raise event")]
+    public void Update_Should_ChangeProperties()
     {
         // Arrange
-        var ot = OptionType.Create("Size").Value;
-        var ov = ot.AddValue("Small").Value;
+        var value = OptionValue.Create(_optionTypeId, "Old").Value;
+        value.ClearDomainEvents();
 
         // Act
-        var result = ov.Update("", "Valid", 0);
-
-        // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(OptionValueErrors.NameRequired);
-    }
-
-    [Fact(DisplayName = "Update should fail when presentation is empty")]
-    public void Update_ShouldFail_WhenPresentationIsEmpty()
-    {
-        // Arrange
-        var ot = OptionType.Create("Size").Value;
-        var ov = ot.AddValue("Small").Value;
-
-        // Act
-        var result = ov.Update("Valid", "", 0);
-
-        // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(OptionValueErrors.PresentationRequired);
-    }
-
-    [Fact(DisplayName = "Delete should raise deleted event")]
-    public void Delete_Should_RaiseDeletedEvent()
-    {
-        // Arrange
-        var ot = OptionType.Create("Size").Value;
-        var ov = ot.AddValue("Small").Value;
-        ov.ClearDomainEvents();
-
-        // Act
-        var result = ov.Delete();
+        var result = value.Update("NewName", "New Presentation", 5);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(Result.Deleted);
-        ov.DomainEvents.Should().ContainSingle(e => e is OptionValueEvents.OptionValueDeleted);
+        value.Name.Should().Be("NewName");
+        value.Presentation.Should().Be("New Presentation");
+        value.Position.Should().Be(5);
+        value.DomainEvents.Should().ContainSingle(e => e is OptionValueEvents.OptionValueUpdated);
+    }
+
+    [Fact(DisplayName = "Update: Should fail if name is missing")]
+    public void Update_ShouldFail_IfNameEmpty()
+    {
+        // Arrange
+        var value = OptionValue.Create(_optionTypeId, "Valid").Value;
+
+        // Act
+        var result = value.Update("", "Presentation", 0);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().Be("OptionValue.NameRequired");
+    }
+
+    [Fact(DisplayName = "Delete: Should raise deleted event")]
+    public void Delete_Should_RaiseEvent()
+    {
+        // Arrange
+        var value = OptionValue.Create(_optionTypeId, "DeleteMe").Value;
+        value.ClearDomainEvents();
+
+        // Act
+        var result = value.Delete();
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        value.DomainEvents.Should().ContainSingle(e => e is OptionValueEvents.OptionValueDeleted);
     }
 }

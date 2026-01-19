@@ -10,6 +10,14 @@ public static class DatabaseTables
     public const string UserGroupMemberships = "user_group_memberships";
     public const string UserAddresses = "user_addresses";
     public const string AccessPermissions = "access_permissions";
+    public const string RefreshTokens = "refresh_tokens";
+
+    // Identity Internal
+    public const string UserRoles = "user_roles";
+    public const string UserClaims = "user_claims";
+    public const string UserLogins = "user_logins";
+    public const string RoleClaims = "role_claims";
+    public const string UserTokens = "user_tokens";
     
     // Location
     public const string Countries = "countries";
@@ -17,6 +25,8 @@ public static class DatabaseTables
 
     // Settings
     public const string Settings = "settings";
+    public const string Stores = "stores";
+    public const string StoreStockLocations = "store_stock_locations";
     public const string PaymentMethods = "payment_methods";
     public const string ShippingMethods = "shipping_methods";
     
@@ -41,6 +51,15 @@ public static class DatabaseTables
     public const string StockMovements = "stock_movements";
     public const string StockTransfers = "stock_transfers";
     public const string StockTransferItems = "stock_transfer_items";
+
+    // Ordering
+    public const string Orders = "orders";
+    public const string LineItems = "line_items";
+    public const string OrderAdjustments = "order_adjustments";
+    public const string LineItemAdjustments = "line_item_adjustments";
+    public const string Payments = "payments";
+    public const string Shipments = "shipments";
+    public const string OrderHistories = "order_histories";
 
     // Testing
     public const string Examples = "examples";

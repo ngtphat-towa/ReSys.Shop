@@ -11,5 +11,7 @@ public enum StockMovementType
     Return,     // Returned by customer
     Loss,       // Damaged, stolen, or expired
     Transfer,   // Moving between internal locations
+    TransferIn, // Received from another internal location
+    TransferOut, // Sent to another internal location
     Correction  // Reversing an erroneous previous movement
 }

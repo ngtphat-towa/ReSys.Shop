@@ -2,7 +2,9 @@ namespace ReSys.Core.Common.Security.Authentication.Contexts;
 
 public interface IUserContext
 {
-    Guid? UserId { get; }
+    string? UserId { get; }
+    string? AdhocCustomerId { get; }
+    Guid? StoreId { get; }
     string? UserName { get; }
     string? Email { get; }
     bool IsAuthenticated { get; }
@@ -10,4 +12,5 @@ public interface IUserContext
     IEnumerable<string> Permissions { get; }
     bool IsInRole(string role);
     bool HasPermission(string permission);
+    void SetAdhocCustomerId(string adhocCustomerId);
 }

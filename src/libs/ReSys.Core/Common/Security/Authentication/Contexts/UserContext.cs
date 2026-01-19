@@ -10,7 +10,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContex
 {
     private ClaimsPrincipal? Principal => httpContextAccessor.HttpContext?.User;
 
-    public Guid? UserId => Principal.GetUserId();
+    public string? UserId => Principal.GetUserId()?.ToString();
+
+    public string? AdhocCustomerId { get; set; }
+
+    public Guid? StoreId { get; set; }
 
     public string? UserName => Principal.GetUserName();
 
@@ -26,4 +30,14 @@ public class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContex
 
     public bool HasPermission(string permission) => 
         Permissions.Any(p => string.Equals(p, permission, StringComparison.OrdinalIgnoreCase));
+
+    public void SetAdhocCustomerId(string adhocCustomerId)
+    {
+        AdhocCustomerId = adhocCustomerId;
+    }
+
+    public void SetStoreId(Guid storeId)
+    {
+        StoreId = storeId;
+    }
 }

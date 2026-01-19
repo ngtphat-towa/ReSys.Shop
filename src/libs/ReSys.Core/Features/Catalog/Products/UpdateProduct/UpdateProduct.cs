@@ -82,8 +82,7 @@ public static class UpdateProduct
             }
 
             // 4. Set: metadata
-            product.PublicMetadata = request.PublicMetadata;
-            product.PrivateMetadata = request.PrivateMetadata;
+            product.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
 
             // 5. Save
             context.Set<Product>().Update(product);

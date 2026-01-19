@@ -9,4 +9,10 @@ public static class UserEvents
     public record ProfileUpdated(User User) : IDomainEvent;
     public record UserLoggedIn(User User) : IDomainEvent;
     public record RolesAssigned(User User, IEnumerable<string> Roles) : IDomainEvent;
+    public record AccountLocked(User User, DateTimeOffset? EndDate) : IDomainEvent;
+    public record AccountUnlocked(User User) : IDomainEvent;
+    public record StatusChanged(User User, bool IsActive) : IDomainEvent;
+    public record RoleAssigned(User User, string RoleName) : IDomainEvent;
+    public record RoleUnassigned(User User, string RoleName) : IDomainEvent;
+    public record UserDeleted(string UserId, string Email) : IDomainEvent;
 }

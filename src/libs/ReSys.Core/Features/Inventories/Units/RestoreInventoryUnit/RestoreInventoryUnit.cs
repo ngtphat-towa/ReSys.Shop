@@ -2,6 +2,7 @@ using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
+using ReSys.Core.Domain.Ordering.InventoryUnits;
 using ReSys.Core.Domain.Inventories.Stocks;
 
 namespace ReSys.Core.Features.Inventories.Units.RestoreInventoryUnit;

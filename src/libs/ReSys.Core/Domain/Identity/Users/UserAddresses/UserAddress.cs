@@ -20,7 +20,7 @@ public sealed class UserAddress : Aggregate, IHasMetadata
     public IDictionary<string, object?> PublicMetadata { get; set; } = new Dictionary<string, object?>();
     public IDictionary<string, object?> PrivateMetadata { get; set; } = new Dictionary<string, object?>();
 
-    private UserAddress() { }
+    public UserAddress() { }
 
     public static ErrorOr<UserAddress> Create(
         string userId,
@@ -29,11 +29,14 @@ public sealed class UserAddress : Aggregate, IHasMetadata
         AddressType type = AddressType.Both,
         bool isDefault = false)
     {
+        if (string.IsNullOrWhiteSpace(userId)) return Error.Validation("UserAddress.UserIdRequired", "User ID is required.");
         if (address == null) return UserAddressErrors.AddressRequired;
+        if (string.IsNullOrWhiteSpace(label)) return UserAddressErrors.LabelRequired;
         if (label.Length > UserAddressConstraints.LabelMaxLength) return UserAddressErrors.LabelTooLong;
 
         return new UserAddress
         {
+            Id = Guid.NewGuid(),
             UserId = userId,
             Address = address,
             Label = label.Trim(),
@@ -42,9 +45,28 @@ public sealed class UserAddress : Aggregate, IHasMetadata
         };
     }
 
+    public ErrorOr<Success> Update(string label, Address address, AddressType type)
+    {
+        if (address == null) return UserAddressErrors.AddressRequired;
+        if (string.IsNullOrWhiteSpace(label)) return UserAddressErrors.LabelRequired;
+        if (label.Length > UserAddressConstraints.LabelMaxLength) return UserAddressErrors.LabelTooLong;
+
+        Label = label.Trim();
+        Address = address;
+        Type = type;
+
+        return Result.Success;
+    }
+
     public void MarkAsDefault() => IsDefault = true;
     public void UnmarkAsDefault() => IsDefault = false;
     public void Verify() => IsVerified = true;
+
+    public void SetMetadata(IDictionary<string, object?> publicMetadata, IDictionary<string, object?> privateMetadata)
+    {
+        PublicMetadata = publicMetadata;
+        PrivateMetadata = privateMetadata;
+    }
 }
 
 public enum AddressType

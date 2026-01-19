@@ -58,8 +58,7 @@ public static class CreateVariant
             variant.CostPrice = request.CostPrice;
             variant.TrackInventory = request.TrackInventory;
             variant.Position = request.Position;
-            variant.PublicMetadata = request.PublicMetadata;
-            variant.PrivateMetadata = request.PrivateMetadata;
+            variant.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
 
             context.Set<Variant>().Add(variant);
             context.Set<Product>().Update(product);

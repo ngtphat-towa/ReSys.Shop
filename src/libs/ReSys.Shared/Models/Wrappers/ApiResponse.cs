@@ -115,6 +115,12 @@ public static class ApiResponseExtensions
         return TypedResults.Ok(response);
     }
 
+    public static IResult ToTypedApiResponse<T>(this PagedList<T> pagedList, string? message = null)
+    {
+        var response = ApiResponse.Paginated(pagedList, message);
+        return TypedResults.Ok(response);
+    }
+
     private static ApiResponse<T> CreateFailureResponse<T>(IReadOnlyList<Error> errors)
     {
         var firstError = errors[0];

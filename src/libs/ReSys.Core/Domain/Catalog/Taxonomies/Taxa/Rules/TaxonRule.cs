@@ -6,14 +6,14 @@ namespace ReSys.Core.Domain.Catalog.Taxonomies.Taxa.Rules;
 
 public sealed class TaxonRule : Entity
 {
-    public Guid TaxonId { get; private set; }
-    public string Type { get; private set; } = null!;
-    public string Value { get; private set; } = null!;
-    public string MatchPolicy { get; private set; } = null!;
-    public string? PropertyName { get; private set; }
+    public Guid TaxonId { get; set; }
+    public string Type { get; set; } = null!;
+    public string Value { get; set; } = null!;
+    public string MatchPolicy { get; set; } = null!;
+    public string? PropertyName { get; set; }
 
     // Navigation
-    public Taxon Taxon { get; private set; } = null!;
+    public Taxon Taxon { get; set; } = null!;
 
     private TaxonRule() { }
 

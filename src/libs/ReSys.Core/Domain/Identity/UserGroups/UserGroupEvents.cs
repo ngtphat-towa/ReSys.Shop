@@ -4,7 +4,9 @@ namespace ReSys.Core.Domain.Identity.UserGroups;
 
 public static class UserGroupEvents
 {
-    public record UserGroupCreated(UserGroup Group) : IDomainEvent;
-    public record UserGroupUpdated(UserGroup Group) : IDomainEvent;
-    public record UserGroupDeleted(Guid GroupId, string Code) : IDomainEvent;
+    public record GroupCreated(UserGroup Group) : IDomainEvent;
+    public record GroupUpdated(UserGroup Group) : IDomainEvent;
+    public record GroupDeleted(Guid GroupId, string Name) : IDomainEvent;
+    public record UserJoinedGroup(Guid GroupId, string UserId, bool IsPrimary) : IDomainEvent;
+    public record UserLeftGroup(Guid GroupId, string UserId) : IDomainEvent;
 }

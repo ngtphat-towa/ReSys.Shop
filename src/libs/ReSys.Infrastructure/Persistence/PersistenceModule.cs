@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using ReSys.Core.Common.Data;
 using ReSys.Shared.Telemetry;
 using ReSys.Infrastructure.Persistence.Interceptors;
-
+using ReSys.Infrastructure.Persistence.Seeders;
 using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence;
@@ -15,7 +15,15 @@ public static class PersistenceModule
 {
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddDataSeeders();
         return services.AddPostgresContext<AppDbContext, IApplicationDbContext>(configuration, ServiceNames.Database);
+    }
+
+    public static IServiceCollection AddDataSeeders(this IServiceCollection services)
+    {
+        services.AddScoped<IDataSeeder, IdentityDataSeeder>();
+        services.AddHostedService<SeederOrchestrator>();
+        return services;
     }
 
     public static IServiceCollection AddPostgresContext<TDbContext, TContextInterface>(

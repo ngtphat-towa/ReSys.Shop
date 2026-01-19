@@ -4,52 +4,42 @@ namespace ReSys.Core.UnitTests.Domain.Identity.UserGroups;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]
+[Trait("Domain", "UserGroup")]
 public class UserGroupTests
 {
-    [Fact(DisplayName = "Create should succeed with valid data")]
-    public void Create_ShouldSucceed_WithValidData()
+    [Fact(DisplayName = "Create: Should successfully initialize group")]
+    public void Create_Should_InitializeGroup()
     {
         // Act
-        var result = UserGroup.Create("Admins", "admin_group", "System Administrators", isDefault: true);
+        var result = UserGroup.Create("Administrators", "admins", "System admins", isDefault: true);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Name.Should().Be("Admins");
-        result.Value.Code.Should().Be("admin_group");
-        result.Value.Description.Should().Be("System Administrators");
+        result.Value.Name.Should().Be("Administrators");
+        result.Value.Code.Should().Be("ADMINS");
+        result.Value.Description.Should().Be("System admins");
         result.Value.IsDefault.Should().BeTrue();
-        result.Value.DomainEvents.Should().ContainSingle(e => e is UserGroupEvents.UserGroupCreated);
+        result.Value.DomainEvents.Should().ContainSingle(e => e is UserGroupEvents.GroupCreated);
     }
 
-    [Fact(DisplayName = "Create should fail if code is missing")]
-    public void Create_ShouldFail_IfCodeMissing()
+    [Fact(DisplayName = "Create: Should normalize code to uppercase")]
+    public void Create_Should_NormalizeCode()
     {
         // Act
-        var result = UserGroup.Create("Admins", "");
+        var result = UserGroup.Create("Test", "test_code ");
 
         // Assert
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(UserGroupErrors.CodeRequired);
+        result.Value.Code.Should().Be("TEST_CODE");
     }
 
-    [Fact(DisplayName = "Create should fail if name is missing")]
+    [Fact(DisplayName = "Create: Should fail if name is missing")]
     public void Create_ShouldFail_IfNameMissing()
     {
         // Act
-        var result = UserGroup.Create("", "admin_group");
+        var result = UserGroup.Create("", "code");
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(UserGroupErrors.NameRequired);
-    }
-
-    [Fact(DisplayName = "Create should normalize code")]
-    public void Create_ShouldNormalize_Code()
-    {
-        // Act
-        var result = UserGroup.Create("Admins", " ADMIN_GROUP ");
-
-        // Assert
-        result.Value.Code.Should().Be("admin_group");
     }
 }

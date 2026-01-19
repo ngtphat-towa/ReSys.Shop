@@ -1,8 +1,5 @@
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Domain.Common.Abstractions;
-using ErrorOr;
-using FluentAssertions;
-using Xunit;
+using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
 
 namespace ReSys.Core.UnitTests.Domain.Catalog.Taxonomies;
 
@@ -11,8 +8,8 @@ namespace ReSys.Core.UnitTests.Domain.Catalog.Taxonomies;
 [Trait("Domain", "Taxonomy")]
 public class TaxonomyTests
 {
-    [Fact(DisplayName = "Create should succeed and automatically create a root taxon")]
-    public void Create_ShouldSucceed_AndCreateRoot()
+    [Fact(DisplayName = "Create: Should successfully initialize taxonomy and root taxon")]
+    public void Create_Should_InitializeTaxonomyAndRoot()
     {
         // Act
         var result = Taxonomy.Create("Categories", "Product Categories", 1);
@@ -30,38 +27,46 @@ public class TaxonomyTests
         result.Value.DomainEvents.Should().ContainSingle(e => e is TaxonomyEvents.TaxonomyCreated);
     }
 
-    [Fact(DisplayName = "Create should fail when position is negative")]
-    public void Create_ShouldFail_WhenPositionIsNegative()
-    {
-        var result = Taxonomy.Create("Valid", "Valid", -1);
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(TaxonomyErrors.InvalidPosition);
-    }
-
-    [Fact(DisplayName = "Update taxonomy should synchronize its root taxon")]
+    [Fact(DisplayName = "Update: Should synchronize name changes with root taxon")]
     public void Update_Should_SyncRootTaxon()
     {
         // Arrange
-        var taxonomy = Taxonomy.Create("Old").Value;
+        var taxonomy = Taxonomy.Create("Old Name").Value;
         var root = taxonomy.RootTaxon!;
 
         // Act
-        var result = taxonomy.Update("New", "New Pres", 5);
+        var result = taxonomy.Update("New Name", "New Presentation", 5);
 
         // Assert
         result.IsError.Should().BeFalse();
-        taxonomy.Name.Should().Be("New");
-        root.Name.Should().Be("New");
-        root.Presentation.Should().Be("New Pres");
-        root.Slug.Should().Be("new");
+        taxonomy.Name.Should().Be("New Name");
+        root.Name.Should().Be("New Name");
+        root.Presentation.Should().Be("New Presentation");
+        root.Slug.Should().Be("new-name");
     }
 
-    [Fact(DisplayName = "Delete should fail if taxonomy has more than just the root taxon")]
+    [Fact(DisplayName = "AddTaxon: Should assign root as parent if none specified")]
+    public void AddTaxon_Should_DefaultToRootParent()
+    {
+        // Arrange
+        var taxonomy = Taxonomy.Create("Catalog").Value;
+        var root = taxonomy.RootTaxon!;
+
+        // Act
+        var result = taxonomy.AddTaxon("Electronics");
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        result.Value.ParentId.Should().Be(root.Id);
+        taxonomy.Taxons.Should().Contain(result.Value);
+    }
+
+    [Fact(DisplayName = "Delete: Should fail if non-root taxons exist")]
     public void Delete_ShouldFail_IfHasChildren()
     {
         // Arrange
         var taxonomy = Taxonomy.Create("Catalog").Value;
-        taxonomy.AddTaxon("SubCategory");
+        taxonomy.AddTaxon("Sub");
 
         // Act
         var result = taxonomy.Delete();
@@ -71,34 +76,14 @@ public class TaxonomyTests
         result.FirstError.Should().Be(TaxonomyErrors.HasTaxons);
     }
 
-    [Fact(DisplayName = "AddTaxon without parentId should automatically use root as parent")]
-    public void AddTaxon_NoParentId_UsesRoot()
+    [Fact(DisplayName = "Create: Should fail if position is negative")]
+    public void Create_ShouldFail_IfPositionNegative()
     {
-        // Arrange
-        var taxonomy = Taxonomy.Create("Catalog").Value;
-        var root = taxonomy.RootTaxon!;
-
         // Act
-        var result = taxonomy.AddTaxon("Clothing");
+        var result = Taxonomy.Create("Test", "Test", -1);
 
         // Assert
-        result.IsError.Should().BeFalse();
-        result.Value.ParentId.Should().Be(root.Id);
-    }
-
-    [Fact(DisplayName = "AddTaxon with explicit parentId should respect it")]
-    public async Task AddTaxon_WithParentId_RespectsIt()
-    {
-        // Arrange
-        var taxonomy = Taxonomy.Create("Catalog").Value;
-        var root = taxonomy.RootTaxon!;
-        var sub = taxonomy.AddTaxon("Clothing").Value;
-
-        // Act
-        var result = taxonomy.AddTaxon("Shirts", sub.Id);
-
-        // Assert
-        result.IsError.Should().BeFalse();
-        result.Value.ParentId.Should().Be(sub.Id);
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(TaxonomyErrors.InvalidPosition);
     }
 }

@@ -1,9 +1,13 @@
 using ReSys.Core.Domain.Common.Abstractions;
-
+using ReSys.Core.Domain.Catalog.OptionTypes;
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 
+/// <summary>
+/// Represents a specific value for an option type (e.g., 'Red' for 'Color').
+/// Glue entity within the OptionType aggregate.
+/// </summary>
 public sealed class OptionValue : Aggregate
 {
     public Guid OptionTypeId { get; set; }
@@ -13,9 +17,12 @@ public sealed class OptionValue : Aggregate
 
     public OptionType OptionType { get; set; } = null!;
 
-    private OptionValue() { }
+    public OptionValue() { }
 
-    internal static ErrorOr<OptionValue> Create(Guid optionTypeId, string name, string? presentation = null, int position = 0)
+    /// <summary>
+    /// Factory for creating a new option value.
+    /// </summary>
+    public static ErrorOr<OptionValue> Create(Guid optionTypeId, string name, string? presentation = null, int position = 0)
     {
         if (string.IsNullOrWhiteSpace(name)) return OptionValueErrors.NameRequired;
         if (name.Length > OptionValueConstraints.NameMaxLength) return OptionValueErrors.NameTooLong;
@@ -23,17 +30,15 @@ public sealed class OptionValue : Aggregate
         var finalPresentation = presentation?.Trim() ?? name.Trim();
         if (finalPresentation.Length > OptionValueConstraints.PresentationMaxLength) return OptionValueErrors.PresentationTooLong;
 
-        var optionValue = new OptionValue
+        return new OptionValue
         {
+            Id = Guid.NewGuid(),
             OptionTypeId = optionTypeId,
             Name = name.Trim(),
             Presentation = finalPresentation,
-            Position = position
+            Position = position,
+            CreatedAt = DateTimeOffset.UtcNow
         };
-
-        // Note: Created event is still best raised by the factory (OptionType) 
-        // to ensure it was added to a valid collection.
-        return optionValue;
     }
 
     public ErrorOr<Success> Update(string name, string presentation, int position)
@@ -47,15 +52,14 @@ public sealed class OptionValue : Aggregate
         Name = name.Trim();
         Presentation = presentation.Trim();
         Position = position;
+        UpdatedAt = DateTimeOffset.UtcNow;
 
-        // Self-published event (Relaxed AR rule)
         RaiseDomainEvent(new OptionValueEvents.OptionValueUpdated(this));
         return Result.Success;
     }
 
     public ErrorOr<Deleted> Delete()
     {
-        // Self-published event (Relaxed AR rule)
         RaiseDomainEvent(new OptionValueEvents.OptionValueDeleted(this));
         return Result.Deleted;
     }

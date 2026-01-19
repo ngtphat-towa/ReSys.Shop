@@ -205,6 +205,12 @@ public sealed class Product : Aggregate, ISoftDeletable, IHasSlug, IHasMetadata
         return Result.Success;
     }
 
+    public void SetMetadata(IDictionary<string, object?> publicMetadata, IDictionary<string, object?> privateMetadata)
+    {
+        PublicMetadata = publicMetadata;
+        PrivateMetadata = privateMetadata;
+    }
+
     public ErrorOr<Variant> AddVariant(string sku, decimal price)
     {
         if (Variants.Any(v => v.Sku == sku))

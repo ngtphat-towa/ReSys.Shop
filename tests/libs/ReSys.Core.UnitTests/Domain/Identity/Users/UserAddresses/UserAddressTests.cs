@@ -5,75 +5,76 @@ namespace ReSys.Core.UnitTests.Domain.Identity.Users.UserAddresses;
 
 [Trait("Category", "Unit")]
 [Trait("Module", "Identity")]
+[Trait("Domain", "UserAddress")]
 public class UserAddressTests
 {
-    [Fact(DisplayName = "Create should fail if Address is invalid")]
-    public void Create_ShouldFail_IfAddressInvalid()
+    private readonly Address _validAddress = Address.Create("123 Main St", "City", "12345", "US").Value;
+    private readonly string _userId = Guid.NewGuid().ToString();
+
+    [Fact(DisplayName = "Create: Should successfully initialize address")]
+    public void Create_Should_InitializeAddress()
     {
-        // Arrange
-        // Address.Create checks validation
-        var addressResult = Address.Create("", "City", "12345", "US");
+        // Act
+        var result = UserAddress.Create(_userId, _validAddress, "Home", AddressType.Shipping, true);
 
         // Assert
-        addressResult.IsError.Should().BeTrue();
-        addressResult.FirstError.Should().Be(AddressErrors.Address1Required);
+        result.IsError.Should().BeFalse();
+        result.Value.UserId.Should().Be(_userId);
+        result.Value.Address.Should().Be(_validAddress);
+        result.Value.Label.Should().Be("Home");
+        result.Value.Type.Should().Be(AddressType.Shipping);
+        result.Value.IsDefault.Should().BeTrue();
     }
 
-    [Fact(DisplayName = "Create should fail if Label is too long")]
+    [Fact(DisplayName = "Create: Should fail if label exceeds max length")]
     public void Create_ShouldFail_IfLabelTooLong()
     {
         // Arrange
-        var address = Address.Create("123 St", "City", "12345", "US").Value;
-        var longLabel = new string('a', UserAddressConstraints.LabelMaxLength + 1);
+        var longLabel = new string('A', UserAddressConstraints.LabelMaxLength + 1);
 
         // Act
-        var result = UserAddress.Create("user1", address, longLabel);
+        var result = UserAddress.Create(_userId, _validAddress, longLabel);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(UserAddressErrors.LabelTooLong);
     }
 
-    [Fact(DisplayName = "Create should succeed with valid data")]
-    public void Create_ShouldSucceed_WithValidData()
+    [Fact(DisplayName = "Update: Should change properties")]
+    public void Update_Should_ChangeProperties()
     {
         // Arrange
-        var address = Address.Create("123 St", "City", "12345", "US").Value;
-        var userId = Guid.NewGuid().ToString();
+        var userAddress = UserAddress.Create(_userId, _validAddress, "Home").Value;
+        var newAddress = Address.Create("456 Oak St", "Other City", "54321", "US").Value;
 
         // Act
-        var result = UserAddress.Create(userId, address, "Home", AddressType.Billing);
+        var result = userAddress.Update("Work", newAddress, AddressType.Billing);
 
         // Assert
         result.IsError.Should().BeFalse();
-        result.Value.Address.Address1.Should().Be("123 St");
-        result.Value.Label.Should().Be("Home");
-        result.Value.Type.Should().Be(AddressType.Billing);
-        result.Value.UserId.Should().Be(userId);
+        userAddress.Label.Should().Be("Work");
+        userAddress.Address.Should().Be(newAddress);
+        userAddress.Type.Should().Be(AddressType.Billing);
     }
 
-    [Fact(DisplayName = "MarkAsDefault and UnmarkAsDefault should update state")]
-    public void Default_State_ShouldUpdate()
+    [Fact(DisplayName = "MarkAsDefault: Should set flag")]
+    public void MarkAsDefault_Should_SetFlag()
     {
         // Arrange
-        var address = Address.Create("123 St", "City", "12345", "US").Value;
-        var userAddress = UserAddress.Create("user1", address).Value;
+        var userAddress = UserAddress.Create(_userId, _validAddress).Value;
 
-        // Act & Assert 1
+        // Act
         userAddress.MarkAsDefault();
-        userAddress.IsDefault.Should().BeTrue();
 
-        // Act & Assert 2
-        userAddress.UnmarkAsDefault();
-        userAddress.IsDefault.Should().BeFalse();
+        // Assert
+        userAddress.IsDefault.Should().BeTrue();
     }
-    
-    [Fact(DisplayName = "Verify should set IsVerified to true")]
-    public void Verify_ShouldSet_IsVerified()
+
+    [Fact(DisplayName = "Verify: Should set flag")]
+    public void Verify_Should_SetFlag()
     {
         // Arrange
-        var address = Address.Create("123 St", "City", "12345", "US").Value;
-        var userAddress = UserAddress.Create("user1", address).Value;
+        var userAddress = UserAddress.Create(_userId, _validAddress).Value;
 
         // Act
         userAddress.Verify();

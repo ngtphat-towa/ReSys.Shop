@@ -45,6 +45,15 @@ public class AuditableEntityInterceptor(IUserContext userContext) : SaveChangesI
                 entry.Entity.UpdatedBy = userId;
             }
         }
+
+        foreach (var entry in context.ChangeTracker.Entries<IHasAssignable>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.AssignedAt = now;
+                entry.Entity.AssignedBy = userId;
+            }
+        }
     }
 }
 

@@ -74,6 +74,15 @@ To ensure the EF Core `ChangeTracker` remains predictable and to prevent Foreign
 
 ---
 
+## 7. Code Maintenance & Tool Usage
+
+### Comment Preservation
+- **Non-Destructive Updates**: Every tool call (`replace`, `write_file`) MUST preserve existing XML documentation, `<summary>` tags, and inline logic comments.
+- **Anti-Truncation**: NEVER truncate a file during an update. If a large file needs modification, use granular `replace` calls or ensure the full content is provided in `write_file`.
+- **Self-Documenting Code**: Any new logic added must include its own "Guard" and "Business Rule" comments following the established style.
+
+---
+
 ## 6. Git & Commit Standards
 
 - **Atomic Commits**: Split commits by context (Domain, Feature, Infrastructure).

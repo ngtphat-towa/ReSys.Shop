@@ -1,4 +1,5 @@
 using Mapster;
+
 using ReSys.Core.Domain.Inventories.Locations;
 using ReSys.Core.Domain.Location.Addresses;
 
@@ -14,7 +15,7 @@ public class StockLocationMappings : IRegister
             .Map(dest => dest.CountryCode, src => src.Address.CountryCode);
 
         config.NewConfig<StockLocation, StockLocationDetail>();
-        
+
         // Ensure Address maps correctly between DTO and Domain
         config.NewConfig<AddressInput, Address>();
     }

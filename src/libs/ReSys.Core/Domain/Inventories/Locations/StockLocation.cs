@@ -11,23 +11,34 @@ namespace ReSys.Core.Domain.Inventories.Locations;
 /// </summary>
 public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
 {
-    public string Name { get; private set; } = string.Empty;
-    public string Presentation { get; private set; } = string.Empty;
-    public string Code { get; private set; } = string.Empty;
-    public bool Active { get; private set; } = true;
-    public bool IsDefault { get; private set; }
-    public StockLocationType Type { get; private set; } = StockLocationType.Warehouse;
+    /// <summary>The display name of the location (e.g., 'Main Warehouse').</summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>The localized or descriptive name used for customer-facing documents.</summary>
+    public string Presentation { get; set; } = string.Empty;
+
+    /// <summary>The unique ERP-compatible alphanumeric identifier.</summary>
+    public string Code { get; set; } = string.Empty;
+
+    /// <summary>Indicates if the location is currently operational.</summary>
+    public bool Active { get; set; } = true;
+
+    /// <summary>The system-wide fallback location for inventory logic.</summary>
+    public bool IsDefault { get; set; }
+
+    /// <summary>The classification of the site (e.g., Warehouse, Retail, Transit).</summary>
+    public StockLocationType Type { get; set; } = StockLocationType.Warehouse;
 
     /// <summary>Owned Entity: The verified physical address required for shipping and tax logic.</summary>
-    public Address Address { get; private set; } = null!;
+    public Address Address { get; set; } = null!;
 
     // ISoftDeletable
     public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
     // IHasMetadata
-    public IDictionary<string, object?> PublicMetadata { get; private set; } = new Dictionary<string, object?>();
-    public IDictionary<string, object?> PrivateMetadata { get; private set; } = new Dictionary<string, object?>();
+    public IDictionary<string, object?> PublicMetadata { get; set; } = new Dictionary<string, object?>();
+    public IDictionary<string, object?> PrivateMetadata { get; set; } = new Dictionary<string, object?>();
 
     /// <summary>
     /// Business Logic: Determines if the location is capable of shipping items to customers.
@@ -35,7 +46,7 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
     /// </summary>
     public bool IsFulfillable => Active && (Type == StockLocationType.Warehouse || Type == StockLocationType.RetailStore);
 
-    private StockLocation() { }
+    public StockLocation() { }
 
     /// <summary>
     /// Creates a new physical storage location with a unique ERP-compatible code.
@@ -87,7 +98,12 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
         StockLocationType type,
         Address address)
     {
+        // Guard: Identification is mandatory
         if (string.IsNullOrWhiteSpace(name)) return StockLocationErrors.NameRequired;
+        if (name.Length > StockLocationConstraints.NameMaxLength) return StockLocationErrors.NameTooLong;
+        if (presentation.Length > StockLocationConstraints.PresentationMaxLength) return StockLocationErrors.PresentationTooLong;
+
+        // Guard: Ensure ERP format compatibility
         if (string.IsNullOrWhiteSpace(code)) return StockLocationErrors.CodeRequired;
         if (address == null) return AddressErrors.Address1Required;
 
@@ -106,9 +122,19 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
         return Result.Success;
     }
 
+    /// <summary>
+    /// Assigns the location as the primary node for stock logic.
+    /// </summary>
     public void MarkAsDefault() => IsDefault = true;
+
+    /// <summary>
+    /// Removes the default status from the location.
+    /// </summary>
     public void UnmarkAsDefault() => IsDefault = false;
 
+    /// <summary>
+    /// Resumes fulfillment capabilities for the site.
+    /// </summary>
     public void Activate()
     {
         if (Active) return;
@@ -131,7 +157,7 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
     }
 
     /// <summary>
-    /// Logical deletion.
+    /// Marks the location as logically removed while preserving history.
     /// </summary>
     public ErrorOr<Deleted> Delete()
     {
@@ -146,7 +172,7 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
     }
 
     /// <summary>
-    /// Restores a logically deleted location.
+    /// Restores a soft-deleted location to operational status.
     /// </summary>
     public ErrorOr<Success> Restore()
     {
@@ -156,5 +182,14 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
         DeletedAt = null;
         RaiseDomainEvent(new StockLocationEvents.StockLocationRestored(this));
         return Result.Success;
+    }
+
+    /// <summary>
+    /// Updates the logistical metadata for the location.
+    /// </summary>
+    public void SetMetadata(IDictionary<string, object?> publicMetadata, IDictionary<string, object?> privateMetadata)
+    {
+        PublicMetadata = publicMetadata;
+        PrivateMetadata = privateMetadata;
     }
 }

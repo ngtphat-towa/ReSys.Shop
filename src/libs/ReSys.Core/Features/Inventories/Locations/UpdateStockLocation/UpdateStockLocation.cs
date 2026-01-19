@@ -72,6 +72,9 @@ public static class UpdateStockLocation
 
             if (result.IsError) return result.Errors;
 
+            // Set Metadata
+            location.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
+
             // Enforce Singleton Default
             if (location.IsDefault)
             {

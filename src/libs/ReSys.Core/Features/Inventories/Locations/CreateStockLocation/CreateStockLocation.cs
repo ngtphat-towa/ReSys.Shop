@@ -1,8 +1,13 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using Mapster;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Inventories.Locations;
 using ReSys.Core.Domain.Location.Addresses;
@@ -63,12 +68,15 @@ public static class CreateStockLocation
             if (locationResult.IsError) return locationResult.Errors;
             var location = locationResult.Value;
 
+            // Set Metadata
+            location.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
+
             // Enforce Singleton Default
             if (location.IsDefault)
             {
                 var currentDefault = await context.Set<StockLocation>()
                     .FirstOrDefaultAsync(x => x.IsDefault && !x.IsDeleted, ct);
-                
+
                 if (currentDefault != null)
                 {
                     currentDefault.UnmarkAsDefault();

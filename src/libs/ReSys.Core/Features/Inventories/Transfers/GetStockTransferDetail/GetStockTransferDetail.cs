@@ -1,7 +1,12 @@
 using ErrorOr;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
+using ReSys.Core.Domain.Catalog.Products.Variants;
+using ReSys.Core.Domain.Inventories.Locations;
 using ReSys.Core.Domain.Inventories.Movements;
 using ReSys.Core.Features.Inventories.Transfers.Common;
 
@@ -18,8 +23,8 @@ public static class GetStockTransferDetail
         public async Task<ErrorOr<Response>> Handle(Query query, CancellationToken ct)
         {
             var transfer = await (from t in context.Set<StockTransfer>()
-                                  join src in context.Set<ReSys.Core.Domain.Inventories.Locations.StockLocation>() on t.SourceLocationId equals src.Id
-                                  join dest in context.Set<ReSys.Core.Domain.Inventories.Locations.StockLocation>() on t.DestinationLocationId equals dest.Id
+                                  join src in context.Set<StockLocation>() on t.SourceLocationId equals src.Id
+                                  join dest in context.Set<StockLocation>() on t.DestinationLocationId equals dest.Id
                                   where t.Id == query.Request.Id
                                   select new Response
                                   {
@@ -33,7 +38,7 @@ public static class GetStockTransferDetail
                                       Reason = t.Reason,
                                       CreatedAt = t.CreatedAt,
                                       Items = (from item in t.Items
-                                               join v in context.Set<ReSys.Core.Domain.Catalog.Products.Variants.Variant>() on item.VariantId equals v.Id
+                                               join v in context.Set<Variant>() on item.VariantId equals v.Id
                                                select new StockTransferItemModel
                                                {
                                                    VariantId = item.VariantId,

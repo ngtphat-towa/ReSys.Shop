@@ -66,8 +66,7 @@ public static class CreateProduct
             product.MakeActiveAt = request.MakeActiveAt;
 
             // Set: metadata
-            product.PublicMetadata = request.PublicMetadata;
-            product.PrivateMetadata = request.PrivateMetadata;
+            product.SetMetadata(request.PublicMetadata, request.PrivateMetadata);
 
             // Save: domain entity
             context.Set<Product>().Add(product);

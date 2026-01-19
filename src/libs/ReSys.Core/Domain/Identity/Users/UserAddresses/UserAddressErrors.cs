@@ -12,6 +12,10 @@ public static class UserAddressErrors
         code: "UserAddress.AddressRequired",
         description: "Address details are required.");
 
+    public static Error LabelRequired => Error.Validation(
+        code: "UserAddress.LabelRequired",
+        description: "Address label is required.");
+
     public static Error LabelTooLong => Error.Validation(
         code: "UserAddress.LabelTooLong",
         description: $"Address label cannot exceed {UserAddressConstraints.LabelMaxLength} characters.");

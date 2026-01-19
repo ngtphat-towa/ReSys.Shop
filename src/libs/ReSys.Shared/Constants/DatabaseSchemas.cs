@@ -6,6 +6,7 @@ public static class DatabaseSchemas
     public const string Location = "location";
     public const string Catalog = "catalog";
     public const string Ordering = "ordering";
+    public const string Settings = "settings";
     public const string System = "system";
 
     public const string Testing = "testing";

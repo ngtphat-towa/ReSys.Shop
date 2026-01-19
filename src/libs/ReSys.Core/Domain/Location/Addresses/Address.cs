@@ -4,16 +4,16 @@ namespace ReSys.Core.Domain.Location.Addresses;
 
 /// <summary>
 /// Represents a physical address.
-/// Rich POCO: Mutable for ease of use, but with factory for validation.
+/// Value Object: Equality is based on property values.
 /// </summary>
-public class Address
+public class Address : IEquatable<Address>
 {
     public string Address1 { get; set; } = string.Empty;
     public string? Address2 { get; set; }
     public string City { get; set; } = string.Empty;
     public string ZipCode { get; set; } = string.Empty;
     public string? Phone { get; set; }
-    
+
     // Identity
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
@@ -33,11 +33,11 @@ public class Address
 
     // Factory method for consistent creation
     public static ErrorOr<Address> Create(
-        string address1, 
-        string city, 
-        string zipCode, 
+        string address1,
+        string city,
+        string zipCode,
         string countryCode,
-        string? firstName = null, 
+        string? firstName = null,
         string? lastName = null,
         Guid? countryId = null,
         string? address2 = null,
@@ -70,11 +70,11 @@ public class Address
     }
 
     public ErrorOr<Success> Update(
-        string address1, 
-        string city, 
-        string zipCode, 
+        string address1,
+        string city,
+        string zipCode,
         string countryCode,
-        string? firstName = null, 
+        string? firstName = null,
         string? lastName = null,
         Guid? countryId = null,
         string? address2 = null,
@@ -104,6 +104,42 @@ public class Address
 
         return Result.Success;
     }
+
+    public override bool Equals(object? obj) => obj is Address other && Equals(other);
+
+    public bool Equals(Address? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Address1 == other.Address1 &&
+               Address2 == other.Address2 &&
+               City == other.City &&
+               ZipCode == other.ZipCode &&
+               CountryCode == other.CountryCode &&
+               StateCode == other.StateCode &&
+               FirstName == other.FirstName &&
+               LastName == other.LastName &&
+               Company == other.Company;
+    }
+
+    public override int GetHashCode()
+    {
+        var hashCode = new HashCode();
+        hashCode.Add(Address1);
+        hashCode.Add(Address2);
+        hashCode.Add(City);
+        hashCode.Add(ZipCode);
+        hashCode.Add(CountryCode);
+        hashCode.Add(StateCode);
+        hashCode.Add(FirstName);
+        hashCode.Add(LastName);
+        hashCode.Add(Company);
+        return hashCode.ToHashCode();
+    }
+
+    public static bool operator ==(Address? left, Address? right) => Equals(left, right);
+    public static bool operator !=(Address? left, Address? right) => !Equals(left, right);
 
     public override string ToString()
     {

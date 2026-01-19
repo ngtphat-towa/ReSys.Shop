@@ -59,7 +59,10 @@ public static class CoreModule
             s.AddScoped<ITaxonRegenerationService, TaxonRegenerationService>();
 
             // Inventory Services
-            s.AddScoped<IFulfillmentPlanner, DefaultFulfillmentPlanner>();
+            s.AddScoped<FulfillmentStrategyFactory>();
+            s.AddScoped<GreedyFulfillmentStrategy>();
+            s.AddScoped<IFulfillmentPlanner, FulfillmentPlanner>();
+            s.AddScoped<IInventoryProjectionService, InventoryProjectionService>();
         });
 
         return services;

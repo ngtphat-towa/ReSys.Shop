@@ -46,10 +46,12 @@ public sealed class Variant : Aggregate, IHasMetadata, ISoftDeletable
         Guid productId,
         string sku,
         decimal price,
-        bool isMaster = false)
+        bool isMaster = false,
+        int position = VariantConstraints.DefaultPosition)
     {
         if (price < VariantConstraints.MinPrice) return VariantErrors.InvalidPrice;
         if (sku?.Length > VariantConstraints.SkuMaxLength) return VariantErrors.SkuTooLong;
+        if (position < VariantConstraints.MinPosition) return Error.Validation("Variant.InvalidPosition", $"Position must be at least {VariantConstraints.MinPosition}.");
 
         var variant = new Variant
         {
@@ -57,11 +59,18 @@ public sealed class Variant : Aggregate, IHasMetadata, ISoftDeletable
             ProductId = productId,
             Sku = sku?.Trim(),
             Price = price,
-            IsMaster = isMaster
+            IsMaster = isMaster,
+            Position = position
         };
 
         variant.RaiseDomainEvent(new VariantEvents.VariantCreated(variant));
         return variant;
+    }
+
+    public void SetMetadata(IDictionary<string, object?> publicMetadata, IDictionary<string, object?> privateMetadata)
+    {
+        PublicMetadata = publicMetadata;
+        PrivateMetadata = privateMetadata;
     }
 
     public ErrorOr<Success> UpdatePricing(decimal price, decimal? compareAtPrice = null)

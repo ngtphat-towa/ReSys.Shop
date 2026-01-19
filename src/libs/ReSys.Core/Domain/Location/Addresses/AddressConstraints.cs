@@ -10,4 +10,5 @@ public static class AddressConstraints
     public const int StateCodeMaxLength = 10;
     public const int NameMaxLength = 100;
     public const int PhoneMaxLength = 20;
+    public const int CompanyMaxLength = 255;
 }

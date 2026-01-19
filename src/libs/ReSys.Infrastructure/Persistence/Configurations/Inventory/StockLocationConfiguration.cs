@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ReSys.Core.Domain.Inventories.Locations;
+using ReSys.Core.Domain.Location.Addresses;
 using ReSys.Shared.Constants;
 
 namespace ReSys.Infrastructure.Persistence.Configurations.Inventory;
@@ -35,16 +36,16 @@ public class StockLocationConfiguration : IEntityTypeConfiguration<StockLocation
         // Map Address as Owned Entity
         builder.OwnsOne(x => x.Address, a =>
         {
-            a.Property(p => p.Address1).HasMaxLength(255).IsRequired();
-            a.Property(p => p.Address2).HasMaxLength(255);
-            a.Property(p => p.City).HasMaxLength(100).IsRequired();
-            a.Property(p => p.ZipCode).HasMaxLength(20).IsRequired();
-            a.Property(p => p.CountryCode).HasMaxLength(2).IsRequired();
-            a.Property(p => p.StateCode).HasMaxLength(5);
-            a.Property(p => p.Phone).HasMaxLength(50);
-            a.Property(p => p.FirstName).HasMaxLength(100);
-            a.Property(p => p.LastName).HasMaxLength(100);
-            a.Property(p => p.Company).HasMaxLength(255);
+            a.Property(p => p.Address1).HasMaxLength(AddressConstraints.Address1MaxLength).IsRequired();
+            a.Property(p => p.Address2).HasMaxLength(AddressConstraints.Address2MaxLength);
+            a.Property(p => p.City).HasMaxLength(AddressConstraints.CityMaxLength).IsRequired();
+            a.Property(p => p.ZipCode).HasMaxLength(AddressConstraints.ZipCodeMaxLength).IsRequired();
+            a.Property(p => p.CountryCode).HasMaxLength(AddressConstraints.CountryCodeLength).IsRequired();
+            a.Property(p => p.StateCode).HasMaxLength(AddressConstraints.StateCodeMaxLength);
+            a.Property(p => p.Phone).HasMaxLength(AddressConstraints.PhoneMaxLength);
+            a.Property(p => p.FirstName).HasMaxLength(AddressConstraints.NameMaxLength);
+            a.Property(p => p.LastName).HasMaxLength(AddressConstraints.NameMaxLength);
+            a.Property(p => p.Company).HasMaxLength(AddressConstraints.CompanyMaxLength);
         });
     }
 }

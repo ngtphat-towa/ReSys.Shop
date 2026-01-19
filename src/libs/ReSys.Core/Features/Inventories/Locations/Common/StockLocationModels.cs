@@ -23,6 +23,10 @@ public record StockLocationParameters
     public string Code { get; set; } = null!;
     public bool IsDefault { get; set; }
     public StockLocationType Type { get; set; }
+
+    // Metadata
+    public IDictionary<string, object?> PublicMetadata { get; set; } = new Dictionary<string, object?>();
+    public IDictionary<string, object?> PrivateMetadata { get; set; } = new Dictionary<string, object?>();
 }
 
 public record StockLocationInput : StockLocationParameters

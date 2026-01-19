@@ -10,13 +10,23 @@ namespace ReSys.Core.Domain.Inventories.Movements;
 /// </summary>
 public sealed class StockTransfer : Aggregate, IAuditable
 {
-    public string ReferenceNumber { get; private set; } = string.Empty;
-    public Guid SourceLocationId { get; private set; }
-    public Guid DestinationLocationId { get; private set; }
-    public StockTransferStatus Status { get; private set; } = StockTransferStatus.Draft;
-    public string? Reason { get; private set; }
+    /// <summary>The traceable document identifier (e.g., 'TRF-12345').</summary>
+    public string ReferenceNumber { get; set; } = string.Empty;
 
-    public ICollection<StockTransferItem> Items { get; private set; } = new List<StockTransferItem>();
+    /// <summary>The site where stock is being deducted.</summary>
+    public Guid SourceLocationId { get; set; }
+
+    /// <summary>The site where stock is being added.</summary>
+    public Guid DestinationLocationId { get; set; }
+
+    /// <summary>The current logistical state of the document.</summary>
+    public StockTransferStatus Status { get; set; } = StockTransferStatus.Draft;
+
+    /// <summary>Optional context for the movement (e.g., 'Restock' or 'Inter-branch request').</summary>
+    public string? Reason { get; set; }
+
+    /// <summary>The detailed list of variant SKUs and quantities being moved.</summary>
+    public ICollection<StockTransferItem> Items { get; set; } = new List<StockTransferItem>();
 
     private StockTransfer() { }
 
@@ -76,7 +86,7 @@ public sealed class StockTransfer : Aggregate, IAuditable
     }
 
     /// <summary>
-    /// Marks the transfer as left the source location. 
+    /// Marks the transfer as having left the source location. 
     /// Physical stock should be deducted from source at this point.
     /// </summary>
     public ErrorOr<Success> Ship()
@@ -129,9 +139,14 @@ public sealed class StockTransfer : Aggregate, IAuditable
 /// </summary>
 public sealed class StockTransferItem : Entity
 {
-    public Guid StockTransferId { get; private set; }
-    public Guid VariantId { get; private set; }
-    public int Quantity { get; private set; }
+    /// <summary>The parent document reference.</summary>
+    public Guid StockTransferId { get; set; }
+
+    /// <summary>The specific product SKU being moved.</summary>
+    public Guid VariantId { get; set; }
+
+    /// <summary>The physical count requested.</summary>
+    public int Quantity { get; set; }
 
     internal StockTransferItem(Guid stockTransferId, Guid variantId, int quantity)
     {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ReSys.Infrastructure.Security;
 
 namespace ReSys.Infrastructure;
 
@@ -13,6 +14,7 @@ public static class InfrastructureModule
     {
         return services
             .AddPersistence(configuration)
+            .AddSecurity(configuration)
             .AddStorage(configuration)
             .AddMlServices(configuration)
             .AddImaging(configuration)
