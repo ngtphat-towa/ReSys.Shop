@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Identity;
-using ReSys.Core.Common.Security.Authentication.Externals.Models;
 using ReSys.Core.Domain.Identity.Users;
 using ErrorOr;
 
-namespace ReSys.Core.Common.Security.Authentication.Externals.Interfaces;
+namespace ReSys.Core.Common.Security.Authentication.External;
 
 public interface IExternalUserService
 {

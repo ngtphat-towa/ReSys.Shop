@@ -4,7 +4,7 @@ using ReSys.Shared.Extensions;
 
 using System.Security.Claims;
 
-namespace ReSys.Core.Common.Security.Authentication.Contexts;
+namespace ReSys.Core.Common.Security.Authentication.Context;
 
 public class UserContext(IHttpContextAccessor httpContextAccessor) : IUserContext
 {

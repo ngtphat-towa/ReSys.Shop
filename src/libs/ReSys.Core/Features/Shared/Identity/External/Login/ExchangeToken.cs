@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using ReSys.Core.Common.Security.Authentication.Tokens;
-using ReSys.Core.Common.Security.Authentication.Externals.Interfaces;
+using ReSys.Core.Common.Security.Authentication.External;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.External.Common;
 using ErrorOr;

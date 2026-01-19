@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Extensions.Pagination;
 using ReSys.Core.Common.Extensions.Query;
-using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users.UserAddresses;
 using ReSys.Core.Features.Shared.Identity.Account.Common;
 using ReSys.Shared.Models.Pages;

@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 
 using ReSys.Core.Common.Security.Authentication.Tokens;
-using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
 
 using ErrorOr;

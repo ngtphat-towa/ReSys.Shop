@@ -1,4 +1,4 @@
-namespace ReSys.Core.Common.Security.Authentication.Externals.Models;
+namespace ReSys.Core.Common.Security.Authentication.External;
 
 public record ExternalUserTransfer
 {

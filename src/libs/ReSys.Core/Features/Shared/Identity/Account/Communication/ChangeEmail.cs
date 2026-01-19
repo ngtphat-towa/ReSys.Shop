@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Common;

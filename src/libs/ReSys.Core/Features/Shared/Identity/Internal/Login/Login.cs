@@ -7,7 +7,7 @@ using ReSys.Core.Features.Shared.Identity.Internal.Common;
 using ReSys.Core.Features.Shared.Identity.Common;
 using ErrorOr;
 using FluentValidation;
-using ReSys.Core.Common.Security.Authentication.Tokens.Models;
+using ReSys.Core.Common.Security.Authentication.Tokens;
 
 namespace ReSys.Core.Features.Shared.Identity.Internal.Login;
 

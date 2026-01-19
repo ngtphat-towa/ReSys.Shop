@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Domain.Identity.Users.UserAddresses;
 using ErrorOr;

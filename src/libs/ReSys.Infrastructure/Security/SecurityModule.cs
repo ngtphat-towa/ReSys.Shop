@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using ReSys.Core.Common.Security.Authentication.Tokens;
-using ReSys.Core.Common.Security.Authentication.Externals.Interfaces;
+using ReSys.Core.Common.Security.Authentication.External;
 using ReSys.Core.Common.Security.Authorization.Claims;
 using ReSys.Core.Domain.Identity.Roles;
 using ReSys.Core.Domain.Identity.Users;

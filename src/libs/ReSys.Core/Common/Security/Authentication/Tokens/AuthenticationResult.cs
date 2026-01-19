@@ -1,4 +1,4 @@
-namespace ReSys.Core.Common.Security.Authentication.Tokens.Models;
+namespace ReSys.Core.Common.Security.Authentication.Tokens;
 
 public record AuthenticationResult
 {

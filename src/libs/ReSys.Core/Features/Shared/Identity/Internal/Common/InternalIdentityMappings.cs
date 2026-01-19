@@ -2,7 +2,7 @@ using Mapster;
 
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Domain.Identity.Tokens;
-using ReSys.Core.Common.Security.Authentication.Tokens.Models;
+using ReSys.Core.Common.Security.Authentication.Tokens;
 
 namespace ReSys.Core.Features.Shared.Identity.Internal.Common;
 

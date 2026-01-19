@@ -3,8 +3,8 @@ using System.Text.Json.Serialization;
 using Google.Apis.Auth;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ReSys.Core.Common.Security.Authentication.Externals.Interfaces;
-using ReSys.Core.Common.Security.Authentication.Externals.Models;
+using ReSys.Core.Common.Security.Authentication.External;
+using ReSys.Core.Common.Security.Authentication.External;
 using ReSys.Infrastructure.Security.Authentication.Externals.Options;
 using ErrorOr;
 

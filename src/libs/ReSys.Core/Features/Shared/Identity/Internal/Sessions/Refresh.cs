@@ -11,7 +11,7 @@ using ErrorOr;
 using FluentValidation;
 
 using Mapster;
-using ReSys.Core.Common.Security.Authentication.Tokens.Models;
+using ReSys.Core.Common.Security.Authentication.Tokens;
 
 namespace ReSys.Core.Features.Shared.Identity.Internal.Sessions;
 

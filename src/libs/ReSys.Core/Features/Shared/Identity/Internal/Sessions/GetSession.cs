@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 using Mapster;
 
-using ReSys.Core.Common.Security.Authentication.Contexts;
+using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Common.Security.Authorization.Claims;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Internal.Common;
