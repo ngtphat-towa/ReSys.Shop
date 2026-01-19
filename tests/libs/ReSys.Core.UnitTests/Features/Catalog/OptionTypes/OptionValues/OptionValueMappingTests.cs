@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Mapster;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
 

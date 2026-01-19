@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using ReSys.Core.Domain.Catalog.Products;
 using ReSys.Core.Domain.Catalog.PropertyTypes;
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa.Services;

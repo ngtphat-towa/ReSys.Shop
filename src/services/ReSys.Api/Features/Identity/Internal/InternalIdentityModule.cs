@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ReSys.Core.Features.Identity.Internal.Login;
-using ReSys.Core.Features.Identity.Internal.Register;
-using ReSys.Core.Features.Identity.Internal.Confirmations;
-using ReSys.Core.Features.Identity.Internal.Password;
-using ReSys.Core.Features.Identity.Internal.Sessions;
+using ReSys.Core.Features.Shared.Identity.Internal.Login;
+using ReSys.Core.Features.Shared.Identity.Internal.Register;
+using ReSys.Core.Features.Shared.Identity.Internal.Confirmations;
+using ReSys.Core.Features.Shared.Identity.Internal.Password;
+using ReSys.Core.Features.Shared.Identity.Internal.Sessions;
 using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.Features.Identity.Internal;

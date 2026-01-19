@@ -5,12 +5,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Inventories.Units.GetInventoryUnitDetail;
-using ReSys.Core.Features.Inventories.Units.GetInventoryUnitsPagedList;
-using ReSys.Core.Features.Inventories.Units.UpdateInventoryUnitSerialNumber;
-using ReSys.Core.Features.Inventories.Units.RestoreInventoryUnit;
-using ReSys.Core.Features.Inventories.Units.MarkInventoryUnitDamaged;
-using ReSys.Core.Features.Inventories.Units.Common;
+using ReSys.Core.Features.Admin.Inventories.Units.GetInventoryUnitDetail;
+using ReSys.Core.Features.Admin.Inventories.Units.GetInventoryUnitsPagedList;
+using ReSys.Core.Features.Admin.Inventories.Units.UpdateInventoryUnitSerialNumber;
+using ReSys.Core.Features.Admin.Inventories.Units.RestoreInventoryUnit;
+using ReSys.Core.Features.Admin.Inventories.Units.MarkInventoryUnitDamaged;
+using ReSys.Core.Features.Admin.Inventories.Units.Common;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Common;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Common;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using Microsoft.EntityFrameworkCore;
 

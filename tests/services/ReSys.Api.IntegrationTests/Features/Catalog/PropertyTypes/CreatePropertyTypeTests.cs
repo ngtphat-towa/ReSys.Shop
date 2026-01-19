@@ -3,8 +3,8 @@ using System.Text;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain.Catalog.PropertyTypes;
-using ReSys.Core.Features.Catalog.PropertyTypes.Common;
-using ReSys.Core.Features.Catalog.PropertyTypes.CreatePropertyType;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.CreatePropertyType;
 using ReSys.Shared.Extensions;
 using ReSys.Shared.Models.Wrappers;
 

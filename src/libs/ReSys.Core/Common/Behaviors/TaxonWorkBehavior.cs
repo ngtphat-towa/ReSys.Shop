@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
 
 namespace ReSys.Core.Common.Behaviors;
 

@@ -5,17 +5,17 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
-using ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType;
-using ReSys.Core.Features.Catalog.OptionTypes.GetOptionTypeDetail;
-using ReSys.Core.Features.Catalog.OptionTypes.GetOptionTypeSelectList;
-using ReSys.Core.Features.Catalog.OptionTypes.GetOptionTypesPagedList;
-using ReSys.Core.Features.Catalog.OptionTypes.UpdateOptionType;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.DeleteOptionValue;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.GetOptionValuesPagedList;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.DeleteOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.GetOptionTypeDetail;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.GetOptionTypeSelectList;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.GetOptionTypesPagedList;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.UpdateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.CreateOptionValue;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.DeleteOptionValue;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.GetOptionValuesPagedList;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.UpdateOptionValue;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

@@ -2,27 +2,27 @@ using Carter;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Catalog.Products.CreateProduct;
-using ReSys.Core.Features.Catalog.Products.DeleteProduct;
-using ReSys.Core.Features.Catalog.Products.GetProductDetail;
-using ReSys.Core.Features.Catalog.Products.GetProductsPagedList;
-using ReSys.Core.Features.Catalog.Products.GetProductSelectList;
-using ReSys.Core.Features.Catalog.Products.UpdateProduct;
-using ReSys.Core.Features.Catalog.Products.ActivateProduct;
-using ReSys.Core.Features.Catalog.Products.ArchiveProduct;
-using ReSys.Core.Features.Catalog.Products.DraftProduct;
-using ReSys.Core.Features.Catalog.Products.DiscontinueProduct;
-using ReSys.Core.Features.Catalog.Products.GetProductBySlug;
-using ReSys.Core.Features.Catalog.Products.Classifications.GetProductClassifications;
-using ReSys.Core.Features.Catalog.Products.Classifications.ManageProductClassifications;
-using ReSys.Core.Features.Catalog.Products.OptionTypes.GetProductOptionTypes;
-using ReSys.Core.Features.Catalog.Products.OptionTypes.ManageProductOptionTypes;
-using ReSys.Core.Features.Catalog.Products.Properties.GetProductProperties;
-using ReSys.Core.Features.Catalog.Products.Properties.ManageProductProperties;
-using ReSys.Core.Features.Catalog.Products.Images.GetProductImages;
-using ReSys.Core.Features.Catalog.Products.Images.UploadProductImage;
-using ReSys.Core.Features.Catalog.Products.Images.UpdateProductImage;
-using ReSys.Core.Features.Catalog.Products.Images.RemoveProductImage;
+using ReSys.Core.Features.Admin.Catalog.Products.CreateProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.DeleteProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.GetProductDetail;
+using ReSys.Core.Features.Admin.Catalog.Products.GetProductsPagedList;
+using ReSys.Core.Features.Admin.Catalog.Products.GetProductSelectList;
+using ReSys.Core.Features.Admin.Catalog.Products.UpdateProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.ActivateProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.ArchiveProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.DraftProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.DiscontinueProduct;
+using ReSys.Core.Features.Admin.Catalog.Products.GetProductBySlug;
+using ReSys.Core.Features.Admin.Catalog.Products.Classifications.GetProductClassifications;
+using ReSys.Core.Features.Admin.Catalog.Products.Classifications.ManageProductClassifications;
+using ReSys.Core.Features.Admin.Catalog.Products.OptionTypes.GetProductOptionTypes;
+using ReSys.Core.Features.Admin.Catalog.Products.OptionTypes.ManageProductOptionTypes;
+using ReSys.Core.Features.Admin.Catalog.Products.Properties.GetProductProperties;
+using ReSys.Core.Features.Admin.Catalog.Products.Properties.ManageProductProperties;
+using ReSys.Core.Features.Admin.Catalog.Products.Images.GetProductImages;
+using ReSys.Core.Features.Admin.Catalog.Products.Images.UploadProductImage;
+using ReSys.Core.Features.Admin.Catalog.Products.Images.UpdateProductImage;
+using ReSys.Core.Features.Admin.Catalog.Products.Images.RemoveProductImage;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 
@@ -175,7 +175,7 @@ public class ProductsModule : ICarterModule
             Guid id,
             IFormFile file,
             [FromQuery] Guid? variantId,
-            [FromQuery] ReSys.Core.Domain.Catalog.Products.Images.ProductImage.ProductImageType role,
+            [FromQuery] Core.Domain.Catalog.Products.Images.ProductImage.ProductImageType role,
             [FromQuery] string? alt,
             ISender sender,
             CancellationToken ct) =>

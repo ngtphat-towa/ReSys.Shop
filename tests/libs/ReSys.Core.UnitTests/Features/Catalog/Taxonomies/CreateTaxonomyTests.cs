@@ -4,8 +4,8 @@ using NSubstitute;
 
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.CreateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies;
@@ -49,7 +49,7 @@ public class CreateTaxonomyTests(TestDatabaseFixture fixture) : IClassFixture<Te
         // Arrange
         var name = $"Duplicate_{Guid.NewGuid()}";
         var existing = Taxonomy.Create(name).Value;
-        fixture.Context.Set<ReSys.Core.Domain.Catalog.Taxonomies.Taxonomy>().Add(existing);
+        fixture.Context.Set<Taxonomy>().Add(existing);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var handler = new CreateTaxonomy.Handler(fixture.Context);

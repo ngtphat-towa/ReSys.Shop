@@ -13,8 +13,8 @@ public record PromotionAdjustment(
 /// </summary>
 public record PromotionCalculationContext(
     Promotion Promotion,
-    ReSys.Core.Domain.Ordering.Order Order,
-    IReadOnlyList<ReSys.Core.Domain.Ordering.LineItems.LineItem> EligibleItems);
+    Ordering.Order Order,
+    IReadOnlyList<Ordering.LineItems.LineItem> EligibleItems);
 
 /// <summary>
 /// Final result of a promotion calculation.

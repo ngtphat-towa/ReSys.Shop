@@ -15,25 +15,25 @@ public sealed class Promotion : Aggregate, IHasMetadata, ISoftDeletable
     public enum DiscountType { Percentage, FixedAmount }
 
     #region Properties
-    public string Name { get; private set; } = string.Empty;
-    public string? Code { get; private set; }
-    public string? Description { get; private set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Code { get; set; }
+    public string? Description { get; set; }
     
     // Eligibility Thresholds
-    public decimal? MinimumOrderAmount { get; private set; }
-    public decimal? MaximumDiscountAmount { get; private set; }
+    public decimal? MinimumOrderAmount { get; set; }
+    public decimal? MaximumDiscountAmount { get; set; }
     
     // Scheduling
-    public DateTimeOffset? StartsAt { get; private set; }
-    public DateTimeOffset? ExpiresAt { get; private set; }
+    public DateTimeOffset? StartsAt { get; set; }
+    public DateTimeOffset? ExpiresAt { get; set; }
     
     // Usage Control
-    public int? UsageLimit { get; private set; }
-    public int UsageCount { get; private set; }
-    public bool RequiresCouponCode { get; private set; }
+    public int? UsageLimit { get; set; }
+    public int UsageCount { get; set; }
+    public bool RequiresCouponCode { get; set; }
     
     // Status
-    public bool Active { get; private set; } = true;
+    public bool Active { get; set; } = true;
     public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
@@ -42,8 +42,8 @@ public sealed class Promotion : Aggregate, IHasMetadata, ISoftDeletable
     public IDictionary<string, object?> PrivateMetadata { get; set; } = new Dictionary<string, object?>();
 
     // Relationships
-    public PromotionAction? Action { get; private set; }
-    public ICollection<PromotionRule> Rules { get; private set; } = new List<PromotionRule>();
+    public PromotionAction? Action { get; set; }
+    public ICollection<PromotionRule> Rules { get; set; } = new List<PromotionRule>();
     #endregion
 
     #region Computed

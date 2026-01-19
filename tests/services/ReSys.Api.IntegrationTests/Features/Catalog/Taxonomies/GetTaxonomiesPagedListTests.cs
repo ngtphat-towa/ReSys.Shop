@@ -1,8 +1,8 @@
 using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.Taxonomies.Common;
-using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Common;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.CreateTaxonomy;
 using ReSys.Shared.Models.Wrappers;
 using System.Text;
 

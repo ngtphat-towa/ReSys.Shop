@@ -3,8 +3,8 @@ using Mapster;
 using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.UpdateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.UpdateOptionType;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes;
@@ -19,7 +19,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
     static UpdateOptionTypeTests()
     {
         new OptionTypeMappings().Register(TypeAdapterConfig.GlobalSettings);
-        new ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common.OptionValueMappings().Register(TypeAdapterConfig.GlobalSettings);
+        new Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common.OptionValueMappings().Register(TypeAdapterConfig.GlobalSettings);
     }
 
     public UpdateOptionTypeTests(TestDatabaseFixture fixture)
@@ -35,7 +35,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(optionType);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new Core.Features.Catalog.OptionTypes.UpdateOptionType.UpdateOptionType.Handler(_fixture.Context);
+        var handler = new UpdateOptionType.Handler(_fixture.Context);
         var request = new UpdateOptionType.Request
         {
             Name = "NewName",
@@ -58,7 +58,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
     public async Task Handle_NonExistent_ShouldReturnNotFound()
     {
         // Arrange
-        var handler = new Core.Features.Catalog.OptionTypes.UpdateOptionType.UpdateOptionType.Handler(_fixture.Context);
+        var handler = new UpdateOptionType.Handler(_fixture.Context);
         var command = new UpdateOptionType.Command(
             Guid.NewGuid(),
             new UpdateOptionType.Request { Name = "Valid" });
@@ -83,7 +83,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().AddRange(ot1, ot2);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new Core.Features.Catalog.OptionTypes.UpdateOptionType.UpdateOptionType.Handler(_fixture.Context);
+        var handler = new UpdateOptionType.Handler(_fixture.Context);
         var request = new UpdateOptionType.Request { Name = name2 };
         var command = new UpdateOptionType.Command(ot1.Id, request);
 
@@ -104,7 +104,7 @@ public class UpdateOptionTypeTests : IClassFixture<TestDatabaseFixture>
         _fixture.Context.Set<OptionType>().Add(ot);
         await _fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        var handler = new Core.Features.Catalog.OptionTypes.UpdateOptionType.UpdateOptionType.Handler(_fixture.Context);
+        var handler = new UpdateOptionType.Handler(_fixture.Context);
         var request = new UpdateOptionType.Request { Name = name, Presentation = "Same" };
         var command = new UpdateOptionType.Command(ot.Id, request);
 

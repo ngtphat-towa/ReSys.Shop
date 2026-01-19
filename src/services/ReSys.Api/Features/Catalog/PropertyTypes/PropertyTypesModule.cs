@@ -5,12 +5,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Catalog.PropertyTypes.CreatePropertyType;
-using ReSys.Core.Features.Catalog.PropertyTypes.DeletePropertyType;
-using ReSys.Core.Features.Catalog.PropertyTypes.GetPropertyTypeDetail;
-using ReSys.Core.Features.Catalog.PropertyTypes.GetPropertyTypeSelectList;
-using ReSys.Core.Features.Catalog.PropertyTypes.GetPropertyTypesPagedList;
-using ReSys.Core.Features.Catalog.PropertyTypes.UpdatePropertyType;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.CreatePropertyType;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.DeletePropertyType;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.GetPropertyTypeDetail;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.GetPropertyTypeSelectList;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.GetPropertyTypesPagedList;
+using ReSys.Core.Features.Admin.Catalog.PropertyTypes.UpdatePropertyType;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

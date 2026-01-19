@@ -5,13 +5,14 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Inventories.Stocks.AdjustStock;
-using ReSys.Core.Features.Inventories.Stocks.DeleteStockItem;
-using ReSys.Core.Features.Inventories.Stocks.RestoreStockItem;
-using ReSys.Core.Features.Inventories.Stocks.GetStockItemDetail;
-using ReSys.Core.Features.Inventories.Stocks.GetStockItemsPagedList;
-using ReSys.Core.Features.Inventories.Stocks.UpdateBackorderPolicy;
-using ReSys.Core.Features.Inventories.Stocks.Common;
+using ReSys.Core.Features.Admin.Inventories.Stocks.AdjustStock;
+using ReSys.Core.Features.Admin.Inventories.Stocks.AuditStock;
+using ReSys.Core.Features.Admin.Inventories.Stocks.DeleteStockItem;
+using ReSys.Core.Features.Admin.Inventories.Stocks.RestoreStockItem;
+using ReSys.Core.Features.Admin.Inventories.Stocks.GetStockItemDetail;
+using ReSys.Core.Features.Admin.Inventories.Stocks.GetStockItemsPagedList;
+using ReSys.Core.Features.Admin.Inventories.Stocks.UpdateBackorderPolicy;
+using ReSys.Core.Features.Admin.Inventories.Stocks.Common;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 
@@ -44,6 +45,13 @@ public class StockItemsModule : ICarterModule
             return result.ToApiResponse();
         })
         .WithName("AdjustStock");
+
+        group.MapPost("/{id:guid}/audit", async (Guid id, [FromBody] AuditStock.Request request, ISender sender, CancellationToken ct) =>
+        {
+            var result = await sender.Send(new AuditStock.Command(id, request), ct);
+            return result.ToApiResponse();
+        })
+        .WithName("AuditStock");
 
         group.MapPut("/{id:guid}/backorder-policy", async (Guid id, [FromBody] BackorderPolicyRequest request, ISender sender, CancellationToken ct) =>
         {

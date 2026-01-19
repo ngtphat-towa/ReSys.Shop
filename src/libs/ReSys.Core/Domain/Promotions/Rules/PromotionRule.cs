@@ -21,14 +21,14 @@ public sealed class PromotionRule : Entity
         UserGroup
     }
 
-    public Guid PromotionId { get; private set; }
-    public RuleType Type { get; private set; }
+    public Guid PromotionId { get; set; }
+    public RuleType Type { get; set; }
 
     /// <summary>
     /// Strongly-typed parameters for the rule (e.g., quantity threshold, required IDs).
     /// Mapped as JSONB in PostgreSQL.
     /// </summary>
-    public RuleParameters Parameters { get; private set; } = new();
+    public RuleParameters Parameters { get; set; } = new();
 
     private PromotionRule() { }
 

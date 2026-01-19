@@ -1,28 +1,31 @@
 using Carter;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
+
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.DeleteTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.GetTaxonomiesPagedList;
-using ReSys.Core.Features.Catalog.Taxonomies.GetTaxonomyDetail;
-using ReSys.Core.Features.Catalog.Taxonomies.GetTaxonomySelectList;
-using ReSys.Core.Features.Catalog.Taxonomies.UpdateTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.RebuildTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.ValidateTaxonomy;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.CreateTaxon;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.DeleteTaxon;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.GetTaxonDetail;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.GetTaxonPagedList;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.GetTaxonTree;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.UpdateTaxon;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.UpdateTaxonPositions;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.AddTaxonRule;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.DeleteTaxonRule;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.GetTaxonRules;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.UpdateTaxonRule;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.UpdateTaxonRules;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.RegenerateTaxonProducts;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.CreateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.DeleteTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.GetTaxonomiesPagedList;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.GetTaxonomyDetail;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.GetTaxonomySelectList;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.UpdateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.RebuildTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.ValidateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.CreateTaxon;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.DeleteTaxon;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.GetTaxonDetail;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.GetTaxonPagedList;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.GetTaxonTree;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.UpdateTaxon;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.UpdateTaxonPositions;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.AddTaxonRule;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.DeleteTaxonRule;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.GetTaxonRules;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.UpdateTaxonRule;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.UpdateTaxonRules;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.RegenerateTaxonProducts;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

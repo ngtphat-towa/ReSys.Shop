@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using ReSys.Core.Features.Identity.External.Login;
-using ReSys.Core.Features.Identity.External.Config;
+using ReSys.Core.Features.Shared.Identity.External.Login;
+using ReSys.Core.Features.Shared.Identity.External.Config;
 using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.Features.Identity.External;

@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-using ReSys.Core.Features.Identity.Admin.Permissions.GetPermissionsPagedList;
-using ReSys.Core.Features.Identity.Admin.Permissions.GetPermissionSelectList;
+using ReSys.Core.Features.Shared.Identity.Admin.Permissions.GetPermissionsPagedList;
+using ReSys.Core.Features.Shared.Identity.Admin.Permissions.GetPermissionSelectList;
 using ReSys.Infrastructure.Security.Authorization;
 using ReSys.Shared.Constants.Permissions;
 using ReSys.Shared.Models.Query;

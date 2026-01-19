@@ -5,13 +5,13 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Inventories.Locations.CreateStockLocation;
-using ReSys.Core.Features.Inventories.Locations.UpdateStockLocation;
-using ReSys.Core.Features.Inventories.Locations.DeleteStockLocation;
-using ReSys.Core.Features.Inventories.Locations.RestoreStockLocation;
-using ReSys.Core.Features.Inventories.Locations.GetStockLocationDetail;
-using ReSys.Core.Features.Inventories.Locations.GetStockLocationsPagedList;
-using ReSys.Core.Features.Inventories.Locations.ToggleStockLocationStatus;
+using ReSys.Core.Features.Admin.Inventories.Locations.CreateStockLocation;
+using ReSys.Core.Features.Admin.Inventories.Locations.UpdateStockLocation;
+using ReSys.Core.Features.Admin.Inventories.Locations.DeleteStockLocation;
+using ReSys.Core.Features.Admin.Inventories.Locations.RestoreStockLocation;
+using ReSys.Core.Features.Admin.Inventories.Locations.GetStockLocationDetail;
+using ReSys.Core.Features.Admin.Inventories.Locations.GetStockLocationsPagedList;
+using ReSys.Core.Features.Admin.Inventories.Locations.ToggleStockLocationStatus;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

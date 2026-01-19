@@ -2,7 +2,7 @@ using Carter;
 
 using MediatR;
 
-using ReSys.Core.Features.Inventories.Movements.GetStockMovementsPagedList;
+using ReSys.Core.Features.Admin.Inventories.Movements.GetStockMovementsPagedList;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

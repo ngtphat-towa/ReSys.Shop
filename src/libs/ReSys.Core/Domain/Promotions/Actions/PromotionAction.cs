@@ -9,14 +9,14 @@ namespace ReSys.Core.Domain.Promotions.Actions;
 /// </summary>
 public sealed class PromotionAction : Entity
 {
-    public Guid PromotionId { get; private set; }
-    public Promotion.PromotionType Type { get; private set; }
+    public Guid PromotionId { get; set; }
+    public Promotion.PromotionType Type { get; set; }
 
     /// <summary>
     /// Strongly-typed parameters for the action (e.g., percentage, fixed amount, variant IDs).
     /// Mapped as JSONB in PostgreSQL.
     /// </summary>
-    public ActionParameters Parameters { get; private set; } = new();
+    public ActionParameters Parameters { get; set; } = new();
 
     private PromotionAction() { }
 

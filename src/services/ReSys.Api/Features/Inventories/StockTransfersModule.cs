@@ -5,15 +5,15 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 using ReSys.Api.Infrastructure.Extensions;
-using ReSys.Core.Features.Inventories.Transfers.CreateStockTransfer;
-using ReSys.Core.Features.Inventories.Transfers.AddTransferItem;
-using ReSys.Core.Features.Inventories.Transfers.ShipStockTransfer;
-using ReSys.Core.Features.Inventories.Transfers.ReceiveStockTransfer;
-using ReSys.Core.Features.Inventories.Transfers.CancelStockTransfer;
-using ReSys.Core.Features.Inventories.Transfers.RemoveStockTransferItem;
-using ReSys.Core.Features.Inventories.Transfers.GetStockTransferDetail;
-using ReSys.Core.Features.Inventories.Transfers.GetStockTransfersPagedList;
-using ReSys.Core.Features.Inventories.Transfers.Common;
+using ReSys.Core.Features.Admin.Inventories.Transfers.CreateStockTransfer;
+using ReSys.Core.Features.Admin.Inventories.Transfers.AddTransferItem;
+using ReSys.Core.Features.Admin.Inventories.Transfers.ShipStockTransfer;
+using ReSys.Core.Features.Admin.Inventories.Transfers.ReceiveStockTransfer;
+using ReSys.Core.Features.Admin.Inventories.Transfers.CancelStockTransfer;
+using ReSys.Core.Features.Admin.Inventories.Transfers.RemoveStockTransferItem;
+using ReSys.Core.Features.Admin.Inventories.Transfers.GetStockTransferDetail;
+using ReSys.Core.Features.Admin.Inventories.Transfers.GetStockTransfersPagedList;
+using ReSys.Core.Features.Admin.Inventories.Transfers.Common;
 using ReSys.Shared.Constants;
 using ReSys.Shared.Models.Wrappers;
 

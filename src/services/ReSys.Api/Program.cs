@@ -50,7 +50,7 @@ try
     // Register Layers
     builder.Services
         .AddPresentation()
-        .AddCore(typeof(ReSys.Api.ApiModule).Assembly)
+        .AddCore(typeof(ApiModule).Assembly)
         .AddInfrastructure(builder.Configuration);
 
     builder.Services.AddAuthorization();

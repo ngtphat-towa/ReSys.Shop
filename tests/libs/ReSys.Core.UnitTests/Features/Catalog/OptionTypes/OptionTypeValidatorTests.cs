@@ -2,7 +2,7 @@ using FluentValidation.TestHelper;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Common.Abstractions;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.Common;
 

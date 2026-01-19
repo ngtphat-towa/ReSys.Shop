@@ -1,7 +1,7 @@
 using FluentValidation.TestHelper;
 
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.OptionValues.Common;
 

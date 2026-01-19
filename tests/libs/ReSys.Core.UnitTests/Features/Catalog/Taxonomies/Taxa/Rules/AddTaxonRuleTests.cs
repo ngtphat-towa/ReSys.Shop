@@ -3,7 +3,7 @@ using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Domain.Catalog.Taxonomies;
 using ReSys.Core.Domain.Catalog.Taxonomies.Taxa;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.AddTaxonRule;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.AddTaxonRule;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Infrastructure.Persistence;
 using FluentAssertions;

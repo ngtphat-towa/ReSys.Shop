@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc;
-using ReSys.Core.Features.Identity.Account.Profile;
-using ReSys.Core.Features.Identity.Account.Addresses;
-using ReSys.Core.Features.Identity.Account.Communication;
+using ReSys.Core.Features.Shared.Identity.Account.Profile;
+using ReSys.Core.Features.Shared.Identity.Account.Addresses;
+using ReSys.Core.Features.Shared.Identity.Account.Communication;
 using ReSys.Shared.Models.Query;
 using ReSys.Shared.Models.Wrappers;
 

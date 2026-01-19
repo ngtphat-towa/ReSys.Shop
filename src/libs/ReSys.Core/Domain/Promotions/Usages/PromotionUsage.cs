@@ -9,21 +9,21 @@ namespace ReSys.Core.Domain.Promotions.Usages;
 /// </summary>
 public sealed class PromotionUsage : Aggregate
 {
-    public Guid PromotionId { get; private set; }
-    public Guid OrderId { get; private set; }
-    public string? UserId { get; private set; }
+    public Guid PromotionId { get; set; }
+    public Guid OrderId { get; set; }
+    public string? UserId { get; set; }
     
     /// <summary>
     /// The total discount amount applied in this specific usage (in minor units/cents).
     /// </summary>
-    public long DiscountAmountCents { get; private set; }
+    public long DiscountAmountCents { get; set; }
     
     /// <summary>
     /// Snapshot of the promotion code used (if any) at the time of application.
     /// </summary>
-    public string? AppliedCode { get; private set; }
+    public string? AppliedCode { get; set; }
 
-    public Promotion Promotion { get; private set; } = null!;
+    public Promotion Promotion { get; set; } = null!;
 
     private PromotionUsage() { }
 

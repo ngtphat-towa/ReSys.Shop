@@ -4,7 +4,7 @@ using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.OptionTypes.DeleteOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.DeleteOptionType;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes;
 

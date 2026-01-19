@@ -1,13 +1,12 @@
-using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Domain.Inventories.Locations;
 using ReSys.Core.Domain.Inventories.Stocks;
-using ReSys.Core.Features.Inventories.Services.Fulfillment;
 using ReSys.Core.Domain.Location.Addresses;
 using ReSys.Core.UnitTests.TestInfrastructure;
 using ReSys.Infrastructure.Persistence;
 using ReSys.Core.Domain.Settings.Stores;
-using Xunit;
+using ReSys.Core.Features.Admin.Inventories.Services.Fulfillment;
 
 namespace ReSys.Core.UnitTests.Features.Inventories.Services.Fulfillment;
 
@@ -33,14 +32,14 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         var store = await CreateStoreAsync("Store 1", "S1");
         var variantId = Guid.NewGuid();
         var requestedItems = new Dictionary<Guid, int> { { variantId, 5 } };
-        
+
         var address = Address.Create("Test St", "NYC", "10001", "US").Value;
         var location = StockLocation.Create("Main", "WH01", address, isDefault: true).Value;
         var stockItem = StockItem.Create(variantId, location.Id, "SKU01", 10).Value;
 
         fixture.Context.Set<StockLocation>().Add(location);
         fixture.Context.Set<StockItem>().Add(stockItem);
-        
+
         store.AddLocation(location);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -63,17 +62,17 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         var store = await CreateStoreAsync("Store 2", "S2");
         var variantId = Guid.NewGuid();
         var requestedItems = new Dictionary<Guid, int> { { variantId, 10 } };
-        
+
         var address = Address.Create("Test St", "NYC", "10001", "US").Value;
         var loc1 = StockLocation.Create("Loc1", "WH01", address, isDefault: true).Value;
         var loc2 = StockLocation.Create("Loc2", "WH02", address, isDefault: false).Value;
-        
+
         var stock1 = StockItem.Create(variantId, loc1.Id, "SKU01", 4).Value; // 4 available
         var stock2 = StockItem.Create(variantId, loc2.Id, "SKU01", 10).Value; // 10 available
 
         fixture.Context.Set<StockLocation>().AddRange(loc1, loc2);
         fixture.Context.Set<StockItem>().AddRange(stock1, stock2);
-        
+
         store.AddLocation(loc1);
         store.AddLocation(loc2);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -84,7 +83,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Shipments.Should().HaveCount(2);
-        
+
         var shipment1 = result.Value.Shipments.First(s => s.StockLocationId == loc1.Id);
         var shipment2 = result.Value.Shipments.First(s => s.StockLocationId == loc2.Id);
 
@@ -100,7 +99,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         var store = await CreateStoreAsync("Store 3", "S3");
         var variantId = Guid.NewGuid();
         var requestedItems = new Dictionary<Guid, int> { { variantId, 5 } };
-        
+
         var address = Address.Create("Test St", "NYC", "10001", "US").Value;
         var location = StockLocation.Create("Main", "WH01", address, isDefault: true).Value;
 
@@ -126,9 +125,9 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         var store = await CreateStoreAsync("Store 4", "S4");
         var variantId = Guid.NewGuid();
         var requestedItems = new Dictionary<Guid, int> { { variantId, 5 } };
-        
+
         var address = Address.Create("Test St", "NYC", "10001", "US").Value;
-        
+
         // Loc 1: Non-fulfillable (Damaged)
         var damagedLoc = StockLocation.Create("Damaged", "DMG01", address, type: StockLocationType.Damaged).Value;
         var damagedStock = StockItem.Create(variantId, damagedLoc.Id, "SKU01", 100).Value;
@@ -139,7 +138,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
 
         fixture.Context.Set<StockLocation>().AddRange(damagedLoc, warehouseLoc);
         fixture.Context.Set<StockItem>().AddRange(damagedStock, warehouseStock);
-        
+
         store.AddLocation(damagedLoc);
         store.AddLocation(warehouseLoc);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -180,7 +179,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         emptyContext.Set<Store>().Add(store);
 
         var address = Address.Create("Street", "City", "12345", "US").Value;
-        
+
         // Loc 1: Transit (Not fulfillable)
         var loc1 = StockLocation.Create("Transit 1", "TRN1", address, type: StockLocationType.Transit).Value;
 
@@ -208,7 +207,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
         var variantId = Guid.NewGuid();
         var requestedItems = new Dictionary<Guid, int> { { variantId, 50 } };
         var address = Address.Create("Street", "City", "12345", "US").Value;
-        
+
         var locNonDefault = StockLocation.Create("Non-Default", "NONDEF", address, isDefault: false).Value;
         var locDefault = StockLocation.Create("Default", "DEF", address, isDefault: true).Value;
 
@@ -217,7 +216,7 @@ public class GreedyFulfillmentStrategyTests(TestDatabaseFixture fixture) : IClas
 
         fixture.Context.Set<StockLocation>().AddRange(locNonDefault, locDefault);
         fixture.Context.Set<StockItem>().AddRange(stockNonDefault, stockDefault);
-        
+
         store.AddLocation(locNonDefault);
         store.AddLocation(locDefault);
         await fixture.Context.SaveChangesAsync(TestContext.Current.CancellationToken);

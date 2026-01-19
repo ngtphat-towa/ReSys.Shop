@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.CreateOptionValue;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
 using ReSys.Shared.Models.Wrappers;
 
 namespace ReSys.Api.IntegrationTests.Features.Catalog.OptionTypes.Values;

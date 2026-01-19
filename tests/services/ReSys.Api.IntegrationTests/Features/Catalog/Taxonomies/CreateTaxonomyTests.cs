@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Features.Catalog.Taxonomies.Common;
-using ReSys.Core.Features.Catalog.Taxonomies.CreateTaxonomy;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Common;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.CreateTaxonomy;
 using ReSys.Shared.Extensions;
 using ReSys.Shared.Models.Wrappers;
 

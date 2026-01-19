@@ -1,5 +1,5 @@
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 using Microsoft.Extensions.Logging.Abstractions;

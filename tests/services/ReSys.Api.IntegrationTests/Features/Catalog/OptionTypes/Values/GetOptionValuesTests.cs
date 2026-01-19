@@ -4,10 +4,10 @@ using System.Text;
 using Newtonsoft.Json;
 
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.CreateOptionValue;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.CreateOptionValue;
 using ReSys.Shared.Models.Wrappers;
 using ReSys.Shared.Models.Pages;
 

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
 using ReSys.Core.Domain.Catalog.OptionTypes.OptionValues;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.UpdateOptionValuePositions;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes.OptionValues;

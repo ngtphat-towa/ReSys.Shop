@@ -7,7 +7,7 @@ This document defines the mandatory architectural patterns and implementation st
 ## 1. Domain-Driven Integrity (The Core)
 
 ### Aggregate Roots & Entities
-- **Encapsulation**: Properties must have `private set`. State changes *must* happen through explicit domain methods (e.g., `.AdjustStock()`, `.Ship()`).
+- **Encapsulation**: State changes *must* happen through explicit domain methods (e.g., `.AdjustStock()`, `.Ship()`). While using `private set` is highly recommended to enforce this, the primary focus is ensuring all mutations are deliberate and encapsulated within the domain.
 - **Aggregate Promotion**: Use `Aggregate` base for roots that manage children or raise events. Use `Entity` for child items.
 - **Invariants (Guards)**: Every domain method must validate its own rules immediately.
     - *Example:* `if (quantity == 0) return StockItemErrors.ZeroQuantityMovement;`
@@ -80,6 +80,11 @@ To ensure the EF Core `ChangeTracker` remains predictable and to prevent Foreign
 - **Non-Destructive Updates**: Every tool call (`replace`, `write_file`) MUST preserve existing XML documentation, `<summary>` tags, and inline logic comments.
 - **Anti-Truncation**: NEVER truncate a file during an update. If a large file needs modification, use granular `replace` calls or ensure the full content is provided in `write_file`.
 - **Self-Documenting Code**: Any new logic added must include its own "Guard" and "Business Rule" comments following the established style.
+
+### Granular and Transparent Edits
+- **Contextual Transparency**: Every code modification must clearly state the context, describe exactly what is being changed, and provide actionable details on the expected outcome.
+- **Justified Modifications**: Every change must be accompanied by a clear reason "why" it is being made (e.g., to fix a specific bug, implement a feature, or adhere to an architectural standard).
+- **Modification Granularity**: Changes should be kept small and focused. Avoid modifications exceeding 50 lines per operation to ensure clarity, maintainability, and ease of review.
 
 ---
 

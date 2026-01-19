@@ -10,8 +10,8 @@ using ReSys.Shared.Telemetry;
 using ReSys.Shared.Constants;
 using ReSys.Core.Common.Security.Authentication.Contexts;
 using ReSys.Core.Common.Mappings;
-using ReSys.Core.Features.Catalog.Taxonomies.Services;
-using ReSys.Core.Features.Inventories.Services.Fulfillment;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Services;
+using ReSys.Core.Features.Admin.Inventories.Services.Fulfillment;
 
 namespace ReSys.Core;
 

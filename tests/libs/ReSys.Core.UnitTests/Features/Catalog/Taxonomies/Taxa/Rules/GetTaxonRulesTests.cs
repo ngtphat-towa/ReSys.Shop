@@ -1,5 +1,5 @@
 using ReSys.Core.Domain.Catalog.Taxonomies;
-using ReSys.Core.Features.Catalog.Taxonomies.Taxa.Rules.GetTaxonRules;
+using ReSys.Core.Features.Admin.Catalog.Taxonomies.Taxa.Rules.GetTaxonRules;
 using ReSys.Core.UnitTests.TestInfrastructure;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.Taxonomies.Taxa.Rules;

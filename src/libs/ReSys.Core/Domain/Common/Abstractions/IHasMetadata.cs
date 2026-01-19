@@ -110,7 +110,7 @@ public static class HasMetadataExtensions
     // Validate: dictionary metadata 
     public static void AddMetadataValidationRules<T>(
         this AbstractValidator<T> validator,
-        System.Linq.Expressions.Expression<System.Func<T, IDictionary<string, object?>?>> expression)
+        System.Linq.Expressions.Expression<Func<T, IDictionary<string, object?>?>> expression)
     {
         validator.RuleFor(expression).AddMetadataValidationRules();
     }

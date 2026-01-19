@@ -1,8 +1,8 @@
 using System.Net;
 using Newtonsoft.Json;
 using ReSys.Api.IntegrationTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.CreateOptionType;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.CreateOptionType;
 using ReSys.Shared.Models.Wrappers;
 using System.Text;
 

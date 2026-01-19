@@ -43,7 +43,7 @@ public class StockTransferItemConfiguration : IEntityTypeConfiguration<StockTran
         builder.ToTable(DatabaseTables.StockTransferItems, DatabaseSchemas.Catalog);
         builder.HasKey(x => x.Id);
 
-        builder.HasOne<ReSys.Core.Domain.Catalog.Products.Variants.Variant>()
+        builder.HasOne<Core.Domain.Catalog.Products.Variants.Variant>()
             .WithMany()
             .HasForeignKey(x => x.VariantId)
             .OnDelete(DeleteBehavior.Restrict);

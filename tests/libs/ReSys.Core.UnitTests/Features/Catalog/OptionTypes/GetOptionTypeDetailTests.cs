@@ -3,10 +3,10 @@ using Mapster;
 using ErrorOr;
 
 using ReSys.Core.Domain.Catalog.OptionTypes;
-using ReSys.Core.Features.Catalog.OptionTypes.Common;
-using ReSys.Core.Features.Catalog.OptionTypes.GetOptionTypeDetail;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.GetOptionTypeDetail;
 using ReSys.Core.UnitTests.TestInfrastructure;
-using ReSys.Core.Features.Catalog.OptionTypes.OptionValues.Common;
+using ReSys.Core.Features.Admin.Catalog.OptionTypes.OptionValues.Common;
 
 namespace ReSys.Core.UnitTests.Features.Catalog.OptionTypes;
 

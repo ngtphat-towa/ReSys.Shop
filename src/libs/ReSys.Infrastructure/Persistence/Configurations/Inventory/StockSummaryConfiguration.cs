@@ -15,7 +15,7 @@ public class StockSummaryConfiguration : IEntityTypeConfiguration<StockSummary>
         builder.HasKey(x => x.Id);
 
         // One-to-One with Variant (Shared Primary Key)
-        builder.HasOne<ReSys.Core.Domain.Catalog.Products.Variants.Variant>()
+        builder.HasOne<Core.Domain.Catalog.Products.Variants.Variant>()
             .WithOne()
             .HasForeignKey<StockSummary>(x => x.VariantId)
             .OnDelete(DeleteBehavior.Cascade);

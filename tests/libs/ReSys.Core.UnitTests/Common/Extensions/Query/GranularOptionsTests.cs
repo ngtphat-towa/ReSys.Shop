@@ -113,7 +113,7 @@ public class GranularOptionsTests(TestDatabaseFixture fixture) : IClassFixture<T
         var options = new PageOptions { Page = 1, PageSize = 2 };
         
         // Specify projection and types explicitly if inference fails
-        var result = await query.ApplyPagingAsync<Example, Example>(options, x => x, TestContext.Current.CancellationToken);
+        var result = await query.ApplyPagingAsync(options, x => x, TestContext.Current.CancellationToken);
 
         result.Items.Should().HaveCount(2);
         result.TotalCount.Should().Be(3);
