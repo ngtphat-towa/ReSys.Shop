@@ -46,4 +46,8 @@ public static class PromotionErrors
     public static Error ActionRequired => Error.Validation(
         code: "Promotion.ActionRequired",
         description: "A promotion must have a valid action configured.");
+    
+    public static Error InvalidRuleType => Error.Validation(
+        code: "Promotion.InvalidRuleType",
+        description: "Invalid promotion rule type.");
 }

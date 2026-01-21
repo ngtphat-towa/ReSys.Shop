@@ -50,4 +50,8 @@ public static class OrderErrors
     public static Error IncompleteInventoryAllocation => Error.Conflict(
         code: "Order.IncompleteInventoryAllocation",
         description: "Some items are not fully allocated to a warehouse.");
+
+    public static Error PaymentNotFound => Error.NotFound(
+        code: "Order.PaymentNotFound",
+        description: "The specified payment record was not found in this order.");
 }

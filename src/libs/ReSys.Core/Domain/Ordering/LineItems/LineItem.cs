@@ -2,13 +2,15 @@ using ReSys.Core.Domain.Common.Abstractions;
 using ReSys.Core.Domain.Catalog.Products.Variants;
 using ReSys.Core.Domain.Ordering.Adjustments;
 using ReSys.Core.Domain.Ordering.InventoryUnits;
+
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Ordering.LineItems;
 
 /// <summary>
-/// Represents a immutable snapshot of a product variant within a specific order.
+/// Represents an immutable snapshot of a product variant within a specific order.
 /// Preserves pricing and naming truth at the exact moment of the transaction.
+/// It acts as the anchor for financial ledger entries and physical inventory units.
 /// </summary>
 public sealed class LineItem : Entity
 {
@@ -24,7 +26,7 @@ public sealed class LineItem : Entity
     /// <summary>Physical price per unit in cents (Price x 100) at time of order.</summary>
     public long PriceCents { get; set; }
 
-    /// <summary>Currency code (e.g., 'USD') inherited from the order.</summary>
+    /// <summary>Currency code (e.g. USD) inherited from the order.</summary>
     public string Currency { get; set; } = string.Empty;
 
     /// <summary>Snapshot of the product name for historical display.</summary>
@@ -33,16 +35,19 @@ public sealed class LineItem : Entity
     /// <summary>Snapshot of the variant SKU.</summary>
     public string? CapturedSku { get; set; }
 
-    /// <summary>Flags if this item was added as part of a promotion (e.g., Free Gift).</summary>
+    /// <summary>Flags if this item was added as part of a promotion (e.g. Free Gift).</summary>
     public bool IsPromotional { get; set; }
 
     // Relationships
+    /// <summary>Parent order navigation.</summary>
     public Order Order { get; set; } = null!;
+
+    /// <summary>Catalog variant navigation.</summary>
     public Variant Variant { get; set; } = null!;
-    
-    /// <summary>Granular link to physical inventory units.</summary>
+
+    /// <summary>Granular link to physical inventory units. One unit per quantity.</summary>    
     public ICollection<InventoryUnit> InventoryUnits { get; set; } = new List<InventoryUnit>();
-    
+
     /// <summary>Discounts or fees applied specifically to this item.</summary>
     public ICollection<LineItemAdjustment> Adjustments { get; set; } = new List<LineItemAdjustment>();
 
@@ -87,7 +92,7 @@ public sealed class LineItem : Entity
     internal ErrorOr<Success> UpdateQuantity(int quantity, DateTimeOffset now)
     {
         if (quantity < LineItemConstraints.MinQuantity) return LineItemErrors.InvalidQuantity;
-        
+
         Quantity = quantity;
         UpdatedAt = now;
         return Result.Success;

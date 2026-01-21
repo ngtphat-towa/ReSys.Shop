@@ -75,7 +75,7 @@ public sealed class Promotion : Aggregate, IHasMetadata, ISoftDeletable
         if (string.IsNullOrWhiteSpace(name)) return Error.Validation("Promotion.NameRequired", "Promotion name is required.");
         
         // Guard: Constraints
-        if (name.Length > PromotionConstraints.NameMaxLength) return PromotionErrors.DuplicateName(name); // Placeholder for generic too long if needed
+        if (name.Length > PromotionConstraints.NameMaxLength) return PromotionErrors.DuplicateName(name); 
 
         var promotion = new Promotion
         {

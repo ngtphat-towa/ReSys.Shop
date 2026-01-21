@@ -1,4 +1,5 @@
 using ReSys.Core.Domain.Common.Abstractions;
+
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Promotions.Usages;
@@ -12,12 +13,12 @@ public sealed class PromotionUsage : Aggregate
     public Guid PromotionId { get; set; }
     public Guid OrderId { get; set; }
     public string? UserId { get; set; }
-    
+
     /// <summary>
     /// The total discount amount applied in this specific usage (in minor units/cents).
     /// </summary>
     public long DiscountAmountCents { get; set; }
-    
+
     /// <summary>
     /// Snapshot of the promotion code used (if any) at the time of application.
     /// </summary>
@@ -31,10 +32,10 @@ public sealed class PromotionUsage : Aggregate
     /// Factory for creating an immutable usage record.
     /// </summary>
     public static ErrorOr<PromotionUsage> Create(
-        Guid promotionId, 
-        Guid orderId, 
-        long discountAmountCents, 
-        string? userId = null, 
+        Guid promotionId,
+        Guid orderId,
+        long discountAmountCents,
+        string? userId = null,
         string? appliedCode = null)
     {
         if (promotionId == Guid.Empty) return Error.Validation("PromotionUsage.PromotionIdRequired");

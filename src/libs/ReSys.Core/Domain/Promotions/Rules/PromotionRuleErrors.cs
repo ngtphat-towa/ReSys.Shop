@@ -11,4 +11,8 @@ public static class PromotionRuleErrors
     public static Error ValueRequired => Error.Validation(
         code: "PromotionRule.ValueRequired",
         description: "Rule value is required.");
+    
+    public static Error TypeRequired => Error.Validation(
+        code: "PromotionRule.TypeRequired",
+        description: "Rule type is required.");
 }

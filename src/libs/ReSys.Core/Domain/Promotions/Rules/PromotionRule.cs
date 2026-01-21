@@ -34,7 +34,7 @@ public sealed class PromotionRule : Entity
 
     public static ErrorOr<PromotionRule> Create(Guid promotionId, RuleType type, RuleParameters parameters)
     {
-        if (type == RuleType.None) return Error.Validation("PromotionRule.TypeRequired");
+        if (type == RuleType.None) return PromotionRuleErrors.TypeRequired;
 
         return new PromotionRule
         {
@@ -49,14 +49,4 @@ public sealed class PromotionRule : Entity
     {
         Parameters = parameters;
     }
-}
-
-/// <summary>
-/// Base record for promotion rule configuration.
-/// </summary>
-public record RuleParameters
-{
-    public string? Value { get; init; }
-    public List<Guid> TargetIds { get; init; } = [];
-    public int? Threshold { get; init; }
 }

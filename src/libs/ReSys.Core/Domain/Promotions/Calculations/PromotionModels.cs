@@ -1,3 +1,5 @@
+using ReSys.Core.Domain.Ordering.LineItems;
+
 namespace ReSys.Core.Domain.Promotions.Calculations;
 
 /// <summary>
@@ -14,7 +16,7 @@ public record PromotionAdjustment(
 public record PromotionCalculationContext(
     Promotion Promotion,
     Ordering.Order Order,
-    IReadOnlyList<Ordering.LineItems.LineItem> EligibleItems);
+    IReadOnlyList<LineItem> EligibleItems);
 
 /// <summary>
 /// Final result of a promotion calculation.

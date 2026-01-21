@@ -1,11 +1,16 @@
 using ErrorOr;
+
 using FluentValidation;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Ordering;
 using ReSys.Core.Domain.Ordering.Adjustments;
 using ReSys.Core.Features.Admin.Ordering.Common;
+
 using Mapster;
 
 namespace ReSys.Core.Features.Admin.Ordering.Adjustments.AddManualAdjustment;

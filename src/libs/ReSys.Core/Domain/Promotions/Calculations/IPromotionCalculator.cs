@@ -1,4 +1,5 @@
 using ErrorOr;
+
 using ReSys.Core.Domain.Ordering;
 
 namespace ReSys.Core.Domain.Promotions.Calculations;

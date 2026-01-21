@@ -1,6 +1,7 @@
 using ReSys.Core.Domain.Common.Abstractions;
 using ReSys.Core.Domain.Inventories.Stocks;
 using ReSys.Core.Domain.Ordering.Shipments;
+
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Ordering.InventoryUnits;
@@ -79,78 +80,83 @@ public sealed class InventoryUnit : Aggregate, ISoftDeletable
         StockLocationId = stockLocationId;
     }
 
-    #region State Transitions
-    /// <summary>
-    /// Allocates physical stock to this unit from a specific location.
-    /// </summary>
-    public ErrorOr<Success> Reserve(Guid orderId)
-    {
-        // Guard: Prevent double-reservation or reserving backorders
-        if (State != InventoryUnitState.Pending && State != InventoryUnitState.Backordered)
-            return InventoryUnitErrors.InvalidStateTransition(State, nameof(Reserve));
-
-        TransitionTo(InventoryUnitState.OnHand);
-        OrderId = orderId;
-        return Result.Success;
-    }
-
-    /// <summary>
-    /// Links this unit to a specific warehouse shipment.
-    /// </summary>
-    public ErrorOr<Success> AssignToShipment(Guid shipmentId)
-    {
-        // Guard: Cannot re-assign items that have already left or been canceled
-        if (State == InventoryUnitState.Shipped || State == InventoryUnitState.Canceled)
-            return InventoryUnitErrors.InvalidStateTransition(State, nameof(AssignToShipment));
-
-        ShipmentId = shipmentId;
-        return Result.Success;
-    }
-
-    /// <summary>
-    /// Marks the unit as promised to an order but awaiting stock replenishment.
-    /// This represents a "Physical Debt" in the ledger.
-    /// </summary>
-    public ErrorOr<Success> Backorder(Guid orderId)
-    {
-        // Guard: Only a fresh unit or a canceled allocation can be backordered
-        if (State != InventoryUnitState.Pending && State != InventoryUnitState.Canceled)
-            return InventoryUnitErrors.InvalidStateTransition(State, nameof(Backorder));
-
-        TransitionTo(InventoryUnitState.Backordered);
-        OrderId = orderId;
-        return Result.Success;
-    }
-
-    /// <summary>
-    /// Confirms the unit has left the warehouse. Auto-finalizes the ledger state.
-    /// </summary>
-    public ErrorOr<Success> Ship(Guid shipmentId)
-    {
-        // Guard: Can only ship items currently on hand
-        if (State != InventoryUnitState.OnHand)
-            return InventoryUnitErrors.InvalidStateTransition(State, nameof(Ship));
-
-        TransitionTo(InventoryUnitState.Shipped);
-        ShipmentId = shipmentId;
-        Pending = false; 
-        return Result.Success;
-    }
-
-    /// <summary>
-    /// Cancels the allocation. Auto-finalizes to release the reservation.
-    /// </summary>
-    public ErrorOr<Success> Cancel()
-    {
-        // Guard: Cannot cancel what is already shipped
-        if (State == InventoryUnitState.Shipped)
-            return InventoryUnitErrors.AlreadyShipped;
-
-        TransitionTo(InventoryUnitState.Canceled);
-        Pending = false; 
-        return Result.Success;
-    }
-
+        #region State Transitions
+        /// <summary>
+        /// Allocates physical stock to this unit from a specific location.
+        /// This represents a 'Soft Lock' on the inventory item.
+        /// </summary>
+        public ErrorOr<Success> Reserve(Guid orderId)
+        {
+            // Guard: Prevent double-reservation or reserving backorders.
+            if (State != InventoryUnitState.Pending && State != InventoryUnitState.Backordered)
+                return InventoryUnitErrors.InvalidStateTransition(State, nameof(Reserve));
+    
+            TransitionTo(InventoryUnitState.OnHand);
+                    OrderId = orderId;
+                    return Result.Success;
+                }
+            
+                /// <summary>
+                /// Links this unit to a specific warehouse shipment.
+                /// This prepares the unit for the Pick/Pack workflow.
+                /// </summary>
+                public ErrorOr<Success> AssignToShipment(Guid shipmentId)
+                {
+                    // Guard: Cannot re-assign items that have already left or been canceled
+                    if (State == InventoryUnitState.Shipped || State == InventoryUnitState.Canceled)
+                        return InventoryUnitErrors.InvalidStateTransition(State, nameof(AssignToShipment));
+            
+                    ShipmentId = shipmentId;
+                    return Result.Success;
+                }
+            
+                /// <summary>
+                /// Marks the unit as promised to an order but awaiting stock replenishment.        /// This represents a "Physical Debt" in the ledger.
+        /// It ensures that as soon as stock arrives, this order has priority.
+        /// </summary>
+        public ErrorOr<Success> Backorder(Guid orderId)
+        {
+            // Guard: Only a fresh unit or a canceled allocation can be backordered.
+            if (State != InventoryUnitState.Pending && State != InventoryUnitState.Canceled)
+                return InventoryUnitErrors.InvalidStateTransition(State, nameof(Backorder));
+    
+            TransitionTo(InventoryUnitState.Backordered);
+            OrderId = orderId;
+            return Result.Success;
+        }
+    
+        /// <summary>
+        /// Confirms the unit has left the warehouse. Auto-finalizes the ledger state.
+        /// This is the final physical step in fulfillment.
+        /// </summary>
+        public ErrorOr<Success> Ship(Guid shipmentId)
+        {
+            // Guard: Can only ship items currently on hand (picked).
+            if (State != InventoryUnitState.OnHand)
+                return InventoryUnitErrors.InvalidStateTransition(State, nameof(Ship));
+    
+            TransitionTo(InventoryUnitState.Shipped);
+            ShipmentId = shipmentId;
+            
+            // Business Rule: Once shipped, the item is no longer 'Pending' in the ledger.
+            Pending = false; 
+            return Result.Success;
+        }
+    
+        /// <summary>
+        /// Cancels the allocation. Auto-finalizes to release the reservation.
+        /// This returns the item to 'Available' pool in the warehouse.
+        /// </summary>
+        public ErrorOr<Success> Cancel()
+        {
+            // Guard: Once items leave the building, they cannot be canceled (must be returned).
+            if (State == InventoryUnitState.Shipped)
+                return InventoryUnitErrors.AlreadyShipped;
+    
+            TransitionTo(InventoryUnitState.Canceled);
+            Pending = false; 
+            return Result.Success;
+        }
     /// <summary>
     /// Marks the unit as returned by the customer.
     /// </summary>

@@ -8,37 +8,67 @@ namespace ReSys.Core.Domain.Ordering.Shipments;
 /// <summary>
 /// Represents a physical package moving from a specific warehouse to a customer.
 /// Orchestrates the warehouse lifecycle (Pick -> Pack -> Ship).
+/// It manages the transition of physical inventory units from warehouse shelves to carrier hands.
 /// </summary>
 public sealed class Shipment : Aggregate
 {
+    /// <summary>
+    /// Sequential stages of physical fulfillment.
+    /// </summary>
     public enum ShipmentState
     {
+        /// <summary>Initialized but not started.</summary>
         Pending,
-        Ready,      // Allocated and ready for warehouse tasks
-        Picked,     // Items removed from shelf
-        Packed,     // Items in box
-        Shipped,    // Handed to carrier
-        Delivered,  // Received by customer
+        /// <summary>Allocated and ready for warehouse tasks.</summary>
+        Ready,      
+        /// <summary>Items removed from shelf.</summary>
+        Picked,     
+        /// <summary>Items in box.</summary>
+        Packed,     
+        /// <summary>Handed to carrier.</summary>
+        Shipped,    
+        /// <summary>Received by customer.</summary>
+        Delivered,  
+        /// <summary>Abort fulfillment.</summary>
         Canceled
     }
 
     #region Properties
+    /// <summary>Source order reference.</summary>
     public Guid OrderId { get; set; }
+
+    /// <summary>The physical warehouse location where items are picked.</summary>
     public Guid StockLocationId { get; set; }
+
+    /// <summary>Human-readable shipment number (e.g. SHP-20260121-1234).</summary>
     public string Number { get; set; } = string.Empty;
+
+    /// <summary>Current logistical status.</summary>
     public ShipmentState State { get; set; } = ShipmentState.Pending;
+
+    /// <summary>Carrier tracking identifier.</summary>
     public string? TrackingNumber { get; set; }
 
-    /// <summary>Minor units (cents) for shipping costs.</summary>
+    /// <summary>Minor units (cents) for specific shipment costs.</summary>
     public long CostCents { get; set; }
 
+    /// <summary>Timestamp of picking.</summary>
     public DateTimeOffset? PickedAt { get; set; }
+
+    /// <summary>Timestamp of packing.</summary>
     public DateTimeOffset? PackedAt { get; set; }
+
+    /// <summary>Timestamp of handover to carrier.</summary>
     public DateTimeOffset? ShippedAt { get; set; }
+
+    /// <summary>Timestamp of delivery confirmation.</summary>
     public DateTimeOffset? DeliveredAt { get; set; }
 
     // Relationships
+    /// <summary>Parent order navigation.</summary>
     public Order Order { get; set; } = null!;
+
+    /// <summary>Granular link to physical items contained in this package.</summary>
     public ICollection<InventoryUnit> InventoryUnits { get; set; } = new List<InventoryUnit>();
     #endregion
 

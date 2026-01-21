@@ -1,4 +1,5 @@
 using ErrorOr;
+
 using ReSys.Core.Domain.Ordering;
 using ReSys.Core.Domain.Ordering.LineItems;
 using ReSys.Core.Domain.Promotions.Actions;
@@ -29,7 +30,7 @@ public sealed class PromotionCalculator : IPromotionCalculator
 
         // 4. Item-Level Filtering
         var eligibleItems = GetEligibleItems(promotion, order);
-        
+
         if (!eligibleItems.Any())
             return Error.Validation("Promotion.NoEligibleItems", "The items in the cart do not qualify for this promotion.");
 
@@ -53,7 +54,7 @@ public sealed class PromotionCalculator : IPromotionCalculator
             PromotionRule.RuleType.ProductInclude => order.LineItems.Any(li => rule.Parameters.TargetIds.Contains(li.VariantId)),
             PromotionRule.RuleType.ProductExclude => !order.LineItems.Any(li => rule.Parameters.TargetIds.Contains(li.VariantId)),
             PromotionRule.RuleType.CategoryInclude => order.LineItems.Any(li => li.Variant.Product != null && li.Variant.Product.Classifications.Any(c => rule.Parameters.TargetIds.Contains(c.TaxonId))),
-            _ => true 
+            _ => true
         };
     }
 
@@ -88,7 +89,7 @@ public sealed class PromotionCalculator : IPromotionCalculator
                 var orderDiscount = p.DiscountType == Promotion.DiscountType.Percentage
                     ? (long)(totalItemTotalCents * (p.Value / 100m))
                     : (long)(p.Value * 100);
-                
+
                 result.Add(new PromotionAdjustment($"Discount: {context.Promotion.Name}", -orderDiscount));
                 break;
 
@@ -122,8 +123,8 @@ public sealed class PromotionCalculator : IPromotionCalculator
                     if (itemDiscountCents > 0)
                     {
                         result.Add(new PromotionAdjustment(
-                            Description: $"Discount: {context.Promotion.Name}", 
-                            AmountCents: -itemDiscountCents, 
+                            Description: $"Discount: {context.Promotion.Name}",
+                            AmountCents: -itemDiscountCents,
                             LineItemId: item.Id));
                     }
                 }
@@ -146,9 +147,9 @@ public sealed class PromotionCalculator : IPromotionCalculator
 
         if (totalDiscountCents <= capCents) return adjustments;
 
-        return new List<PromotionAdjustment> 
-        { 
-            new PromotionAdjustment($"Discount: {promotion.Name} (Capped)", -capCents) 
+        return new List<PromotionAdjustment>
+        {
+            new PromotionAdjustment($"Discount: {promotion.Name} (Capped)", -capCents)
         };
     }
 }

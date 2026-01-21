@@ -10,13 +10,13 @@ public record PromotionParameters
     public string Name { get; init; } = null!;
     public string? Code { get; init; }
     public string? Description { get; init; }
-    
+
     public decimal? MinimumOrderAmount { get; init; }
     public decimal? MaximumDiscountAmount { get; init; }
-    
+
     public DateTimeOffset? StartsAt { get; init; }
     public DateTimeOffset? ExpiresAt { get; init; }
-    
+
     public int? UsageLimit { get; init; }
     public bool RequiresCouponCode { get; init; }
 }
