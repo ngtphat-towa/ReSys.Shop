@@ -55,6 +55,7 @@ public static class ApiModule
 
         // 4. Normalization & Security
         app.UseMiddleware<SnakeCaseQueryMiddleware>();
+        app.UseMiddleware<GuestSessionMiddleware>();
         app.UseDocumentation();
 
         if (!app.Environment.IsDevelopment())

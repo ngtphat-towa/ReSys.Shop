@@ -26,4 +26,14 @@ public sealed record NotificationMessage
         Attachments = attachments;
         Metadata = metadata ?? NotificationMetadata.Default;
     }
+
+    public static NotificationMessage Create(
+        NotificationConstants.UseCase useCase,
+        NotificationRecipient recipient,
+        NotificationContext context,
+        List<NotificationAttachment>? attachments = null,
+        NotificationMetadata? metadata = null)
+    {
+        return new NotificationMessage(useCase, recipient, context, attachments, metadata);
+    }
 }

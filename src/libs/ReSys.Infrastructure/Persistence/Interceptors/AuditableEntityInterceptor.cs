@@ -46,6 +46,14 @@ public class AuditableEntityInterceptor(IUserContext userContext) : SaveChangesI
             }
         }
 
+        foreach (var entry in context.ChangeTracker.Entries<IHasVersion>())
+        {
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            {
+                entry.Entity.Version++;
+            }
+        }
+
         foreach (var entry in context.ChangeTracker.Entries<IHasAssignable>())
         {
             if (entry.State == EntityState.Added)

@@ -3,7 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Identity.Roles;
+using ReSys.Core.Domain.Identity.Roles.Claims;
 using ReSys.Core.Domain.Identity.Users;
+using ReSys.Core.Domain.Identity.Users.Claims;
+using ReSys.Core.Domain.Identity.Users.Logins;
+using ReSys.Core.Domain.Identity.Users.Roles;
+using ReSys.Core.Domain.Identity.Users.Tokens;
 using ReSys.Core.Domain.Testing.Examples;
 using ReSys.Core.Domain.Inventories.Locations;
 using ReSys.Core.Domain.Inventories.Stocks;
@@ -14,7 +19,8 @@ using ReSys.Infrastructure.Persistence.Extensions;
 
 namespace ReSys.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<User, Role, string>(options), IApplicationDbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) 
+    : IdentityDbContext<User, Role, string, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options), IApplicationDbContext
 {
     // Please check type configraurations for details
     // Path: src/libs/ReSys.Infrastructure/Persistence/Configurations/

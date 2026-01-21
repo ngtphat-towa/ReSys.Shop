@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="NSubstitute" />
@@ -15,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\libs\ReSys.Infrastructure\ReSys.Infrastructure.csproj" />
+    <ProjectReference Include="..\ReSys.Core.UnitTests\ReSys.Core.UnitTests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -18,7 +18,24 @@ public static class InfrastructureModule
             .AddStorage(configuration)
             .AddMlServices(configuration)
             .AddImaging(configuration)
-            .AddNotifications(configuration);
+            .AddNotifications(configuration)
+            .AddPayments(configuration)
+            .AddJobs(configuration); // Background Jobs
+    }
+
+    public static IServiceCollection AddJobs(this IServiceCollection services, IConfiguration configuration)
+    {
+        Backgrounds.JobsModule.AddJobs(services, configuration);
+        return services;
+    }
+
+    public static IServiceCollection AddPayments(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<ReSys.Core.Domain.Ordering.Payments.Gateways.IPaymentProcessorFactory, Payments.PaymentFactory>();
+        services.AddScoped<ReSys.Core.Domain.Ordering.Payments.Gateways.IPaymentProcessor, Payments.Gateways.StripeProcessor>();
+        // Inventory
+        services.AddScoped<ReSys.Core.Domain.Inventories.Services.IInventoryReservationService, Inventories.Services.InventoryReservationService>();
+        return services;
     }
 
     public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)

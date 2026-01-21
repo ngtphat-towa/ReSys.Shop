@@ -63,6 +63,9 @@ public static class CoreModule
             s.AddScoped<GreedyFulfillmentStrategy>();
             s.AddScoped<IFulfillmentPlanner, FulfillmentPlanner>();
             s.AddScoped<IInventoryProjectionService, InventoryProjectionService>();
+
+            // Promotion Services
+            s.AddScoped<ReSys.Core.Domain.Promotions.Calculations.IPromotionCalculator, ReSys.Core.Domain.Promotions.Calculations.PromotionCalculator>();
         });
 
         return services;

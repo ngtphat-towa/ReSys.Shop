@@ -24,11 +24,13 @@
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Pgvector.EntityFrameworkCore" />
+    <PackageReference Include="Quartz.Extensions.Hosting" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Sinch" />
     <PackageReference Include="SixLabors.ImageSharp">
       <NoWarn>NU1902;NU1903</NoWarn>
     </PackageReference>
+    <PackageReference Include="Stripe.net" />
   </ItemGroup>
 
 </Project>

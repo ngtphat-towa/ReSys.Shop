@@ -22,6 +22,7 @@ public static class PersistenceModule
     public static IServiceCollection AddDataSeeders(this IServiceCollection services)
     {
         services.AddScoped<IDataSeeder, IdentityDataSeeder>();
+        services.AddScoped<IDataSeeder, StoreDataSeeder>();
         services.AddHostedService<SeederOrchestrator>();
         return services;
     }
@@ -54,10 +55,12 @@ public static class PersistenceModule
             var connectionString = configuration.GetConnectionString(connectionStringName);
 
             s.TryAddScoped<AuditableEntityInterceptor>();
+            s.TryAddScoped<DispatchDomainEventsInterceptor>();
 
             s.AddDbContext<TDbContext>((sp, options) =>
             {
-                var interceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+                var auditInterceptor = sp.GetRequiredService<AuditableEntityInterceptor>();
+                var eventInterceptor = sp.GetRequiredService<DispatchDomainEventsInterceptor>();
 
                 options.UseNpgsql(connectionString, npgsqlOptions =>
                 {
@@ -65,7 +68,7 @@ public static class PersistenceModule
                     npgsqlOptions.MigrationsAssembly(migrationsAssembly);
                 })
                 .UseSnakeCaseNamingConvention()
-                .AddInterceptors(interceptor);
+                .AddInterceptors(auditInterceptor, eventInterceptor);
             });
         });
 
