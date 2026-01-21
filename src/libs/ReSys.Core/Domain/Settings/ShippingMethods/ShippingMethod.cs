@@ -1,5 +1,4 @@
 using ReSys.Core.Domain.Common.Abstractions;
-
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Settings.ShippingMethods;
@@ -32,10 +31,11 @@ public sealed class ShippingMethod : Aggregate, ISoftDeletable, IHasMetadata
         string? description = null,
         int position = 0)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return ShippingMethodErrors.NameRequired;
-        if (baseCost < 0)
-            return ShippingMethodErrors.CostNegative;
+        if (string.IsNullOrWhiteSpace(name)) return ShippingMethodErrors.NameRequired;
+        if (name.Length > ShippingMethodConstraints.NameMaxLength) return ShippingMethodErrors.NameTooLong;
+        if (presentation.Length > ShippingMethodConstraints.PresentationMaxLength) return ShippingMethodErrors.PresentationTooLong;
+        if (description?.Length > ShippingMethodConstraints.DescriptionMaxLength) return ShippingMethodErrors.DescriptionTooLong;
+        if (baseCost < ShippingMethodConstraints.MinCost) return ShippingMethodErrors.CostNegative;
 
         var method = new ShippingMethod
         {
@@ -60,10 +60,11 @@ public sealed class ShippingMethod : Aggregate, ISoftDeletable, IHasMetadata
         string? description,
         int position)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return ShippingMethodErrors.NameRequired;
-        if (baseCost < 0)
-            return ShippingMethodErrors.CostNegative;
+        if (string.IsNullOrWhiteSpace(name)) return ShippingMethodErrors.NameRequired;
+        if (name.Length > ShippingMethodConstraints.NameMaxLength) return ShippingMethodErrors.NameTooLong;
+        if (presentation.Length > ShippingMethodConstraints.PresentationMaxLength) return ShippingMethodErrors.PresentationTooLong;
+        if (description?.Length > ShippingMethodConstraints.DescriptionMaxLength) return ShippingMethodErrors.DescriptionTooLong;
+        if (baseCost < ShippingMethodConstraints.MinCost) return ShippingMethodErrors.CostNegative;
 
         Name = name.Trim();
         Presentation = presentation.Trim();
@@ -79,14 +80,14 @@ public sealed class ShippingMethod : Aggregate, ISoftDeletable, IHasMetadata
     {
         if (Status == ShippingStatus.Active) return;
         Status = ShippingStatus.Active;
-        RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodUpdated(this));
+        RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodActivated(this));
     }
 
     public void Deactivate()
     {
         if (Status == ShippingStatus.Inactive) return;
         Status = ShippingStatus.Inactive;
-        RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodUpdated(this));
+        RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodDeactivated(this));
     }
 
     public void Archive()
@@ -96,19 +97,28 @@ public sealed class ShippingMethod : Aggregate, ISoftDeletable, IHasMetadata
         RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodUpdated(this));
     }
 
-    public void Delete()
+    public ErrorOr<Deleted> Delete()
     {
-        if (IsDeleted) return;
+        if (IsDeleted) return Result.Deleted;
         IsDeleted = true;
         DeletedAt = DateTimeOffset.UtcNow;
         RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodDeleted(this));
+        return Result.Deleted;
     }
 
-    public void Restore()
+    public ErrorOr<Success> Restore()
     {
-        if (!IsDeleted) return;
+        if (!IsDeleted) return Result.Success;
         IsDeleted = false;
         DeletedAt = null;
+        RaiseDomainEvent(new ShippingMethodEvents.ShippingMethodRestored(this));
+        return Result.Success;
+    }
+
+    public void SetMetadata(IDictionary<string, object?>? publicMetadata, IDictionary<string, object?>? privateMetadata)
+    {
+        if (publicMetadata != null) PublicMetadata = new Dictionary<string, object?>(publicMetadata);
+        if (privateMetadata != null) PrivateMetadata = new Dictionary<string, object?>(privateMetadata);
     }
 
     public enum ShippingType

@@ -1,5 +1,4 @@
 using ReSys.Core.Domain.Common.Abstractions;
-
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Settings.PaymentMethods;
@@ -32,8 +31,10 @@ public sealed class PaymentMethod : Aggregate, ISoftDeletable, IHasMetadata
         int position = 0,
         bool autoCapture = false)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return PaymentMethodErrors.NameRequired;
+        if (string.IsNullOrWhiteSpace(name)) return PaymentMethodErrors.NameRequired;
+        if (name.Length > PaymentMethodConstraints.NameMaxLength) return PaymentMethodErrors.NameTooLong;
+        if (presentation.Length > PaymentMethodConstraints.PresentationMaxLength) return PaymentMethodErrors.PresentationTooLong;
+        if (description?.Length > PaymentMethodConstraints.DescriptionMaxLength) return PaymentMethodErrors.DescriptionTooLong;
 
         var method = new PaymentMethod
         {
@@ -58,8 +59,10 @@ public sealed class PaymentMethod : Aggregate, ISoftDeletable, IHasMetadata
         int position,
         bool autoCapture)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            return PaymentMethodErrors.NameRequired;
+        if (string.IsNullOrWhiteSpace(name)) return PaymentMethodErrors.NameRequired;
+        if (name.Length > PaymentMethodConstraints.NameMaxLength) return PaymentMethodErrors.NameTooLong;
+        if (presentation.Length > PaymentMethodConstraints.PresentationMaxLength) return PaymentMethodErrors.PresentationTooLong;
+        if (description?.Length > PaymentMethodConstraints.DescriptionMaxLength) return PaymentMethodErrors.DescriptionTooLong;
 
         Name = name.Trim();
         Presentation = presentation.Trim();
@@ -75,36 +78,45 @@ public sealed class PaymentMethod : Aggregate, ISoftDeletable, IHasMetadata
     {
         if (Status == PaymentStatus.Active) return;
         Status = PaymentStatus.Active;
-        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodUpdated(this));
+        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodActivated(this));
     }
 
     public void Deactivate()
     {
         if (Status == PaymentStatus.Inactive) return;
         Status = PaymentStatus.Inactive;
-        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodUpdated(this));
+        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodDeactivated(this));
     }
 
     public void Archive()
     {
         if (Status == PaymentStatus.Archived) return;
         Status = PaymentStatus.Archived;
-        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodUpdated(this));
+        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodUpdated(this)); // Or specific Archived event
     }
 
-    public void Delete()
+    public ErrorOr<Deleted> Delete()
     {
-        if (IsDeleted) return;
+        if (IsDeleted) return Result.Deleted;
         IsDeleted = true;
         DeletedAt = DateTimeOffset.UtcNow;
         RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodDeleted(this));
+        return Result.Deleted;
     }
 
-    public void Restore()
+    public ErrorOr<Success> Restore()
     {
-        if (!IsDeleted) return;
+        if (!IsDeleted) return Result.Success;
         IsDeleted = false;
         DeletedAt = null;
+        RaiseDomainEvent(new PaymentMethodEvents.PaymentMethodRestored(this));
+        return Result.Success;
+    }
+
+    public void SetMetadata(IDictionary<string, object?>? publicMetadata, IDictionary<string, object?>? privateMetadata)
+    {
+        if (publicMetadata != null) PublicMetadata = new Dictionary<string, object?>(publicMetadata);
+        if (privateMetadata != null) PrivateMetadata = new Dictionary<string, object?>(privateMetadata);
     }
 
     public enum PaymentType
