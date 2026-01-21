@@ -1,13 +1,19 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Domain.Identity.Users.UserAddresses;
 using ReSys.Core.Domain.Location.Addresses;
 using ReSys.Core.Features.Shared.Identity.Account.Common;
+using ReSys.Core.Features.Shared.Identity.Common;
+
 using ErrorOr;
+
 using Mapster;
+using ReSys.Core.Common.Data;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Addresses;
 
@@ -19,6 +25,7 @@ public static class CreateAddress
 
     public class Handler(
         IUserContext userContext,
+        IApplicationDbContext dbContext,
         UserManager<User> userManager) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken ct)
@@ -36,7 +43,7 @@ public static class CreateAddress
 
             // 1. Create Address Value Object
             var addressResult = Address.Create(
-                req.Address1, req.City, req.ZipCode, req.CountryCode, 
+                req.Address1, req.City, req.ZipCode, req.CountryCode,
                 req.FirstName, req.LastName, null, req.Address2, req.Phone, req.Company, null, req.StateCode);
 
             if (addressResult.IsError) return addressResult.Errors;
@@ -55,9 +62,10 @@ public static class CreateAddress
                 user.SetDefaultAddress(userAddress.Id);
             }
 
-            // 4. Persistence
+            // 4. Persistence 
+            dbContext.Set<UserAddress>().Add(userAddress);
             var result = await userManager.UpdateAsync(user);
-            if (!result.Succeeded) return Error.Failure("Address.CreateFailed");
+            if (!result.Succeeded) return AccountResultExtensions.ToApplicationResult(result.Errors, prefix: "Address");
 
             return userAddress.Adapt<Response>();
         }

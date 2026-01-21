@@ -1,12 +1,16 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Domain.Identity.Users.UserAddresses;
 using ReSys.Core.Domain.Location.Addresses;
 using ReSys.Core.Features.Shared.Identity.Account.Common;
+
 using ErrorOr;
+
 using Mapster;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Addresses;
@@ -39,7 +43,7 @@ public static class UpdateAddress
 
             // 1. Create updated Address Value Object
             var addressResult = Address.Create(
-                req.Address1, req.City, req.ZipCode, req.CountryCode, 
+                req.Address1, req.City, req.ZipCode, req.CountryCode,
                 req.FirstName, req.LastName, null, req.Address2, req.Phone, req.Company, null, req.StateCode);
 
             if (addressResult.IsError) return addressResult.Errors;

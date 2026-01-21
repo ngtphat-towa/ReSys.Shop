@@ -1,6 +1,5 @@
 using MediatR;
 using ReSys.Core.Common.Security.Authentication.External;
-using ReSys.Core.Common.Security.Authentication.External;
 using ErrorOr;
 using Mapster;
 

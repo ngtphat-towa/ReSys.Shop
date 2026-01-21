@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ReSys.Core.Common.Security.Authentication.External;
-using ReSys.Core.Common.Security.Authentication.External;
 using ReSys.Infrastructure.Security.Authentication.Externals.Options;
 using ErrorOr;
 

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using ReSys.Core.Common.Security.Authentication.External;
-using ReSys.Core.Common.Security.Authentication.External;
 using ReSys.Core.Domain.Identity.Users;
 using ErrorOr;
 

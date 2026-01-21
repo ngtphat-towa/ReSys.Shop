@@ -24,6 +24,10 @@ public static class SecurityModule
 {
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
     {
+        // 0. Prerequisites
+        services.AddDataProtection();
+        services.AddDistributedMemoryCache();
+
         // 1. Identity Core
         services.AddIdentityCore<User>(options =>
             {
@@ -32,6 +36,7 @@ public static class SecurityModule
                 options.SignIn.RequireConfirmedEmail = true;
             })
             .AddRoles<Role>()
+            .AddSignInManager()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 

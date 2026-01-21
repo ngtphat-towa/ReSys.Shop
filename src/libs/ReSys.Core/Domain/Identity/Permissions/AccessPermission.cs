@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
+
 using ReSys.Core.Domain.Common.Abstractions;
+
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Identity.Permissions;

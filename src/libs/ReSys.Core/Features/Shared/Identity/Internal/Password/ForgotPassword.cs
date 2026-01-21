@@ -1,21 +1,18 @@
 using MediatR;
-
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-
-using FluentValidation;
+using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Common;
-
 using ErrorOr;
-using ReSys.Core.Common.Notifications.Interfaces;
+using FluentValidation;
 
 namespace ReSys.Core.Features.Shared.Identity.Internal.Password;
 
 public static class ForgotPassword
 {
     public record Request(string Email);
-    public record Command(Request Request) : IRequest<ErrorOr<Success>>;
+    public record Response(string Message);
+    public record Command(Request Request) : IRequest<ErrorOr<Response>>;
 
     public class Validator : AbstractValidator<Command>
     {
@@ -27,24 +24,19 @@ public static class ForgotPassword
 
     public class Handler(
         UserManager<User> userManager,
-        INotificationService notificationService,
-        IConfiguration configuration) : IRequestHandler<Command, ErrorOr<Success>>
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
-        public async Task<ErrorOr<Success>> Handle(Command command, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken ct)
         {
-            // Find: user by email
             var user = await userManager.FindByEmailAsync(command.Request.Email);
+            
+            if (user == null) 
+                return new Response("If your email is registered, you will receive a reset link shortly.");
 
-            // Security Rule: Do not reveal if user exists
-            if (user == null) return Result.Success;
+            user.RequestPasswordReset();
+            await context.SaveChangesAsync(ct);
 
-            var result =  await userManager.GenerateAndSendPasswordResetCodeAsync(
-                notificationService,
-                configuration,
-                user,
-                cancellationToken);
-                
-            return Result.Success;
+            return new Response("If your email is registered, you will receive a reset link shortly.");
         }
     }
 }

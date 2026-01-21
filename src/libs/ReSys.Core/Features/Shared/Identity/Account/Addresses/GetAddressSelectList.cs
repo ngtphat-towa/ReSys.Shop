@@ -1,5 +1,7 @@
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Extensions.Pagination;
 using ReSys.Core.Common.Security.Authentication.Context;

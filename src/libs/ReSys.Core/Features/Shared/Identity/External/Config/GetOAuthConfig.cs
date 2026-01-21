@@ -1,6 +1,9 @@
 using MediatR;
+
 using Microsoft.Extensions.Configuration;
+
 using ReSys.Core.Features.Shared.Identity.External.Common;
+
 using ErrorOr;
 
 namespace ReSys.Core.Features.Shared.Identity.External.Config;
@@ -40,7 +43,7 @@ public static class GetOAuthConfig
                 _ => null
             };
 
-            return response != null 
+            return response != null
                 ? Task.FromResult<ErrorOr<OAuthConfigResponse>>(response)
                 : Task.FromResult<ErrorOr<OAuthConfigResponse>>(Error.Validation("Provider.NotSupported"));
         }

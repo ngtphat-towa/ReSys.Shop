@@ -60,12 +60,12 @@ public record FullProfileResponse
     public string? FullName { get; init; }
     public DateTimeOffset? DateOfBirth { get; init; }
     public string? ProfileImagePath { get; init; }
-    
+
     // Customer Info
     public bool AcceptsMarketing { get; init; }
     public string? PreferredLocale { get; init; }
     public string? PreferredCurrency { get; init; }
-    
+
     // Staff Info
     public string? JobTitle { get; init; }
     public string? Department { get; init; }

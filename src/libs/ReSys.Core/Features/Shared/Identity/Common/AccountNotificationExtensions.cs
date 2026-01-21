@@ -1,14 +1,17 @@
 using System.Text;
 using System.Text.Encodings.Web;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
+
 using ReSys.Core.Common.Options.Systems;
 using ReSys.Core.Common.Notifications.Builders;
 using ReSys.Core.Common.Notifications.Constants;
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Common.Notifications.Models;
 using ReSys.Core.Domain.Identity.Users;
+
 using ErrorOr;
 
 namespace ReSys.Core.Features.Shared.Identity.Common;
@@ -17,7 +20,7 @@ public static class AccountNotificationExtensions
 {
     private static StorefrontOption GetStorefrontOption(IConfiguration configuration)
     {
-        return configuration.GetSection(StorefrontOption.Section).Get<StorefrontOption>() 
+        return configuration.GetSection(StorefrontOption.Section).Get<StorefrontOption>()
                ?? new StorefrontOption();
     }
 
@@ -30,13 +33,13 @@ public static class AccountNotificationExtensions
         CancellationToken cancellationToken = default)
     {
         var options = GetStorefrontOption(configuration);
-        
+
         string code = !string.IsNullOrWhiteSpace(newEmail)
             ? await userManager.GenerateChangeEmailTokenAsync(user, newEmail)
             : await userManager.GenerateEmailConfirmationTokenAsync(user);
 
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        
+
         string confirmUrl = $"{options.BaseUrl.TrimEnd('/')}/confirm-email?userId={user.Id}&code={code}";
         if (!string.IsNullOrEmpty(newEmail)) confirmUrl += $"&newEmail={newEmail}";
 

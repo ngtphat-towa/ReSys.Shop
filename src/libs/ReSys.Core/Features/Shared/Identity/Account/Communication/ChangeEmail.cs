@@ -1,11 +1,13 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+
+using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Security.Authentication.Context;
-using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Domain.Identity.Users;
-using ReSys.Core.Features.Shared.Identity.Common;
+
 using ErrorOr;
+
 using FluentValidation;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Communication;
@@ -28,8 +30,7 @@ public static class ChangeEmail
     public class Handler(
         IUserContext userContext,
         UserManager<User> userManager,
-        INotificationService notificationService,
-        IConfiguration configuration) : IRequestHandler<Command, ErrorOr<Response>>
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken ct)
         {
@@ -50,11 +51,10 @@ public static class ChangeEmail
             if (existingUser != null && existingUser.Id != user.Id)
                 return UserErrors.EmailAlreadyExists(req.NewEmail);
 
-            // 3. Logic: Trigger Email Change Flow
-            var result = await userManager.GenerateAndSendConfirmationEmailAsync(
-                notificationService, configuration, user, req.NewEmail, ct);
-
-            if (result.IsError) return result.Errors;
+            // 3. Logic: Trigger Email Change Flow via Domain Event
+            user.RequestEmailChange(req.NewEmail);
+            context.Set<User>().Update(user);
+            await context.SaveChangesAsync(ct);
 
             return new Response($"A confirmation email has been sent to {req.NewEmail}. Please verify it to complete the change.");
         }

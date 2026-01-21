@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using ReSys.Core.Common.Notifications.Interfaces;
+using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Common;
 using ErrorOr;
@@ -24,8 +24,7 @@ public static class ResendEmailConfirmation
 
     public class Handler(
         UserManager<User> userManager,
-        INotificationService notificationService,
-        IConfiguration configuration) : IRequestHandler<Command, ErrorOr<Success>>
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(Command command, CancellationToken ct)
         {
@@ -34,9 +33,11 @@ public static class ResendEmailConfirmation
             // Security: Always return success to prevent email enumeration
             if (user == null || user.EmailConfirmed) return Result.Success;
 
-            // Trigger Notification
-            return await userManager.GenerateAndSendConfirmationEmailAsync(
-                notificationService, configuration, user, cancellationToken: ct);
+            // Trigger Notification via Domain Event
+            user.RequestEmailConfirmation();
+            await context.SaveChangesAsync(ct);
+
+            return Result.Success;
         }
     }
 }

@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
-using ReSys.Core.Features.Shared.Identity.Account.Common;
+using ReSys.Core.Features.Shared.Identity.Internal.Common;
 using ReSys.Core.Features.Shared.Identity.Common;
 using ErrorOr;
 using Mapster;
+using ReSys.Core.Common.Data;
+using ReSys.Core.Domain.Identity.Users.Profiles.CustomerProfiles;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Profile;
 
@@ -21,13 +23,15 @@ public static class UpdateProfile
         string? PreferredLocale,
         string? PreferredCurrency);
 
-    public record Response : FullProfileResponse;
+    public record Response : UserProfileResponse;
 
     public record Command(Request Request) : IRequest<ErrorOr<Response>>;
 
     public class Handler(
         IUserContext userContext,
-        UserManager<User> userManager) : IRequestHandler<Command, ErrorOr<Response>>
+        UserManager<User> userManager,
+        IApplicationDbContext context)
+        : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken ct)
         {
@@ -43,10 +47,8 @@ public static class UpdateProfile
 
             var req = command.Request;
 
-            // 1. Update Core User Details
             user.UpdateProfile(req.FirstName, req.LastName, req.DateOfBirth, req.ProfileImagePath);
 
-            // 2. Update Customer Preferences if applicable
             if (user.CustomerProfile != null)
             {
                 user.CustomerProfile.SetPreferences(
@@ -54,9 +56,10 @@ public static class UpdateProfile
                     req.PreferredLocale ?? user.CustomerProfile.PreferredLocale,
                     req.PreferredCurrency ?? user.CustomerProfile.PreferredCurrency
                 );
+                context.Set<CustomerProfile>().Update(user.CustomerProfile);
+                await context.SaveChangesAsync(ct);
             }
 
-            // 3. Persist
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded) return result.Errors.ToApplicationResult(prefix: "Profile");
 

@@ -51,7 +51,7 @@ public sealed class RefreshTokenService(
         if (oldToken.IsExpired) return RefreshTokenErrors.Expired;
 
         var user = oldToken.User;
-        var newResult = await GenerateRefreshTokenAsync(user.Id, ipAddress, rememberMe, cancellationToken);
+        var newResult = await GenerateRefreshTokenWithFamilyAsync(user, ipAddress, rememberMe, oldToken.TokenFamily, cancellationToken);
         
         if (!newResult.IsError)
         {
@@ -60,6 +60,20 @@ public sealed class RefreshTokenService(
         }
 
         return newResult;
+    }
+
+    private async Task<ErrorOr<TokenResult>> GenerateRefreshTokenWithFamilyAsync(User user, string ipAddress, bool rememberMe, string? family, CancellationToken cancellationToken)
+    {
+        int lifetimeDays = rememberMe ? _jwtOptions.RefreshTokenRememberMeLifetimeDays : _jwtOptions.RefreshTokenLifetimeDays;
+        string rawToken = RefreshToken.GenerateRandomToken();
+        
+        var tokenResult = RefreshToken.Create(user, rawToken, TimeSpan.FromDays(lifetimeDays), ipAddress, family);
+        if (tokenResult.IsError) return tokenResult.Errors;
+
+        dbContext.Set<RefreshToken>().Add(tokenResult.Value);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return new TokenResult(rawToken, tokenResult.Value.ExpiresAt.ToUnixTimeSeconds());
     }
 
     public async Task<ErrorOr<Success>> RevokeTokenAsync(string rawToken, string ipAddress, string? reason = null, CancellationToken cancellationToken = default)

@@ -1,11 +1,19 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.Extensions.Configuration;
+
 using Microsoft.EntityFrameworkCore;
+
+using ReSys.Core.Common.Data;
+
 using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Common;
+
 using ErrorOr;
+
 using FluentValidation;
 
 namespace ReSys.Core.Features.Shared.Identity.Internal.Confirmations;
@@ -25,20 +33,21 @@ public static class ResendPhoneVerification
 
     public class Handler(
         UserManager<User> userManager,
-        INotificationService notificationService,
-        IConfiguration configuration) : IRequestHandler<Command, ErrorOr<Success>>
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(Command command, CancellationToken ct)
         {
             // Note: Phone lookups are usually authenticated or require an active session
             // For this slice, we assume lookup by phone number
             var user = await userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == command.Request.PhoneNumber, ct);
-            
+
             if (user == null || user.PhoneNumberConfirmed) return Result.Success;
 
-            // Trigger SMS Notification
-            return await userManager.GenerateAndSendConfirmationSmsAsync(
-                notificationService, configuration, user, cancellationToken: ct);
+            // Trigger SMS Notification via Domain Event
+            user.RequestPhoneConfirmation();
+            await context.SaveChangesAsync(ct);
+
+            return Result.Success;
         }
     }
 }

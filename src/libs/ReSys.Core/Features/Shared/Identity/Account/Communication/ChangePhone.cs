@@ -1,12 +1,14 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+
+using ReSys.Core.Common.Data;
 using ReSys.Core.Common.Security.Authentication.Context;
-using ReSys.Core.Common.Notifications.Interfaces;
 using ReSys.Core.Domain.Identity.Users;
-using ReSys.Core.Features.Shared.Identity.Common;
+
 using ErrorOr;
+
 using FluentValidation;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Communication;
@@ -29,8 +31,7 @@ public static class ChangePhone
     public class Handler(
         IUserContext userContext,
         UserManager<User> userManager,
-        INotificationService notificationService,
-        IConfiguration configuration) : IRequestHandler<Command, ErrorOr<Response>>
+        IApplicationDbContext context) : IRequestHandler<Command, ErrorOr<Response>>
     {
         public async Task<ErrorOr<Response>> Handle(Command command, CancellationToken ct)
         {
@@ -50,11 +51,10 @@ public static class ChangePhone
             var phoneExists = await userManager.Users.AnyAsync(u => u.PhoneNumber == req.NewPhone && u.Id != user.Id, ct);
             if (phoneExists) return UserErrors.PhoneNumberAlreadyExists(req.NewPhone);
 
-            // 3. Logic: Trigger SMS Change Flow
-            var result = await userManager.GenerateAndSendConfirmationSmsAsync(
-                notificationService, configuration, user, req.NewPhone, ct);
-
-            if (result.IsError) return result.Errors;
+            // 3. Logic: Trigger SMS Change Flow via Domain Event
+            user.RequestPhoneChange(req.NewPhone);
+            context.Set<User>().Update(user);
+            await context.SaveChangesAsync(ct);
 
             return new Response($"A confirmation code has been sent to {req.NewPhone}. Please verify it to complete the change.");
         }

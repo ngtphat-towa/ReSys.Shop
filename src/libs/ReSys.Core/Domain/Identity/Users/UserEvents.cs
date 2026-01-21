@@ -12,6 +12,11 @@ public static class UserEvents
     public record AccountLocked(User User, DateTimeOffset? EndDate) : IDomainEvent;
     public record AccountUnlocked(User User) : IDomainEvent;
     public record StatusChanged(User User, bool IsActive) : IDomainEvent;
+    public record PasswordResetRequested(User User) : IDomainEvent;
+    public record EmailChangeRequested(User User, string NewEmail) : IDomainEvent;
+    public record PhoneChangeRequested(User User, string NewPhone) : IDomainEvent;
+    public record EmailConfirmationRequested(User User) : IDomainEvent;
+    public record PhoneConfirmationRequested(User User) : IDomainEvent;
     public record RoleAssigned(User User, string RoleName) : IDomainEvent;
     public record RoleUnassigned(User User, string RoleName) : IDomainEvent;
     public record UserDeleted(string UserId, string Email) : IDomainEvent;

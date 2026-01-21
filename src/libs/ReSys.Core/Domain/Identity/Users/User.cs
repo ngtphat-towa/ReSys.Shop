@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+
 using ReSys.Core.Domain.Common.Abstractions;
 using ReSys.Core.Domain.Identity.UserGroups;
 using ReSys.Core.Domain.Identity.UserGroups.UserGroupMemberships;
@@ -10,7 +11,9 @@ using ReSys.Core.Domain.Identity.Users.Roles;
 using ReSys.Core.Domain.Identity.Users.Claims;
 using ReSys.Core.Domain.Identity.Users.Logins;
 using ReSys.Core.Domain.Identity.Users.Tokens;
+
 using System.Text.RegularExpressions;
+
 using ErrorOr;
 
 namespace ReSys.Core.Domain.Identity.Users;
@@ -78,9 +81,9 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
     /// Creates a new user aggregate root.
     /// </summary>
     public static ErrorOr<User> Create(
-        string email, 
-        string? userName = null, 
-        string? firstName = null, 
+        string email,
+        string? userName = null,
+        string? firstName = null,
         string? lastName = null,
         string? phoneNumber = null,
         bool emailConfirmed = false)
@@ -135,7 +138,7 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
         LastName = lastName?.Trim();
         DateOfBirth = dateOfBirth;
         if (profileImagePath != null) ProfileImagePath = profileImagePath;
-        
+
         UpdatedAt = DateTimeOffset.UtcNow;
         RaiseDomainEvent(new UserEvents.ProfileUpdated(this));
         return Result.Success;
@@ -164,7 +167,7 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
         CurrentSignInAt = DateTimeOffset.UtcNow;
         CurrentSignInIp = ipAddress ?? "Unknown";
         SignInCount++;
-        
+
         UpdatedAt = DateTimeOffset.UtcNow;
         RaiseDomainEvent(new UserEvents.UserLoggedIn(this));
     }
@@ -191,11 +194,57 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
         RaiseDomainEvent(new UserEvents.AccountUnlocked(this));
     }
 
+    /// <summary>
+    /// Triggers a password reset request event.
+    /// </summary>
+    public void RequestPasswordReset()
+    {
+        RaiseDomainEvent(new UserEvents.PasswordResetRequested(this));
+        // We set UpdatedAt to ensure the entity is tracked as modified so interceptors fire
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Triggers an email change request event.
+    /// </summary>
+    public void RequestEmailChange(string newEmail)
+    {
+        RaiseDomainEvent(new UserEvents.EmailChangeRequested(this, newEmail));
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Triggers a phone change request event.
+    /// </summary>
+    public void RequestPhoneChange(string newPhone)
+    {
+        RaiseDomainEvent(new UserEvents.PhoneChangeRequested(this, newPhone));
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Triggers an email confirmation request event.
+    /// </summary>
+    public void RequestEmailConfirmation()
+    {
+        RaiseDomainEvent(new UserEvents.EmailConfirmationRequested(this));
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    /// Triggers a phone confirmation request event.
+    /// </summary>
+    public void RequestPhoneConfirmation()
+    {
+        RaiseDomainEvent(new UserEvents.PhoneConfirmationRequested(this));
+        UpdatedAt = DateTimeOffset.UtcNow;
+    }
+
     public ErrorOr<Deleted> Delete()
     {
         // Guard: Prevent deleting user with active sessions
         if (RefreshTokens.Any(t => t.IsActive)) return UserErrors.HasActiveTokens;
-        
+
         // Guard: Prevent deleting user with assigned roles (must be unassigned first)
         if (UserRoles != null && UserRoles.Any()) return UserErrors.HasActiveRoles;
 
@@ -242,6 +291,9 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
         return Result.Success;
     }
 
+    /// <summary>
+    /// Adds a new address to the user's address collection.
+    /// </summary>
     public void AddAddress(UserAddress address)
     {
         UserAddresses.Add(address);
@@ -264,6 +316,9 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
     }
 
     // Business Logic: Profile Management
+    /// <summary>
+    /// Ensures the user has a customer profile; creates one if absent.
+    /// </summary>
     public void EnsureCustomerProfile()
     {
         CustomerProfile ??= CustomerProfile.Create(Id);
@@ -312,7 +367,7 @@ public class User : IdentityUser, IAuditable, IAggregate, IHasMetadata, IHasVers
         if (membership == null) return UserGroupErrors.UserNotInGroup;
 
         GroupMemberships.Remove(membership);
-        
+
         RaiseDomainEvent(new UserGroupEvents.UserLeftGroup(groupId, Id));
         return Result.Success;
     }

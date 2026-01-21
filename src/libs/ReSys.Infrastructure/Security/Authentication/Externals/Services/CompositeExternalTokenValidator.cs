@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ReSys.Core.Common.Security.Authentication.External;
-using ReSys.Core.Common.Security.Authentication.External;
 using ErrorOr;
 
 namespace ReSys.Infrastructure.Security.Authentication.Externals.Services;

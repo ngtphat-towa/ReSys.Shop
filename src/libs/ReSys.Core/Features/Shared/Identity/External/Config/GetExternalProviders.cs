@@ -1,7 +1,9 @@
 using MediatR;
+
 using Microsoft.Extensions.Configuration;
+
 using ReSys.Core.Features.Shared.Identity.External.Common;
-using ReSys.Core.Common.Options.Systems;
+
 using ErrorOr;
 
 namespace ReSys.Core.Features.Shared.Identity.External.Config;
@@ -18,9 +20,10 @@ public static class GetExternalProviders
 
             if (configuration.GetSection("Authentication:Google").Exists())
             {
-                providers.Add(new ExternalProviderModel { 
-                    Provider = "google", 
-                    DisplayName = "Google", 
+                providers.Add(new ExternalProviderModel
+                {
+                    Provider = "google",
+                    DisplayName = "Google",
                     IsEnabled = true,
                     IconUrl = "https://developers.google.com/identity/images/g-logo.png"
                 });
@@ -28,9 +31,10 @@ public static class GetExternalProviders
 
             if (configuration.GetSection("Authentication:Facebook").Exists())
             {
-                providers.Add(new ExternalProviderModel { 
-                    Provider = "facebook", 
-                    DisplayName = "Facebook", 
+                providers.Add(new ExternalProviderModel
+                {
+                    Provider = "facebook",
+                    DisplayName = "Facebook",
                     IsEnabled = true,
                     IconUrl = "https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
                 });

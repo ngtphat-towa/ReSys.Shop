@@ -1,10 +1,14 @@
 using MediatR;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Security.Authentication.Context;
 using ReSys.Core.Domain.Identity.Users;
 using ReSys.Core.Features.Shared.Identity.Account.Common;
+
 using ErrorOr;
+
 using Mapster;
 
 namespace ReSys.Core.Features.Shared.Identity.Account.Profile;
