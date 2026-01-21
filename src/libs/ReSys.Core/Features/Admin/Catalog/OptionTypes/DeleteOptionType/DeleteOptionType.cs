@@ -1,6 +1,9 @@
 using ErrorOr;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using ReSys.Core.Common.Data;
 using ReSys.Core.Domain.Catalog.OptionTypes;
 

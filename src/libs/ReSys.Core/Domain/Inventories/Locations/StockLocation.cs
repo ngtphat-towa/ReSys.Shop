@@ -2,6 +2,7 @@ using ReSys.Core.Domain.Common.Abstractions;
 using ErrorOr;
 using System.Text.RegularExpressions;
 using ReSys.Core.Domain.Location.Addresses;
+using ReSys.Core.Domain.Inventories.Stocks;
 
 namespace ReSys.Core.Domain.Inventories.Locations;
 
@@ -45,6 +46,11 @@ public sealed class StockLocation : Aggregate, ISoftDeletable, IHasMetadata
     /// Non-fulfillable locations (like 'Damaged' or 'Transit') are excluded from available stock counts.
     /// </summary>
     public bool IsFulfillable => Active && (Type == StockLocationType.Warehouse || Type == StockLocationType.RetailStore);
+
+    /// <summary>
+    /// Navigation Property: The stock items currently stored at this location.
+    /// </summary>
+    public ICollection<StockItem> StockItems { get; set; } = new List<StockItem>();
 
     public StockLocation() { }
 

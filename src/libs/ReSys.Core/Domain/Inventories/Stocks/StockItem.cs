@@ -17,15 +17,21 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     public Guid StockLocationId { get; set; }
     public string Sku { get; set; } = string.Empty;
     public int QuantityOnHand { get; set; }
-    
+
     /// <summary>
     /// Logical counter representing the total "promised" stock.
     /// This includes items earmarked on the shelf (OnHand) AND items promised but not yet in stock (Backordered).
     /// </summary>
     public int QuantityReserved { get; set; }
-    
+
     public bool Backorderable { get; set; } = true;
     public int BackorderLimit { get; set; } = StockItemConstraints.DefaultMaxBackorderQuantity;
+
+    /// <summary>
+    /// Concurrency token for optimistic locking.
+    /// Prevents lost updates during high-traffic inventory operations.
+    /// </summary>
+    public uint Version { get; set; }
 
     // ISoftDeletable implementation
     public bool IsDeleted { get; set; }
@@ -46,8 +52,8 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     /// If backorderable, we show the true potential (can be negative). 
     /// If not, we never show less than zero to the commercial layer.
     /// </summary>
-    public int CountAvailable => Backorderable 
-        ? (QuantityOnHand - QuantityReserved) 
+    public int CountAvailable => Backorderable
+        ? (QuantityOnHand - QuantityReserved)
         : Math.Max(0, QuantityOnHand - QuantityReserved);
 
     private StockItem() { }
@@ -77,13 +83,13 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
         if (initialStock > 0)
         {
             var initialMovement = StockMovement.Create(
-                item.Id, 
-                initialStock, 
-                0, 
-                StockMovementType.Receipt, 
+                item.Id,
+                initialStock,
+                0,
+                StockMovementType.Receipt,
                 initialUnitCost,
                 "Initial inventory creation");
-            
+
             item.StockMovements.Add(initialMovement);
         }
 
@@ -98,14 +104,14 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     {
         // Guard: Prevent noise in the ledger
         if (quantity == 0) return StockItemErrors.ZeroQuantityMovement;
-        
+
         var balanceBefore = QuantityOnHand;
         var newQuantity = QuantityOnHand + quantity;
 
         // Guard: Prevent overflow/underflow based on system constraints
         if (newQuantity < StockItemConstraints.MinQuantity || newQuantity > StockItemConstraints.MaxQuantity)
             return StockItemErrors.InvalidQuantity(StockItemConstraints.MinQuantity, StockItemConstraints.MaxQuantity);
-        
+
         // Guard: Prevent exceeding the backorder floor (The risk limit)
         if (Backorderable && newQuantity < -BackorderLimit)
             return StockItemErrors.BackorderLimitExceeded(BackorderLimit, newQuantity);
@@ -138,7 +144,7 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
                 unit.Reserve(unit.OrderId!.Value);
             }
         }
-        
+
         // Business Rule: Record the physical truth in the Ledger
         var movement = StockMovement.Create(Id, quantity, balanceBefore, type, unitCost, reason, reference);
         StockMovements.Add(movement);
@@ -154,15 +160,15 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     {
         // Guard: Prevent empty or negative reservations
         if (quantity <= 0) return StockItemErrors.InvalidQuantity(1, int.MaxValue);
-        
+
         // Guard: Ensure availability if backordering is disabled
-        if (!Backorderable && (QuantityOnHand - QuantityReserved) < quantity) 
+        if (!Backorderable && (QuantityOnHand - QuantityReserved) < quantity)
             return StockItemErrors.InsufficientStock(CountAvailable, quantity);
 
         for (int i = 0; i < quantity; i++)
         {
             var unit = InventoryUnit.Create(Id, VariantId, lineItemId, StockLocationId, InventoryUnitState.Pending);
-            
+
             // Logic: Determine if this unit can be physically earmarked (OnHand) or remains a promise (Backordered)
             if ((QuantityOnHand - QuantityReserved) > 0)
             {
@@ -172,12 +178,12 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
             {
                 unit.Backorder(orderId);
             }
-            
+
             // Business Rule: QuantityReserved represents the total "Debt" (Sold but not Shipped).
             QuantityReserved++;
             InventoryUnits.Add(unit);
         }
-        
+
         RaiseDomainEvent(new StockItemEvents.StockReserved(this, quantity, orderId.ToString()));
         return Result.Success;
     }
@@ -189,7 +195,7 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     {
         // Guard: Ensure non-zero release
         if (quantity <= 0) return StockItemErrors.InvalidQuantity(1, int.MaxValue);
-        
+
         var unitsToRelease = InventoryUnits
             .Where(u => u.OrderId == orderId && (u.State == InventoryUnitState.OnHand || u.State == InventoryUnitState.Backordered))
             .Take(quantity)
@@ -205,7 +211,7 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
             QuantityReserved--;
             unit.Cancel();
         }
-        
+
         RaiseDomainEvent(new StockItemEvents.StockReleased(this, quantity, orderId.ToString()));
         return Result.Success;
     }
@@ -216,11 +222,11 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     public ErrorOr<Success> Fulfill(int quantity, Guid shipmentId, string reference, decimal unitCost = 0)
     {
         // Guard: Fulfillment requires a traceable audit reference
-        if (string.IsNullOrWhiteSpace(reference)) 
+        if (string.IsNullOrWhiteSpace(reference))
             return StockItemErrors.ReferenceRequired(nameof(Fulfill));
 
         if (quantity <= 0) return StockItemErrors.InvalidQuantity(1, int.MaxValue);
-        
+
         // Business Rule: Chain of Custody
         // We prioritize shipping items that were previously reserved (OnHand).
         var unitsToShip = InventoryUnits
@@ -231,12 +237,12 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
         // Guard: If fulfilling more than reserved, ensure physical stock is available if backordering is off
         var extraRequired = Math.Max(0, quantity - unitsToShip.Count);
         var physicalAvailable = QuantityOnHand - QuantityReserved;
-        
+
         if (!Backorderable && physicalAvailable < extraRequired)
             return StockItemErrors.InsufficientStock(CountAvailable, extraRequired);
 
         var balanceBefore = QuantityOnHand;
-        
+
         // Finalize: Deduct from total promises and physical shelves
         QuantityReserved -= unitsToShip.Count;
         QuantityOnHand -= quantity;
@@ -263,7 +269,7 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
         // Business Rule: Finalize the transaction in the ledger
         var movement = StockMovement.Create(Id, -quantity, balanceBefore, StockMovementType.Sale, unitCost, StockItemConstraints.Movements.FulfillmentReason, reference);
         StockMovements.Add(movement);
-        
+
         RaiseDomainEvent(new StockItemEvents.StockFilled(this, quantity, reference));
         return Result.Success;
     }
@@ -274,10 +280,10 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     public ErrorOr<Deleted> Delete()
     {
         if (IsDeleted) return Result.Deleted;
-        
+
         IsDeleted = true;
         DeletedAt = DateTimeOffset.UtcNow;
-        
+
         RaiseDomainEvent(new StockItemEvents.StockItemDeleted(this));
         return Result.Deleted;
     }
@@ -288,10 +294,10 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     public ErrorOr<Success> Restore()
     {
         if (!IsDeleted) return Result.Success;
-        
+
         IsDeleted = false;
         DeletedAt = null;
-        
+
         RaiseDomainEvent(new StockItemEvents.StockItemRestored(this));
         return Result.Success;
     }
@@ -303,10 +309,10 @@ public sealed class StockItem : Aggregate, IHasMetadata, ISoftDeletable
     {
         // Guard: Limit must be a logical floor
         if (limit < 0) return StockItemErrors.InvalidQuantity(0, int.MaxValue);
-        
+
         Backorderable = backorderable;
         BackorderLimit = limit;
-        
+
         RaiseDomainEvent(new StockItemEvents.BackorderPolicyChanged(this, backorderable, limit));
         return Result.Success;
     }
